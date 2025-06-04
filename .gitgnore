@@ -1,0 +1,24 @@
+# Playdate SDK build output
+*.pdx
+*.pdx.zip
+
+# Playdate simulator logs
+*.log
+
+# OS/Editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VSCode settings (optional, if you want to keep your workspace clean)
+.vscode/
+
+# Playdate SDK temp files
+*.tmp
+
+# Python cache (if you use any scripts)
+__pycache__/
+*.pyc
+
+# Backup files
+*~
