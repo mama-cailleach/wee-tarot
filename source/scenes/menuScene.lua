@@ -24,6 +24,7 @@ function MenuScene:init()
     self.scrollBoxY = nil
     self.scrollBoxLoad = false
     self.interaction = false
+    self.optionsTextOn = false
 
     -- --- TEXT ANIMATION LOOP PARAMETERS ---
     self.scrollBaseY = 170 -- scroll img base
@@ -61,11 +62,14 @@ function MenuScene:showTextAtIndex(index)
     -- Check if index is valid, otherwise handle end of text or placeholder
     if index > #self.dinahText then
         self.lastText = true
-        self.bButton:remove() -- Remove B button if no more text
+        self.bButton:remove()
         self.scrollBoxSprite:remove()
         self.scrollBoxLoad = false
-        --self.aButton:add()-- Add A button if ready to transition
         self:optionsText()
+        -- Add a short delay before enabling options input
+        pd.timer.performAfterDelay(500, function()
+            self.optionsTextOn = true
+        end)
         return
     end
 
@@ -160,6 +164,7 @@ function MenuScene:optionsText()
     self.interactText:add()
 
 
+
     gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
 end
 
@@ -184,6 +189,18 @@ function MenuScene:update()
         if not self.lastText then
             self:nextTextLogic()
         end
+    end
+
+    if pd.buttonJustPressed(pd.kButtonB) and self.optionsTextOn then
+        --[[if self.settingsText then
+            self.settingsText:remove()
+        end
+        if self.interactText then
+            self.interactText:remove()
+        end
+        self.optionsTexton = false]]
+        print("hello")
+        SCENE_MANAGER:switchScene(SettingsScene)
     end
 
     

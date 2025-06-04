@@ -18,12 +18,10 @@ import "scripts/sideMenu"
 
 --card scripts
 import "scripts/card"
---import "scripts/cardFunc"
---import "scripts/drawCard"
+
 
 --Decks
 import "scripts/decks/allDecks"
-
 
 
 -- DEBUG SCENES
@@ -37,7 +35,7 @@ local gfx <const> = pd.graphics
 
 SCENE_MANAGER = SceneManager()
 
-bgMusic1 = pd.sound.fileplayer.new("sound/bgMusic1")
+bgMusic1 = pd.sound.fileplayer.new("sound/bgMusic2")
 bgMusic1:setLoopRange(0,22) -- Title Loop no beats
 
 
@@ -58,6 +56,7 @@ local function startGame()
     --SCENE_MANAGER:switchScene(PostSceneDebug) DEBUG
     SCENE_MANAGER:switchScene(TitleScene)
     onlyMajor = true
+    
 end
 
 startGame()

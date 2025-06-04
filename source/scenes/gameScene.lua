@@ -33,7 +33,7 @@ function GameScene:init()
     self.invertedTextSprite = nil
     self.shuffleAnimSprite = nil
 
-    self:setupShuffleAnimation()
+    --self:setupShuffleAnimation()
     if self.shuffleAnimSprite then
         self.shuffleAnimSprite:playAnimation("idle")
     end
