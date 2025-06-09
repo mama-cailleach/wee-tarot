@@ -23,7 +23,11 @@ function GameScene:init()
     self.promptTextSprite:setCenter(0, 0)
     self.promptTextSprite:moveTo(10, 10)
     self.promptTextSprite:add()
-    self:updatePromptText("Press A to\ndraw a card")
+    self:updatePromptText("Press A to\nreveal a card")
+
+    self.fortunePromptSprite = gfx.sprite.new()
+    self.fortunePromptSprite:setCenter(0, 0)
+    self.fortunePromptSprite:moveTo(10, 165)
 
     self.cardPlacementSprite = gfx.sprite.new(gfx.image.new("images/decknback/placementzone_diamond"))
     self.cardPlacementSprite:setScale(1.5)
@@ -52,8 +56,8 @@ function GameScene:updatePromptText(text)
     self.promptTextSprite:setImage(textImage)
 end
 
-function GameScene:showInitialPrompt()
-    self:updatePromptText("Press A to\ndraw a card")
+function GameScene:showRevealPrompt()
+    self:updatePromptText("Press A to\nreveal a card")
 end
 
 function GameScene:showDrawnCard(cardName)
@@ -64,12 +68,10 @@ function GameScene:showDrawnMajorCard(cardName)
     self:updatePromptText("Your Card:\n" .. cardName)
 end
 
-function GameScene:showDrawPrompt()
-    self:updatePromptText("Press A to\ndraw a card")
-end
-
 function GameScene:showFortunePrompt()
-    self:updatePromptText("Press A for\nyour fortune")
+    local fortuneTextImage = createTextWithBackground("Press A for\nyour fortune", gfx.kColorWhite, gfx.kColorBlack, 2, 1)
+    self.fortunePromptSprite:setImage(fortuneTextImage)
+    self.fortunePromptSprite:add()
 end
 
 function GameScene:displayInvertedText(show)
@@ -165,6 +167,7 @@ function GameScene:update()
 
     if pd.buttonJustPressed(pd.kButtonB) then
         SCENE_MANAGER:switchScene(GameScene)
+        if self.fortunePromptSprite then self.fortunePromptSprite:remove() end
     end
 
     -- --- Crank Shuffle Logic (Uncomment and adapt if using) ---
@@ -192,6 +195,7 @@ end
 
 function GameScene:deinit()
     if self.promptTextSprite then self.promptTextSprite:remove() end
+    if self.fortunePromptSprite then self.fortunePromptSprite:remove() end
     if self.cardPlacementSprite then self.cardPlacementSprite:remove() end
     if self.drawnCardVisual then self.drawnCardVisual:remove() end
     if self.invertedTextSprite then self.invertedTextSprite:remove() end

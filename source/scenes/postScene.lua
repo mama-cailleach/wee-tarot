@@ -194,24 +194,42 @@ function PostScene:addCardTextToDinah(cardName)
 
     if not cardInfo then
         print("Warning: No data found for card: " .. cardName .. ". Using placeholder.")
-        cardInfo = ALL_CARD_DATA["PlaceholderCard"] -- Use your defined placeholder
+        cardInfo = ALL_CARD_DATA["PlaceholderCard"]
     end
 
-    -- Clear and re-populate self.dinahText
-    -- Assume self.dinahText[1] is the initial "Hmmmm..." line
-    self.dinahText = {
-        "Hmmmm... Hmmmm... \n" .. cardName .. (self.invert and "\nUpside down..." or "")
+    self.dinahText = {}
+
+    -- 1. Card intro
+    local introOptions = {
+        "Hmmmm... Hmmmm... (squints at the card) Very interesting...",
+        "(looks at you with a raised eyebrow)",
+        "Shh... listen closely.\nNo, closer.",
+        "Patience. The universe loves a dramatic pause.",
+        "We may glimpse the dawn… or another dark night of the soul. Let's see.",
+        "(sighs) Well, every card is a mirror. Know thyself... if you dare to look.",
+        "Let me peer through the veil… it's a bit wrinkled today.",
+        "Ah, this one… I remember its dance with fate.",
     }
 
-    
-    --  Add Correspondence to self.dinahText
+    -- Select one random phrase from the list
+    local randomIntroIndex = math.random(1, #introOptions)
+    local chosenIntro = introOptions[randomIntroIndex]
+    table.insert(self.dinahText, chosenIntro)
+
+
+    local intro ="You pulled:\n" .. cardName .. (self.invert and "\nUpside down" or "")
+    table.insert(self.dinahText, intro)
+    --are you ready to know your fate/to know thyself/dark knight of the soul(confront you shadow self)/the cards iluminate your answers
+
+    -- 2. Correspondence
     local correspondence_data = cardInfo.correspondence
     if correspondence_data and #correspondence_data > 0 then
-        table.insert(self.dinahText, table.concat(correspondence_data))
+        local corrText = table.concat(correspondence_data)
+        table.insert(self.dinahText, corrText)
     end
 
-        -- Add keywords to self.dinahText
-    local source_keywords_list -- This will be the full upright or reversed list
+    -- 3. Keywords
+    local source_keywords_list
     if self.invert and cardInfo.reversed_keywords then
         source_keywords_list = cardInfo.reversed_keywords
     elseif cardInfo.upright_keywords then -- Fallback to upright if not inverted or no reversed
@@ -222,16 +240,19 @@ function PostScene:addCardTextToDinah(cardName)
     local num_keywords_to_select = 3
     local keywordIntroOptions = {
         "The spirits whisper of: ",
-        "It speaks of: ",
-        "Reflections within the card: ",
-        "The card carries energies of: ",
-        "This card resonates with: ",
-        "Some guiding truths are: "
-    }
-
+        "The energy of the card calls forth: ",
+        "The ancient oracles breath carries: ",
+        "The card holds within the sands of time: ",
+        "Echoes from your own intuition speak of: ",
+        "From the woven threads of fate, we find: ",
+        "This is the essence now unveiled: ",
+        "Let these currents flow through you: "
+    } 
+    
     -- Select one random phrase from the list
     local randomIndex = math.random(1, #keywordIntroOptions)
     local chosenIntroPhrase = keywordIntroOptions[randomIndex]
+    table.insert(self.dinahText, chosenIntroPhrase)
 
     if source_keywords_list and #source_keywords_list > 0 then
         if #source_keywords_list <= num_keywords_to_select then
@@ -245,11 +266,11 @@ function PostScene:addCardTextToDinah(cardName)
             end
         end
 
-        table.insert(self.dinahText, chosenIntroPhrase .. table.concat(final_keywords_to_display, ", "))
+        local keywordsText = table.concat(final_keywords_to_display, ", ")
+        table.insert(self.dinahText, keywordsText)
     end
 
-
-    -- Add the fortune lines to self.dinahText
+    -- 4. Fortune line
     local fortune_lines
     if self.invert and cardInfo.reversed_fortune then
         fortune_lines = cardInfo.reversed_fortune
@@ -258,13 +279,8 @@ function PostScene:addCardTextToDinah(cardName)
     end
 
     local randomIndex = math.random(1, #fortune_lines)
-    -- Select the string at that random index
     local chosenFortuneLine = fortune_lines[randomIndex]
-
-    -- Insert only this single chosen fortune line into self.dinahText
     table.insert(self.dinahText, chosenFortuneLine)
-
-
 
     print("DinahTexts updated with lines for: " .. cardName)
 end
