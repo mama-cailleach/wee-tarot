@@ -64,7 +64,7 @@ startGame()
 
 function pd.update()
     gfx.sprite.update()
-    playdate.timer.updateTimers()
+    pd.timer.updateTimers()
     pd.drawFPS(380, 5)
     
 end

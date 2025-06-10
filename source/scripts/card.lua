@@ -12,6 +12,7 @@ function Card:init(cardNumber, cardSuit)
     self:setScale(1.5)
     self.inverted = false
     self:upsideDown(self)
+    --self:setZIndex(100)
     self:add()
 end
 

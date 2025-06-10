@@ -12,6 +12,7 @@ desktop.ini
 
 # VSCode settings (optional, if you want to keep your workspace clean)
 .vscode/
+builds/
 
 # Playdate SDK temp files
 *.tmp
