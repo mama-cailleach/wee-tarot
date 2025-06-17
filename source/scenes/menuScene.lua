@@ -32,6 +32,7 @@ function MenuScene:init()
     self.textBaseY = 182    -- The original, center Y position of the text
     self.textAmplitude = 3.7 -- How many pixels the text will move up and down from titleBaseY
     self.textSpeed = 2.5 -- Controls the speed/frequency of the oscillation.
+    self.oscillationStartTime = nil -- Used to track the start time of the oscillation
 
     -- scene set up methods
     self:dinahTexts()
@@ -120,8 +121,13 @@ function MenuScene:scrollBoxCreate()
 end
 
 function MenuScene:onScrollBoxAnimationFinished()
-        self:showTextWindow()
-        self.scrollBoxLoad = true -- Show the first text
+    self:showTextWindow()
+    self.scrollBoxLoad = true -- Show the first text
+    self.oscillationStartTime = pd.getElapsedTime()
+    -- Set the oscillation base to the final animator Y position for smooth transition
+    if self.scrollBoxAnimatorIn then
+        self.scrollBaseY = self.scrollBoxAnimatorIn:currentValue()
+    end
 end
 
 function MenuScene:optionsText()
@@ -148,11 +154,11 @@ function MenuScene:update()
         self.scrollBoxSprite:moveTo(202, self.scrollBoxY)
     end
 
-    local textAnimTimer = pd.getElapsedTime()
-    local oscillationOffset = self.textAmplitude * math.sin(textAnimTimer * self.textSpeed)
+    local elapsed = pd.getElapsedTime()
+    local oscillationOffset = self.textAmplitude * math.sin((elapsed - (self.oscillationStartTime or 0)) * self.textSpeed)
     local textNewY = self.textBaseY + oscillationOffset + 0.2
-    local scrollNewY = self.scrollBaseY + oscillationOffset + 0.2
-
+    local scrollNewY = 170 + oscillationOffset + 0.2
+    print("anim Y:", self.scrollBoxY, "Scroll Y:", scrollNewY, "start time: ", self.oscillationStartTime)
     if self.scrollBoxLoad then
         if self.dinahScrollText then
             self.dinahScrollText:moveTo(self.dinahScrollText.x, textNewY)

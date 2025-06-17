@@ -465,6 +465,15 @@ local function processAnimation(self)
 	setImage(self)
 end
 
+--My addition
+function AnimatedSprite:setFrame(frame)
+    -- Clamp frame to valid range
+    frame = math.max(1, math.min(frame, #self.imagetable))
+    self._currentFrame = frame
+    self._enabled = false -- Pause animation when manually setting frame
+    self:setImage(self.imagetable[frame])
+end
+
 ---Called by default in the `:update()` function.  
 ---Must be called once per frame if you overwrite `:update()`.  
 ---Invoke manually to move the animation to the next frame.

@@ -18,20 +18,6 @@ function GameScene:init()
     self.state = "shuffle"
     self.onlyMajor = onlyMajor
 
-    self.promptTextSprite = gfx.sprite.new()
-    self.promptTextSprite:setCenter(0, 0)
-    self.promptTextSprite:moveTo(-400, 8)
-    self.promptTextSprite:add()
-    self:updatePromptText(
-        "Crank to shuffle\n" ..
-        "Press A when done.\n\n" ..
-        "Let your intentions\n" ..
-        "be clear, and the\n" ..
-        "answers will find you."
-    )
-    self:slideInPromptText(1000)
-
-
     self.fortunePromptSprite = gfx.sprite.new()
     self.fortunePromptSprite:setCenter(0, 0)
     self.fortunePromptSprite:moveTo(10, 165)
@@ -39,12 +25,16 @@ function GameScene:init()
     self.invertedTextSprite = nil
     self.shuffleAnimSprite = nil
 
-    self:setupShuffleAnimation()
 
-    self.ticksPerRevolution = 180 -- Adjust for smoother crank interaction
+    self:setupShuffleAnimation()
+    self.shuffleFrame = 1
+    self.shuffleFrameCount = self.shuffleAnimSprite.imagetable:getLength()
+
+    self.ticksPerRevolution = 360 -- Adjust for smoother crank interaction
     self.drawnCardVisual = nil
     self.playerCard = nil
     self.isInverted = false
+    self:showFirstPrompt()
 
     self:add()
 end
@@ -52,85 +42,45 @@ end
 -- --- UI Methods ---
 
 
---[[ TO BE USED LATER
-- Set your intentions, let the cards hear your silent whispers.
-- Let your energy flow... the deck is listening.
-- Clear your mind, focus your heart, and allow the truth to unfold.
-- Shuffle with purpose. Your question shapes the path ahead.
-- Breathe deep, steady your spirit, and invite clarity into the cards.
-- The deck awaits your touch, guide it with your thoughts.
-- Let your intentions be clear, and the answers will find you.
-- With each shuffle, your destiny stirs—trust the journey
-]]
-
-function GameScene:slideAwayPromptText()
-    -- Animate the promptTextSprite sliding left off-screen
-    local startX, startY = self.promptTextSprite.x, self.promptTextSprite.y
-    local endX = -400 -- Move far enough left to be off-screen
-    local duration = 2000 -- ms
-
-    local slideTimer = pd.timer.new(duration) 
-    slideTimer.updateCallback = function(timer)
-        local t = timer.currentTime / duration
-        local newX = startX + (endX - startX) * t
-        self.promptTextSprite:moveTo(newX, startY)
-    end
-    slideTimer.timerEndedCallback = function()
-        --self.promptTextSprite:remove()
-    end
-end
-
-function GameScene:slideInPromptText(slideDuration, newX, outDelay)
-    -- Animate the promptTextSprite sliding left off-screen
-    local startX, startY = self.promptTextSprite.x, self.promptTextSprite.y
-    local endX = newX or 8 -- Default to 8 if newX is not provided
-    local duration = slideDuration -- ms
-
-    local slideTimer = pd.timer.new(duration) 
-    slideTimer.updateCallback = function(timer)
-        local t = timer.currentTime / duration
-        local newX = startX + (endX - startX) * t
-        self.promptTextSprite:moveTo(newX, startY)
-    end
-    slideTimer.timerEndedCallback = function()
-        pd.timer.performAfterDelay(outDelay or 3500, function()
-        self:slideAwayPromptText()
-    end)
-    end
-end
 
 
-function GameScene:updatePromptText(text)
+
+function GameScene:showPromptText(text, x, y)
     local width, height = gfx.getTextSize(text)
+    if width == 0 or height == 0 then width, height = 10, 10 end
     local textImage = gfx.image.new(width, height)
     gfx.pushContext(textImage)
         gfx.setColor(gfx.kColorWhite)
         gfx.drawTextAligned(text, 0, 0, kTextAlignment.left)
     gfx.popContext()
-    self.promptTextSprite:setImage(textImage)
+    local promptSprite = gfx.sprite.new(textImage)
+    promptSprite:setCenter(0, 0)
+    promptSprite:moveTo(x or 8, y or 8)
+    promptSprite:add()
+    return promptSprite
 end
 
 function GameScene:showRevealPrompt()
-    self:updatePromptText("Press A to\nreveal a card")
-    self:slideInPromptText(1000, 20)
+    if self.currentPromptSprite then self.currentPromptSprite:remove() end
+    self.currentPromptSprite = self:showPromptText("Press A to\nreveal a card", 8, 8)
 end
 
 function GameScene:showDrawnCard(cardName, isInverted)
+    if self.currentPromptSprite then self.currentPromptSprite:remove() end
     local prompt = "Your Card:\n" .. cardName
     if isInverted then
-        prompt = prompt .. "\nInverted"
+        prompt = prompt .. "\nUpside Down"
     end
-    self:updatePromptText(prompt)
-    self:slideInPromptText(1000, 12, 10000)
+    self.currentPromptSprite = self:showPromptText(prompt, 8, 8)
 end
 
 function GameScene:showDrawnMajorCard(cardName, isInverted)
+    if self.currentPromptSprite then self.currentPromptSprite:remove() end
     local prompt = "Your Card:\n" .. cardName
     if isInverted then
-        prompt = prompt .. "\nInverted"
+        prompt = prompt .. "\nUpside Down"
     end
-    self:updatePromptText(prompt)
-    self:slideInPromptText(1000, 12, 10000)
+    self.currentPromptSprite = self:showPromptText(prompt, 8, 8)
 end
 
 function GameScene:showFortunePrompt()
@@ -145,6 +95,26 @@ function GameScene:showFortunePrompt()
     self.fortunePromptSprite:add()
 end
 
+function GameScene:showFirstPrompt()
+    if self.firstPromptSprite then self.firstPromptSprite:remove() end
+    self.firstPromptSprite = self:showPromptText(
+        "Let your intentions\n" ..
+        "be clear, and the\n" ..
+        "answers will find you.",
+        8, 8
+    )
+
+--[[ TO BE USED LATER as options/switching
+- Set your intentions, let the cards hear your silent whispers.
+- Let your energy flow... the deck is listening.
+- Clear your mind, focus your heart, and allow the truth to unfold.
+- Shuffle with purpose. Your question shapes the path ahead.
+- Breathe deep, steady your spirit, and invite clarity into the cards.
+- The deck awaits your touch, guide it with your thoughts.
+- Let your intentions be clear, and the answers will find you.
+- With each shuffle, your destiny stirs—trust the journey
+]]
+end
 
 -- --- Card Drawing Logic ---
 
@@ -187,7 +157,6 @@ end
 
 -- --- Shuffle Animation Setup (if needed) ---
 function GameScene:setupShuffleAnimation()
-    -- Example: load and setup shuffle animation sprite
     local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/shuffle-table-200-360")
     self.shuffleAnimSprite = AnimatedSprite.new(imagetableShuffle)
     self.shuffleAnimSprite:addState("idle", 1, 1)
@@ -198,16 +167,13 @@ function GameScene:setupShuffleAnimation()
     self.shuffleAnimSprite:playAnimation()
 end
 
-
 function GameScene:showPlacementSprite()
     if not self.cardPlacementSprite then
         self:revealAnimation()
         self.cardPlacementSprite = gfx.sprite.new(gfx.image.new("images/decknback/placementzone_diamond"))
         self.cardPlacementSprite:setScale(1.5)
         self.cardPlacementSprite:moveTo(300, 120)
-        --self.cardPlacementSprite:setZIndex(1)
         self.cardPlacementSprite:add()
-        
     end
     if self.shuffleAnimSprite then
         self.shuffleAnimSprite:remove()
@@ -216,10 +182,8 @@ function GameScene:showPlacementSprite()
 end
 
 function GameScene:revealAnimation()
-    -- Example: load and setup shuffle animation sprite
     local revealTable = gfx.imagetable.new("images/shuffleAnimation/reveal-table-236-342")
     self.revealSprite = AnimatedSprite.new(revealTable)
-    --self.revealSprite:addState("idle", 1, 1)
     self.revealSprite:addState(
         "animate", 3, 6,
         {
@@ -236,7 +200,6 @@ function GameScene:revealAnimation()
     )
     self.revealSprite:addState("reveal", 1, 6, {tickStep = 1}, false)
     self.revealSprite:moveTo(300, 120)
-    --self.revealSprite:setZIndex(100)
     self.revealSprite:add()
     self.revealSprite:changeState("animate", true)
     self.revealSprite:playAnimation()
@@ -256,7 +219,6 @@ function GameScene:scaleAnimation()
     self.scaleSprite:add()
     self.scaleSprite:changeState("scale", true)
     self.scaleSprite:playAnimation()
-    
 end
 
 -- --- Update Method ---
@@ -265,9 +227,9 @@ function GameScene:update()
 
     if pd.buttonJustPressed(pd.kButtonA) then
         if self.state == "shuffle" then
-            --finish shuffle, play scale animation
-            if self.shuffleAnimSprite and self.shuffleAnimSprite.currentState ~= "idle" then
+            if self.shuffleAnimSprite then
                 self.shuffleAnimSprite:changeState("idle")
+                if self.firstPromptSprite then self.firstPromptSprite:remove() self.firstPromptSprite = nil end
                 pd.timer.performAfterDelay(500, function()
                     self.shuffleAnimSprite:remove()
                     self.shuffleAnimSprite = nil
@@ -275,7 +237,6 @@ function GameScene:update()
                 end)
             end            
         elseif self.state == "ready" then
-            -- Reveal the card
             self:drawCardLogic()
             self.state = "revealed"
             pd.timer.performAfterDelay(2000, function()
@@ -283,7 +244,6 @@ function GameScene:update()
                 self.state = "fortune"
             end)
         elseif self.state == "fortune" then
-            -- Go to fortune scene
             if self.playerCard and self.isInverted ~= nil then
                 SCENE_MANAGER:switchScene(PostScene, self.playerCard, self.isInverted)
             else
@@ -304,15 +264,15 @@ function GameScene:update()
     end
 
     -- --- Crank Shuffle Logic ---
-    if self.state == "shuffle" and self.shuffleAnimSprite then -- Only animate shuffle before card is drawn
-        local crankTicks = pd.getCrankTicks(self.ticksPerRevolution)
-        if crankTicks ~= 0 then
-            self.shuffleAnimSprite:changeState("crankShuffle")
-            self.shuffleAnimSprite:playAnimation()
-        elseif self.shuffleAnimSprite.currentState == "crankShuffle" then
-            self.shuffleAnimSprite:pauseAnimation()
+    if self.state == "shuffle" and self.shuffleAnimSprite then
+        local crankChange = pd.getCrankChange()
+        if crankChange ~= 0 then
+            -- Loop the frame index in both directions
+            self.shuffleFrame = ((self.shuffleFrame - 1 + math.floor(crankChange / 6)) % self.shuffleFrameCount) + 1
+            self.shuffleAnimSprite:setFrame(self.shuffleFrame)
         end
     end
+
     if pd.buttonJustPressed(pd.kButtonUp) then
         if self.shuffleAnimSprite then
             self.shuffleAnimSprite:changeState("shuffle")
