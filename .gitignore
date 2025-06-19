@@ -2,6 +2,8 @@
 *.pdx
 *.pdx.zip
 *.pdi
+pdxinfo
+builds/
 
 # Playdate simulator logs
 *.log
