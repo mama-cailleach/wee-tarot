@@ -160,8 +160,8 @@ function GameScene:setupShuffleAnimation()
     local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/shuffle-table-200-360")
     self.shuffleAnimSprite = AnimatedSprite.new(imagetableShuffle)
     self.shuffleAnimSprite:addState("idle", 1, 1)
-    self.shuffleAnimSprite:addState("shuffle", 1, 60, {tickStep = 1})
-    self.shuffleAnimSprite:addState("crankShuffle", 1, 60, {tickStep = 1}, false)
+    self.shuffleAnimSprite:addState("shuffle", 1, 90, {tickStep = 1})
+    self.shuffleAnimSprite:addState("crankShuffle", 1, 90, {tickStep = 1}, false)
     self.shuffleAnimSprite:moveTo(300, 80)
     self.shuffleAnimSprite:add()
     self.shuffleAnimSprite:playAnimation()
@@ -265,10 +265,10 @@ function GameScene:update()
 
     -- --- Crank Shuffle Logic ---
     if self.state == "shuffle" and self.shuffleAnimSprite then
-        local crankChange = pd.getCrankChange()
+        local crankChange, acceleratedChange = pd.getCrankChange()
         if crankChange ~= 0 then
             -- Loop the frame index in both directions
-            self.shuffleFrame = ((self.shuffleFrame - 1 + math.floor(crankChange / 6)) % self.shuffleFrameCount) + 1
+            self.shuffleFrame = ((self.shuffleFrame - 1 + math.floor(acceleratedChange / 4)) % self.shuffleFrameCount) + 1
             self.shuffleAnimSprite:setFrame(self.shuffleFrame)
         end
     end
