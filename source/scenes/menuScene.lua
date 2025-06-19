@@ -158,7 +158,6 @@ function MenuScene:update()
     local oscillationOffset = self.textAmplitude * math.sin((elapsed - (self.oscillationStartTime or 0)) * self.textSpeed)
     local textNewY = self.textBaseY + oscillationOffset + 0.2
     local scrollNewY = 170 + oscillationOffset + 0.2
-    print("anim Y:", self.scrollBoxY, "Scroll Y:", scrollNewY, "start time: ", self.oscillationStartTime)
     if self.scrollBoxLoad then
         if self.dinahScrollText then
             self.dinahScrollText:moveTo(self.dinahScrollText.x, textNewY)

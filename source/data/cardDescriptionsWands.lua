@@ -163,7 +163,7 @@ CARD_DATA_WANDS = {
         },
         reversed_fortune = {
             "A spark fizzles. You blame the wind, but it's clearly your damp socks.",
-            "The message misfires. The smoke signal spelled “oops.”",
+            "The message misfires. The smoke signal spelled 'o-o-p-s'.",
             "You had a plan... it wandered off chasing butterflies."
         },
     },

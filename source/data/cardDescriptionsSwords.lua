@@ -144,7 +144,7 @@ CARD_DATA_SWORDS = {
         upright_fortune = {
             "It's dead. Even the spirits have stopped checking for a pulse.",
             "The end came, dramatic and sparkly. The next chapter yawns open.",
-            "The blade sings: “Lesson learned?” You nod. Probably."
+            "The blade sings: 'Lesson learned?' You nod. Probably."
         },
         reversed_fortune = {
             "The worst passed. Now what? No, seriously… what now?",

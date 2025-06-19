@@ -1,6 +1,7 @@
 # Playdate SDK build output
 *.pdx
 *.pdx.zip
+*.pdi
 
 # Playdate simulator logs
 *.log
