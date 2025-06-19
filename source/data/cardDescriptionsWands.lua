@@ -38,8 +38,8 @@ CARD_DATA_WANDS = {
         reversed_keywords = {"delays", "disappointment", "lack of progress", "poor planning", "shrinking vision", "missed ships"},
         upright_fortune = {
             "The future waves from afar. You squint, unsure if it's friendly.",
-            "The path ahead burns bright. But yes, you'll still stub your toe at least once.",
-            "Ships return. Some carry gold, others carry lessons. Or unpaid invoices."
+            "The path ahead burns bright. You'll still stub your toe at least once.",
+            "Ships return. Some carry gold. Others, unpaid invoices."
         },
         reversed_fortune = {
             "Planning? Glorious. Doing? Suddenly you're rearranging candles again.",
@@ -53,7 +53,7 @@ CARD_DATA_WANDS = {
         reversed_keywords = {"instability", "tension at home", "canceled plans", "fleeting joy", "disconnection", "lack of support", "disharmony"},
         upright_fortune = {
             "A rare stillness, dressed in laughter. Don't question it, just dance.",
-            "You made it. The cosmos throws a party. No one RSVPs, but they all show up.",
+            "You made it. Cosmos throws a party. No one RSVPs, but they all show up.",
             "The hearth is warm. Spirits nod approvingly between mouthfuls of cake."
         },
         reversed_fortune = {
@@ -83,7 +83,7 @@ CARD_DATA_WANDS = {
         reversed_keywords = {"fall from grace", "self-doubt", "lack of recognition", "hollow victory", "pride before the fall", "obscurity"},
         upright_fortune = {
             "The banner waves. But fame is just a louder kind of ghost.",
-            "Success lands. It's wearing sequins and demanding praise. Indulge it.",
+            "Success lands. Wearing sequins and demanding praise. Indulge it.",
             "You rode in triumph. The universe handed you flowers. Weird ones."
         },
         reversed_fortune = {
@@ -163,7 +163,7 @@ CARD_DATA_WANDS = {
         },
         reversed_fortune = {
             "A spark fizzles. You blame the wind, but it's clearly your damp socks.",
-            "The message misfires. The smoke signal spelled 'oops.'",
+            "The message misfires. The smoke signal spelled “oops.”",
             "You had a plan... it wandered off chasing butterflies."
         },
     },
@@ -172,14 +172,14 @@ CARD_DATA_WANDS = {
         upright_keywords = {"passion", "bold action", "pursuit", "adventure", "risk-taking", "charisma", "momentum", "untamed fire"},
         reversed_keywords = {"recklessness", "arrogance", "impulsiveness", "broken promises", "burnout", "misdirected energy"},
         upright_fortune = {
-            "The flame dances where you step, others follow the smoke, unsure if it leads or warns.",
-            "Fire in your wake, embers in your eyes. The stars wonder if you're a force or a fluke.",
+            "Your steps ignite, the smoke charms. Or perhaps just chokes, the masses.",
+            "Fire in your wake, embers in your eyes. The stars gossip: fluke or force.",
             "A spark rides the wind, laughing at the horizon. It trusts the air more than it should."
         },
         reversed_fortune = {
-            "Arrogance wears a crown of sparks, blind to the wind that fuels its temporary blaze.",
-            "The fire claims its own, leaving only the scent of burnt promises and fading trails.",
-            "Reckless hearts leave scorched earth, but even fire weeps when it forgets how to burn."
+            "Arrogance wears a sparkly crown. Pity it's flammable, bless its heart.",
+            "Burnt promises, fading trails. The fire's just tidying up, dear.",
+            "Reckless hearts, scorched earth. Even fire weeps when it forgets how to burn."
         },
     },
     ["Queen of Wands"] = {
@@ -187,14 +187,14 @@ CARD_DATA_WANDS = {
         upright_keywords = {"confidence", "magnetism", "independence", "inner power", "warmth", "creative authority", "fiery grace"},
         reversed_keywords = {"jealousy", "insecurity", "manipulation", "shadow charisma", "controlling nature", "scattered focus"},
         upright_fortune = {
-            "The throne is yours. The fire just wonders if you'll stop to breathe before ruling the world.",
+            "Throne is yours. Will you breathe before ruling the world?.",
             "Confidence drips from your crown. Pity the shadows that dare cast doubt.",
             "You command the blaze, but even embers know when to flee your glare."
         },
         reversed_fortune = {
-            "Vanity's mirror cracks. Reflects a queen who forgets the flame needs fuel, not just flair.",
-            "Passion's queen? More like prisoner. Even the sun sets, darling; drama's exhausting.",
-            "The crown tilts. The spirits laughs, whispering who really wears the crown tonight."
+            "Vanity's mirror cracks. A Queen reflects. Flame needs fuel, not just flair.",
+            "Passion's queen? More like prisoner. Drama's exhausting, the sun needs to set.",
+            "The crown tilts. Spirits laughs, whispering who trully wears it tonight."
         },
     },
     ["King of Wands"] = {

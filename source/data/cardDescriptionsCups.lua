@@ -97,14 +97,14 @@ CARD_DATA_CUPS = {
         upright_keywords = {"choices", "illusions", "dreams", "temptation", "fantasy", "imagination"},
         reversed_keywords = {"clarity", "decision", "groundedness", "reality check", "narrowed focus", "disillusionment"},
         upright_fortune = {
-            "Temptation is a siren, but you're not a ship, you're a sailor.",
+            "Temptation, a siren's song. You, dear, are not a ship.",
             "Fantasy is fun, but don't forget to pay your rent in reality.",
-            "Seven doors, seven dramas, choose wisely... if you can"
+            "Seven doors, seven dramas. Choose wisely... if you can"
         },
         reversed_fortune = {
             "You chose the door with glitter, now you're lost in sparkle.",
             "Clarity arrives, and it's not as exciting as the illusion, sorry.",
-            "Narrowed focus: you finally chose a door, now don't get distracted by the cat videos."
+            "Narrowed focus: you finally chose a door. Now, about those cat videos..."
         },
     },
     ["Eight of Cups"] = {
@@ -112,14 +112,14 @@ CARD_DATA_CUPS = {
         upright_keywords = {"departure", "emotional withdrawal", "searching", "letting go", "inner journey", "dissatisfaction"},
         reversed_keywords = {"fear of change", "stagnation", "avoidance", "stuck emotions", "clinging", "aimlessness"},
         upright_fortune = {
-            "The search begins, and the first clue is hidden in your heart.",
+            "The search begins. First clue: your heart.",
             "Letting go is not losing, it's just rearranging your emotional furniture.",
-            "Time to walk the solo path, where the only ghost is your own."
+            "Time to walk the solo path. Your only ghost: you.."
         },
         reversed_fortune = {
-            "Stagnation is a pond, and you're the fish who's forgotten how to swim.",
-            "You're clinging to what's left, but it's just a handful of dust.",
-            "Fear of change is just a fancy way of saying stuck in the mud."
+            "Stagnation's a pond. You're the fish who forgot how to swim.",
+            "Clinging to a handful of dust. It's not a good look.",
+            "Fear of change? Fancy way to say 'stuck in the mud'."
         },
     },
     ["Nine of Cups"] = {
@@ -127,14 +127,14 @@ CARD_DATA_CUPS = {
         upright_keywords = {"contentment", "satisfaction", "emotional fulfillment", "pleasure", "wish granted", "gratitude"},
         reversed_keywords = {"smugness", "disappointment", "indulgence", "unmet desires", "superficial joy", "hollow success"},
         upright_fortune = {
-            "Your cup runneth over, but don't spill it on your shoes. You'll just have to clean up the mess.",
-            "You've got the pleasure, now don't forget the purpose. Don't be a one-hit wonder.",
-            "The cosmos grants your wish. Now don't get too comfortable, or you'll forget your own name."
+            "Your cup runneth over. If you spill it, you clean it.",
+            "You've got the pleasure. Don't be a one-hit wonder.",
+            "Wish Granted. Now don't get too comfy, the cosmos is watching"
         },
         reversed_fortune = {
-            "You're so full of yourself, you've forgotten what you were wishing for. Oops.",
+            "So full of yourself. Your wish? You forgot it. Oops.",
             "Smugness is not a spiritual practice, darling.",
-            "Indulgence is not fulfillment. Don't confuse the two, or you'll end up with a tummy ache."
+            "Indulgence isn't fulfillment. Unless you want a tummy ache."
         },
     },
     ["Ten of Cups"] = {
@@ -142,13 +142,13 @@ CARD_DATA_CUPS = {
         upright_keywords = {"harmony", "emotional completion", "family", "joy", "lasting happiness", "shared dreams"},
         reversed_keywords = {"disharmony", "broken connection", "false happiness", "misaligned values", "tension", "emotional instability"},
         upright_fortune = {
-            "Family is everything, unless you're a cat, then it's all about the solo nap time.",
+            "Family is everything, unless you're a cat, then it's all about the naps.",
             "Joy is contagious, but so is drama. Choose your tribe wisely.",
-            "Harmony is a beautiful thing, but don't forget to appreciate the discordant notes that make the melody interesting."
+            "Harmony is beautiful, appreciate the discordant notes that makes the melody interesting."
         },
         reversed_fortune = {
-            "Emotional instability is like a rollercoaster: thrilling, but also nauseating. Buckle up!",
-            "False happiness or too much candy? Well, after the buzz, you'll crash and burn.",
+            "Emotional rollercoaster: thrilling, but nauseating. Buckle up!",
+            "False happiness or too much candy? After the buzz, you'll crash and burn.",
             "Misaligned values are like shoes that don't fit: you'll trip and stumble, until you find your sole-mate."
         },
     },
@@ -157,14 +157,14 @@ CARD_DATA_CUPS = {
         upright_keywords = {"innocence", "emotional curiosity", "messages", "intuition", "creative beginnings", "sensitivity"},
         reversed_keywords = {"emotional immaturity", "creative block", "insecurity", "moodiness", "unrealistic hopes", "avoidance"},
         upright_fortune = {
-            "Creative beginnings are like a mermaid's kiss: magical, but also slippery. Hold on tight, and see where the tide takes you.",
-            "The universe is texting like your crush: cryptic, but worth decoding",
-            "Dolphins whispers secrets, listen with a heart full of wonder. Just don't forget to bring a towel."
+            "Creative beginnings are like a mermaid's kiss: magical, but slippery.",
+            "The universe texts like a crush: cryptic, but worth decoding",
+            "Dolphins whispers secrets, listen full of wonder. And don't forget to bring a towel."
         },
         reversed_fortune = {
-            "Are you feeling like a fish out of water? Flailing, making a big splash, but not really getting anywhere.",
-            "The tides of moodiness will ebb and flow, bring your board and surf those waves.",
-            "A message in a bottle won't get you off the island. Get a map, and a compass, and a sense of humor."
+            "Feeling like a fish out of water? Stop flailing, darling.",
+            "Tide of moodiness ebb and flow. Get on your board and surf that wave.",
+            "Message in a bottle? You need a map, not dreams."
         },
     },
     ["Knight of Cups"] = {
@@ -172,14 +172,14 @@ CARD_DATA_CUPS = {
         upright_keywords = {"romantic offer", "charm", "idealism", "pursuit of dreams", "emotional quest", "imagination"},
         reversed_keywords = {"manipulation", "mood swings", "jealousy", "unrealistic fantasy", "emotional volatility", "seduction"},
         upright_fortune = {
-            "A romantic offer arrives, borne on the wings of poetry and promise. Words are sweet, but actions are the chocolate factory.",
-            "The pursuit of dreams is a noble quest, but don't forget the long and winding road leading to the door.",
-            "Idealism is a guiding star, that you'll follow to the ends of the earth. Or at least, until the next shiny thing appears."
+            "Romantic offer arrives. Words are sweet; actions, the chocolate factory.",
+            "Pursuit of dreams is a noble, don't forget the long and winding road leading to the door.",
+            "Idealism's a guiding star. Until you see the next shiny thing."
         },
         reversed_fortune = {
-            "The fantasy is a tempting trap, but it's just that. Don't get caught in the web of your own desires.",
-            "Jealousy is a dark and twisted thing, and it can consume even the most beautiful of souls. And by that I mean me.",
-            "Emotional volatility is a stormy sea. Find your Nemo and hold tight"
+            "Fantasy: a tempting trap. Beware of your desire's web.",
+            "Jealousy is a green-eyed poison. Have a glass of water.",
+            "Inner storm? Grab your anchor, soul-sailor."
         },
     },
     ["Queen of Cups"] = {
@@ -187,9 +187,9 @@ CARD_DATA_CUPS = {
         upright_keywords = {"empathy", "compassion", "intuition", "emotional depth", "nurturing", "inner calm"},
         reversed_keywords = {"emotional overwhelm", "codependency", "suppression", "insecurity", "hypersensitivity", "escapism"},
         upright_fortune = {
-            "Congratulations, you're now officially an emotional genius. Use your powers for good, not for obsessing over your ex.",
-            "Remember, self-care is not just a hashtag, it's a necessity. Take care of your heart, or it'll take care of you.",
-            "The depths of your feelings are a mess, but hey, at least you're consistent. Dive in, and try to untangle the drama."
+            "Your emotions are magic; don't waste them on ghosts..",
+            "Don't simply #self-care. Neglect your soul, it'll haunt your sleep.",
+            "The depths of your feelings are a mess, but hey, at least you're consistent."
         },
         reversed_fortune = {
             "Your emotions are a hot mess, but don't worry, it's not like you're alone or anything. Just kidding, you're totally alone in this mess.",
@@ -202,14 +202,14 @@ CARD_DATA_CUPS = {
         upright_keywords = {"emotional balance", "wisdom", "diplomacy", "compassion", "control", "maturity"},
         reversed_keywords = {"emotional repression", "manipulation", "coldness", "instability", "passive-aggression", "detachment"},
         upright_fortune = {
-            "Wisdom is not just about knowing things, it's about knowing when to keep your mouth shut.",
-            "Compassion is not just a feeling, it's a superpower. Use it to heal, not to enable, sweetie.",
+            "Wisdom: knowing when to keep your mouth shut.",
+            "Compassion is a superpower. Use it to heal, not enable.",
             "Diplomacy is the art of saying yes without meaning it. Yes?"
         },
         reversed_fortune = {
-            "Coldness is not the same as calmness. One is a frozen lake, the other is a peaceful ocean. Brrrrr.",
-            "The rollercoaster of instability it's fun for a while, but eventually, you'll want to get off and vomit.",
-            "Are you repressing emotions or holding your breath underwater? Be carefull, eventually you'll turn blue and float to the surface."
+            "Coldness isn't calmness. One's ice; the other, ocean. Brrr.",
+            "Instability's rollercoaster is fun until you have to get out to vomit.",
+            "Repressing emotions or holding your breath underwater?Don't turn blue, darling."
         },
     },
 }
