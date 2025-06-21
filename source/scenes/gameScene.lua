@@ -26,7 +26,7 @@ function GameScene:init()
     self.shuffleAnimSprite = nil
 
 
-    self:setupShuffleAnimation()
+    self:setup16CardShuffleAnimation()
     self.shuffleFrame = 1
     self.shuffleFrameCount = self.shuffleAnimSprite.imagetable:getLength()
 
@@ -163,6 +163,17 @@ function GameScene:setupShuffleAnimation()
     self.shuffleAnimSprite:addState("shuffle", 1, 90, {tickStep = 1})
     self.shuffleAnimSprite:addState("crankShuffle", 1, 90, {tickStep = 1}, false)
     self.shuffleAnimSprite:moveTo(300, 80)
+    self.shuffleAnimSprite:add()
+    self.shuffleAnimSprite:playAnimation()
+end
+
+function GameScene:setup16CardShuffleAnimation()
+    local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/16_card_shuffle-table-300-360")
+    self.shuffleAnimSprite = AnimatedSprite.new(imagetableShuffle)
+    self.shuffleAnimSprite:addState("idle", 1, 1)
+    self.shuffleAnimSprite:addState("shuffle", 1, 90, {tickStep = 1})
+    self.shuffleAnimSprite:addState("crankShuffle", 1, 90, {tickStep = 1}, false)
+    self.shuffleAnimSprite:moveTo(350, 80)
     self.shuffleAnimSprite:add()
     self.shuffleAnimSprite:playAnimation()
 end
