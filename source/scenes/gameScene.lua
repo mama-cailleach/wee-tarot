@@ -8,6 +8,7 @@ class('GameScene').extends(gfx.sprite)
 function GameScene:init()
     self.deck = Deck()
 
+
     local bgImage = gfx.image.new("images/bg/tarot_playspace")
     local bgSprite = gfx.sprite.new(bgImage)
     bgSprite:moveTo(200,120)
@@ -31,6 +32,7 @@ function GameScene:init()
     self.shuffleFrameCount = self.shuffleAnimSprite.imagetable:getLength()
 
     self.ticksPerRevolution = 360 -- Adjust for smoother crank interaction
+
     self.drawnCardVisual = nil
     self.playerCard = nil
     self.isInverted = false
@@ -39,11 +41,10 @@ function GameScene:init()
     self:add()
 end
 
+
+
+
 -- --- UI Methods ---
-
-
-
-
 
 function GameScene:showPromptText(text, x, y)
     local width, height = gfx.getTextSize(text)
@@ -156,6 +157,7 @@ function GameScene:drawCardLogic()
 end
 
 -- --- Shuffle Animation Setup (if needed) ---
+-- OG ANIMATION
 function GameScene:setupShuffleAnimation()
     local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/shuffle-table-200-360")
     self.shuffleAnimSprite = AnimatedSprite.new(imagetableShuffle)
@@ -167,6 +169,7 @@ function GameScene:setupShuffleAnimation()
     self.shuffleAnimSprite:playAnimation()
 end
 
+--OG 16card
 function GameScene:setup16CardShuffleAnimation()
     local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/16_card_shuffle-table-300-360")
     self.shuffleAnimSprite = AnimatedSprite.new(imagetableShuffle)
