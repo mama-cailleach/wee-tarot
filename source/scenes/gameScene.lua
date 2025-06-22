@@ -171,7 +171,7 @@ end
 
 --OG 16card
 function GameScene:setup16CardShuffleAnimation()
-    local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/16_card_shuffle-table-300-360")
+    local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/16_card_shuffle5-table-300-360")
     self.shuffleAnimSprite = AnimatedSprite.new(imagetableShuffle)
     self.shuffleAnimSprite:addState("idle", 1, 1)
     self.shuffleAnimSprite:addState("shuffle", 1, 90, {tickStep = 1})

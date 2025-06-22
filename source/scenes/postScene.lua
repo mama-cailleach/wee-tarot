@@ -50,20 +50,24 @@ function PostScene:init(playerCard, isInverted)
     self.canButton = false
     self.lastText = false
     self.scrollBoxAnimatorIn = nil -- Will be created later
+    self.scrollOffset = 0
+    self.maxScroll = 0
+    self.visibleLines = 3 -- Number of lines to show at once
 
     -- --- Call initial setup methods ---
     self:dinahSpriteLoad()
-    self:buttonBBlink()
     self:buttonABlink()
 
     -- Add card specific text, now as a method call
     self:addCardTextToDinah(self.card)
-
+    self.maxScroll = math.max(0, #self.dinahTextLines - self.visibleLines)
 
     -- Set up the scroll box animator, and crucially, its callback
     self.scrollBoxAnimatorIn = gfx.animator.new(3000, 300, 170, pd.easingFunctions.outBack)
     self.scrollBoxSprite:moveTo(202, 300) -- Set initial position for animation
     self.scrollBoxSprite:add() -- Add it so it can be animated
+
+    
 
     -- delay for text to come after animation
     pd.timer.performAfterDelay(3200, function ()
@@ -81,37 +85,30 @@ end
 
 -- Callback for scroll box animation finish
 function PostScene:onScrollBoxAnimationFinished()
-    self.bButton:add() -- Add B button once animation is done
-    self:showTextAtIndex(self.currentIndex) -- Show the first text
+    self:showScrollTextWindow()
     self.canButton = true
 end
 
-
 -- text display logic (currentIndex is now self.currentIndex)
-function PostScene:showTextAtIndex(index)
+function PostScene:showScrollTextWindow()
     if self.dinahScrollText then
         self.dinahScrollText:remove()
+        self.dinahScrollText = nil
     end
-
-    -- Check if index is valid, otherwise handle end of text or placeholder
-    if index > #self.dinahText then
-        self.lastText = true
-        self.bButton:remove() -- Remove B button if no more text
-        self.scrollBoxSprite:remove()
-        self.aButton:add() -- Add A button if ready to transition
-        return
+    local startLine = math.floor(self.scrollOffset) + 1
+    local lines = {}
+    for i = 0, self.visibleLines - 1 do
+        local idx = startLine + i
+        if self.dinahTextLines[idx] then
+            table.insert(lines, self.dinahTextLines[idx])
+        end
     end
-
-    self.dinahScrollText = gfx.sprite.spriteWithText(self.dinahText[index], 310, 200, nil, nil, nil, kTextAlignment.center)
-    self.dinahScrollText:moveTo(190, 180) 
+    local text = table.concat(lines, "\n")
+    self.dinahScrollText = gfx.sprite.spriteWithText(text, 310, 300, nil, nil, nil, kTextAlignment.center)
+    self.dinahScrollText:moveTo(190, 180)
     self.dinahScrollText:add()
 end
 
-
-function PostScene:nextTextLogic()
-    self.currentIndex = self.currentIndex + 1
-    self:showTextAtIndex(self.currentIndex)
-end
 
 
 function PostScene:loadGameAnimation()
@@ -127,21 +124,6 @@ function PostScene:dinahSpriteLoad()
     self.dinahSprite:moveTo(200,120)
     self.dinahSprite:add()
     self.dinahSprite:playAnimation()
-end
-
-
-
-function PostScene:buttonBBlink()
-    gfx.setImageDrawMode(gfx.kDrawModeInverted)
-    self.bButton = gfx.sprite.spriteWithText("B", 400, 40, nil, nil, nil, kTextAlignment.center)
-    self.bButton:moveTo(360, 220)
-    -- self.bButton:add() -- Don't add initially, add after anim
-    
-    local blinkerTimer = pd.timer.new(800, function()
-        if self.bButton then self.bButton:setVisible(not self.bButton:isVisible()) end
-    end)
-    blinkerTimer.repeats = true
-    gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
 end
 
 function PostScene:buttonABlink()
@@ -162,22 +144,22 @@ function PostScene:update()
     local scrollBoxY = self.scrollBoxAnimatorIn:currentValue()
     self.scrollBoxSprite:moveTo(202, scrollBoxY)
 
-
-
-
-
-
-    if pd.buttonJustPressed(pd.kButtonB) and self.canButton then
-        if not self.lastText then
-            self:nextTextLogic()
+    -- Crank scroll logic
+    if self.canButton then
+        local crankChange = pd.getCrankChange() / 90 -- adjust divisor for speed
+        if crankChange ~= 0 then
+            local prevOffset = self.scrollOffset
+            self.scrollOffset = math.max(0, math.min(self.scrollOffset + crankChange, self.maxScroll))
+            if math.floor(self.scrollOffset) ~= math.floor(prevOffset) then
+                self:showScrollTextWindow()
+            end
         end
     end
-    
+
     if pd.buttonJustPressed(pd.kButtonA) and self.canButton then
         if self.dinahScrollText then
             self.dinahScrollText:remove()
         end
-        self.bButton:remove()
         self.scrollBoxSprite:remove()
         self:loadGameAnimation() -- Call as a method
         self.dinahSprite:changeState("transition")
@@ -191,13 +173,12 @@ end
 -- populating the texts for the reading
 function PostScene:addCardTextToDinah(cardName)
     local cardInfo = ALL_CARD_DATA[cardName]
-
     if not cardInfo then
         print("Warning: No data found for card: " .. cardName .. ". Using placeholder.")
         cardInfo = ALL_CARD_DATA["PlaceholderCard"]
     end
 
-    self.dinahText = {}
+    local lines = {}
 
     -- 1. Card intro
     local introOptions = {
@@ -210,34 +191,25 @@ function PostScene:addCardTextToDinah(cardName)
         "Let me peer through the veil… it's a bit wrinkled today.",
         "Ah, this one… I remember its dance with fate.",
     }
+    table.insert(lines, introOptions[math.random(1, #introOptions)])
 
-    -- Select one random phrase from the list
-    local randomIntroIndex = math.random(1, #introOptions)
-    local chosenIntro = introOptions[randomIntroIndex]
-    table.insert(self.dinahText, chosenIntro)
-
-
-    local intro ="You pulled:\n" .. cardName .. (self.invert and "\nUpside down" or "")
-    table.insert(self.dinahText, intro)
-    --are you ready to know your fate/to know thyself/dark knight of the soul(confront you shadow self)/the cards iluminate your answers
+    local intro = "You pulled:\n" .. cardName .. (self.invert and "\nUpside down" or "")
+    table.insert(lines, intro)
 
     -- 2. Correspondence
     local correspondence_data = cardInfo.correspondence
     if correspondence_data and #correspondence_data > 0 then
-        local corrText = table.concat(correspondence_data)
-        table.insert(self.dinahText, corrText)
+        table.insert(lines, table.concat(correspondence_data))
     end
 
     -- 3. Keywords
     local source_keywords_list
     if self.invert and cardInfo.reversed_keywords then
         source_keywords_list = cardInfo.reversed_keywords
-    elseif cardInfo.upright_keywords then -- Fallback to upright if not inverted or no reversed
+    elseif cardInfo.upright_keywords then
         source_keywords_list = cardInfo.upright_keywords
     end
 
-    local final_keywords_to_display = {}
-    local num_keywords_to_select = 3
     local keywordIntroOptions = {
         "The spirits whisper of: ",
         "The energy of the card calls forth: ",
@@ -247,27 +219,21 @@ function PostScene:addCardTextToDinah(cardName)
         "From the woven threads of fate, we find: ",
         "This is the essence now unveiled: ",
         "Let these currents flow through you: "
-    } 
-    
-    -- Select one random phrase from the list
-    local randomIndex = math.random(1, #keywordIntroOptions)
-    local chosenIntroPhrase = keywordIntroOptions[randomIndex]
-    table.insert(self.dinahText, chosenIntroPhrase)
+    }
+    table.insert(lines, keywordIntroOptions[math.random(1, #keywordIntroOptions)])
 
+    local final_keywords_to_display = {}
+    local num_keywords_to_select = 3
     if source_keywords_list and #source_keywords_list > 0 then
         if #source_keywords_list <= num_keywords_to_select then
-            -- If there are 4 or fewer keywords, just use all of them
             final_keywords_to_display = source_keywords_list
         else
-            -- If there are more than 4, shuffle and pick the first 4
             local shuffled_list = shuffle_table(source_keywords_list)
             for i = 1, num_keywords_to_select do
                 table.insert(final_keywords_to_display, shuffled_list[i])
             end
         end
-
-        local keywordsText = table.concat(final_keywords_to_display, ", ")
-        table.insert(self.dinahText, keywordsText)
+        table.insert(lines, table.concat(final_keywords_to_display, ", "))
     end
 
     -- 4. Fortune line
@@ -277,10 +243,13 @@ function PostScene:addCardTextToDinah(cardName)
     else
         fortune_lines = cardInfo.upright_fortune
     end
+    table.insert(lines, fortune_lines[math.random(1, #fortune_lines)])
 
-    local randomIndex = math.random(1, #fortune_lines)
-    local chosenFortuneLine = fortune_lines[randomIndex]
-    table.insert(self.dinahText, chosenFortuneLine)
-
-    print("DinahTexts updated with lines for: " .. cardName)
+    -- Store as lines for scrolling
+    self.dinahTextLines = {}
+    for _, block in ipairs(lines) do
+        for line in tostring(block):gmatch("[^\n]+") do
+            table.insert(self.dinahTextLines, line)
+        end
+    end
 end
