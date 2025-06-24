@@ -4,10 +4,6 @@ local gfx <const> = playdate.graphics
 class('TitleScene').extends(gfx.sprite)
 
 
-
-
-
-
 function TitleScene:init()
     self:bgAnim2()
     bgMusic1:play(0)

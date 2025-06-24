@@ -105,7 +105,7 @@ end
 
 function MenuScene:dinahSpriteLoad()
     self.dinahSprite:addState("idle", 1, 6, {tickStep = 4, yoyo = true})
-    self.dinahSprite:addState("transition", 1, 20, {tickStep = 1, loop = false})
+    self.dinahSprite:addState("transition", 1, 17, {tickStep = 1, loop = false})
     self.dinahSprite:moveTo(200,120)
     self.dinahSprite:add()
     self.dinahSprite:playAnimation()
@@ -132,11 +132,11 @@ end
 
 function MenuScene:optionsText()
     gfx.setImageDrawMode(gfx.kDrawModeInverted)
-    self.settingsText = gfx.sprite.spriteWithText("settings: B", 400, 120, nil, nil, nil, kTextAlignment.left)
-    self.settingsText:moveTo(65, 220)
+    self.settingsText = gfx.sprite.spriteWithText("first time? B", 400, 120, nil, nil, nil, kTextAlignment.left)
+    self.settingsText:moveTo(75, 220)
     self.settingsText:add()
-    self.interactText = gfx.sprite.spriteWithText("reading: A", 400, 120, nil, nil, nil, kTextAlignment.right)
-    self.interactText:moveTo(340, 220)
+    self.interactText = gfx.sprite.spriteWithText("reading? A", 400, 120, nil, nil, nil, kTextAlignment.right)
+    self.interactText:moveTo(333, 220)
     self.interactText:add()
     gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
 end

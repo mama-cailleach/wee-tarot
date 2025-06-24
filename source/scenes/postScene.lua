@@ -18,14 +18,10 @@ local function shuffle_table(tbl)
 
     while n > 1 do
         local k = math.random(n) -- Pick a random element from 1 to n
-        shuffled_copy[n], shuffled_copy[k] = shuffled_copy[k], shuffled_copy[n] -- Swap it with the current last element
+        shuffled_copy[n], shuffled_copy[k] = shuffled_copy[k], shuffled_copy[n] -- Swap it with the current lastLine = "You can press A now darling, but I will not tell you what to do.\n"" element
         n = n - 1
     end
     return shuffled_copy
-
-    -- IMPORTANT: Ensure you initialize the random seed once at game startup (e.g., in main.lua)
-    -- math.randomseed(pd.getTime()) -- Or os.time() if pd is not available early
-    -- This ensures you get different random keywords each run.
 end
 
 class('PostScene').extends(gfx.sprite)
@@ -54,8 +50,9 @@ function PostScene:init(playerCard, isInverted)
     self.maxScroll = 0
     self.visibleLines = 3 -- Number of lines to show at once
     self.scrollY = 0
-    self.scrollBoxHeight = 60
+    self.scrollBoxHeight = 120
     self.scrollBoxWidth = 310
+    self.lastLine = "You can press A now darling, but I will not tell you what to do.\n"
 
     -- --- Call initial setup methods ---
     self:dinahSpriteLoad()
@@ -97,14 +94,12 @@ function PostScene:drawScrollTextWindow()
     -- Create an image for the scroll box
     local img = gfx.image.new(self.scrollBoxWidth, self.scrollBoxHeight)
     gfx.pushContext(img)
-        gfx.setColor(gfx.kColorWhite)
-        gfx.fillRect(0, 0, self.scrollBoxWidth, self.scrollBoxHeight)
         gfx.setColor(gfx.kColorBlack)
-        gfx.drawTextInRect(self.dinahTextBlock, 0, -self.scrollY, self.scrollBoxWidth, 1000, nil, "...", kTextAlignment.left)
+        gfx.drawTextInRect(self.dinahTextBlock, 0, -self.scrollY, self.scrollBoxWidth, 1500, nil, "...", kTextAlignment.center)
     gfx.popContext()
     if self.dinahScrollText then self.dinahScrollText:remove() end
     self.dinahScrollText = gfx.sprite.new(img)
-    self.dinahScrollText:moveTo(190, 180) -- Center as before
+    self.dinahScrollText:moveTo(190, 185) -- Center as before
     self.dinahScrollText:add()
 end
 
@@ -147,7 +142,7 @@ function PostScene:update()
     if self.canButton then
         local crankChange = pd.getCrankChange()
         if crankChange ~= 0 then
-            local _, textHeight = gfx.getTextSize(self.dinahTextBlock)
+            local _, textHeight = gfx.getTextSizeForMaxWidth(self.dinahTextBlock, self.scrollBoxWidth)
             local maxScrollY = math.max(0, textHeight - self.scrollBoxHeight)
             self.scrollY = math.max(0, math.min(self.scrollY + crankChange * 2, maxScrollY)) -- *2 for speed, adjust as needed
             self:drawScrollTextWindow()
@@ -165,7 +160,13 @@ function PostScene:update()
             self.aButton:remove()
         end
     end
+
+    if pd.buttonJustPressed(pd.kButtonB) and self.canButton then
+        SCENE_MANAGER:switchScene(CardScene, self.card, self.card.suit, self.invert)
+    end
 end
+
+
 
 
 -- populating the texts for the reading
@@ -177,15 +178,17 @@ function PostScene:addCardTextToDinah(cardName)
     end
 
     local lines = {}
+    table.insert(lines, "")
+    table.insert(lines, "")
 
     -- 1. Card intro
     local introOptions = {
-        "Hmmmm... Hmmmm... (squints at the card) Very interesting…",
+        "Hmmmm... Hmmmm...\n(squints at the card)\nVery interesting…",
         "(looks at you with a raised eyebrow)",
         "Shh... listen closely.\nNo, closer.",
         "Patience. The universe loves a dramatic pause.",
         "We may glimpse the dawn… or another dark night of the soul. Let's see.",
-        "(sighs) Well, every card is a mirror. Know thyself… if you dare to look.",
+        "(sighs) Well, every card is a mirror. Know thyself…\nif you dare to look.",
         "Let me peer through the veil… it's a bit wrinkled today.",
         "Ah, this one… I remember its dance with fate.",
     }
@@ -236,7 +239,7 @@ function PostScene:addCardTextToDinah(cardName)
                 
             end
         end
-        table.insert(lines, table.concat(final_keywords_to_display, ", "))
+        table.insert(lines, table.concat(final_keywords_to_display, ", ") .. ".")
         table.insert(lines, "")
     end
 
@@ -248,6 +251,10 @@ function PostScene:addCardTextToDinah(cardName)
         fortune_lines = cardInfo.upright_fortune
     end
     table.insert(lines, fortune_lines[math.random(1, #fortune_lines)])
+    table.insert(lines, "")
+    table.insert(lines, "---")
+    table.insert(lines, self.lastLine)
+    table.insert(lines, "---")
 
     -- Store as lines for scrolling
     self.dinahTextLines = {}
@@ -258,4 +265,5 @@ function PostScene:addCardTextToDinah(cardName)
         end
     end
     self.dinahTextBlock = table.concat(self.dinahTextLines, "\n")
+    print(self.dinahTextBlock)
 end
