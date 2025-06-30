@@ -23,9 +23,10 @@ import "scripts/card"
 --Decks
 import "scripts/decks/allDecks"
 
-
 -- DEBUG SCENES
---import "scenes/PostSceneDebug"
+import "testing/PostSceneDebug"
+import "testing/gameSceneDebug"
+
 
 
 local pd <const> = playdate
@@ -54,7 +55,7 @@ gfx.setFont(myFont)
 -- call first scene (do I need this as a function?)
 local function startGame()
     --SCENE_MANAGER:switchScene(PostSceneDebug) DEBUG
-    SCENE_MANAGER:switchScene(TitleScene)
+    SCENE_MANAGER:switchScene(GameSceneDebug)
     
 end
 

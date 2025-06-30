@@ -7,10 +7,10 @@ function sideMenuCreate()
 
 local systemMenu = pd.getSystemMenu()
     --not really working??? maybe dont do on menu?
-    systemMenu:addOptionsMenuItem("Deck", {"Major only", "Full"}, "Major only", function(flag)
+    systemMenu:addOptionsMenuItem("Deck", {"Major", "Full"}, "Full", function(flag)
     if flag == "Full" then
         onlyMajor = false
-    elseif flag== "Major only" then
+    elseif flag== "Major" then
         onlyMajor = true
     end
     end)

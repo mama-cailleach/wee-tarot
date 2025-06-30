@@ -85,11 +85,12 @@ function GameScene:showDrawnMajorCard(cardName, isInverted)
 end
 
 function GameScene:showFortunePrompt()
-    local width, height = gfx.getTextSize("Are you ready\nfor your fortune?")
+    local textFortune = "Are you ready\nfor your fortune?"
+    local width, height = gfx.getTextSize(textFortune)
     local fortuneTextImage = gfx.image.new(width, height)
     gfx.pushContext(fortuneTextImage)
         gfx.setColor(gfx.kColorWhite)
-        gfx.drawTextAligned("Are you ready\nfor your fortune?", 0, 0, kTextAlignment.left)
+        gfx.drawTextAligned(textFortune, 0, 0, kTextAlignment.left)
     gfx.popContext()
     self.fortunePromptSprite:setImage(fortuneTextImage)
     self.fortunePromptSprite:moveTo(10, 165)
@@ -98,11 +99,10 @@ end
 
 function GameScene:showFirstPrompt()
     if self.firstPromptSprite then self.firstPromptSprite:remove() end
-    self.firstPromptSprite = self:showPromptText(
-        "Let your intentions\n" ..
-        "be clear, and the\n" ..
-        "answers will find you.",
-        8, 8
+    self.firstPromptSprite = self:showPromptTextTypewriter(
+        "Let your intentions be clear,\n" ..
+        "and the answers will find you.",
+        20, 4, 40, 2000
     )
 
 --[[ TO BE USED LATER as options/switching
@@ -148,9 +148,9 @@ function GameScene:drawCardLogic()
     -- Show the card name and inverted text in the prompt
     if cardDrawed then
         if self.onlyMajor then
-            self:showDrawnMajorCard(cardDrawed, self.isInverted)
+            --self:showDrawnMajorCard(cardDrawed, self.isInverted)
         else
-            self:showDrawnCard(cardDrawed, self.isInverted)
+            --self:showDrawnCard(cardDrawed, self.isInverted)
         end
     end
     self:revealAnimation()
@@ -164,7 +164,7 @@ function GameScene:setupShuffleAnimation()
     self.shuffleAnimSprite:addState("idle", 1, 1)
     self.shuffleAnimSprite:addState("shuffle", 1, 90, {tickStep = 1})
     self.shuffleAnimSprite:addState("crankShuffle", 1, 90, {tickStep = 1}, false)
-    self.shuffleAnimSprite:moveTo(300, 80)
+    self.shuffleAnimSprite:moveTo(200, 80)
     self.shuffleAnimSprite:add()
     self.shuffleAnimSprite:playAnimation()
 end
@@ -175,8 +175,7 @@ function GameScene:setup16CardShuffleAnimation()
     self.shuffleAnimSprite = AnimatedSprite.new(imagetableShuffle)
     self.shuffleAnimSprite:addState("idle", 1, 1)
     self.shuffleAnimSprite:addState("shuffle", 1, 90, {tickStep = 1})
-    self.shuffleAnimSprite:addState("crankShuffle", 1, 90, {tickStep = 1}, false)
-    self.shuffleAnimSprite:moveTo(350, 80)
+    self.shuffleAnimSprite:moveTo(220, 80)
     self.shuffleAnimSprite:add()
     self.shuffleAnimSprite:playAnimation()
 end
@@ -227,7 +226,7 @@ function GameScene:scaleAnimation()
         self.scaleSprite = nil
         self:showPlacementSprite()
         self.state = "ready"
-        self:showRevealPrompt()
+        --self:showRevealPrompt()
     end}, true)
     self.scaleSprite:moveTo(300, 80)
     self.scaleSprite:add()
@@ -254,7 +253,7 @@ function GameScene:update()
             self:drawCardLogic()
             self.state = "revealed"
             pd.timer.performAfterDelay(2000, function()
-                self:showFortunePrompt()
+                --self:showFortunePrompt()
                 self.state = "fortune"
             end)
         elseif self.state == "fortune" then
@@ -294,6 +293,73 @@ function GameScene:update()
         end
     end
 end
+
+
+
+function GameScene:showPromptTextTypewriter(text, x, y, delayPerChar, visibleTime, fadeOutTime)
+    local width, height = gfx.getTextSize(text)
+    if width == 0 or height == 0 then width, height = 10, 10 end
+
+    local promptSprite = gfx.sprite.new()
+    promptSprite:setCenter(0, 0)
+    promptSprite:moveTo(x or 8, y or 8)
+    promptSprite:add()
+
+    local currentLength = 0
+    local function updateText()
+        currentLength += 1
+        local shownText = string.sub(text, 1, currentLength)
+        local textImage = gfx.image.new(width, height)
+        gfx.pushContext(textImage)
+            gfx.setColor(gfx.kColorWhite)
+            gfx.drawTextAligned(shownText, 0, 0, kTextAlignment.left)
+        gfx.popContext()
+        promptSprite:setImage(textImage)
+    end
+
+    -- Timer to reveal each character
+    local typeTimer
+    typeTimer = pd.timer.keyRepeatTimerWithDelay(delayPerChar or 40, delayPerChar or 40, function()
+        if currentLength < #text then
+            updateText()
+        else
+            typeTimer:remove()
+            -- After full text is shown, wait, then typewriter-remove
+            pd.timer.performAfterDelay(visibleTime or 1200, function()
+                local removeLength = #text
+                local function updateRemoveText()
+                    removeLength -= 1
+                    local shownText = string.sub(text, 1, removeLength)
+                    local textImage = gfx.image.new(width, height)
+                    gfx.pushContext(textImage)
+                        gfx.setColor(gfx.kColorWhite)
+                        gfx.drawTextAligned(shownText, 0, 0, kTextAlignment.left)
+                    gfx.popContext()
+                    promptSprite:setImage(textImage)
+                end
+
+                local removeTimer
+                removeTimer = pd.timer.keyRepeatTimerWithDelay(fadeOutTime or delayPerChar or 40, fadeOutTime or delayPerChar or 40, function()
+                    if removeLength > 0 then
+                        updateRemoveText()
+                    else
+                        removeTimer:remove()
+                        promptSprite:remove()
+                    end
+                end)
+            end)
+        end
+    end)
+
+    -- Show the first character immediately
+    updateText()
+
+    return promptSprite
+end
+
+
+
+
 
 function GameScene:deinit()
     if self.promptTextSprite then self.promptTextSprite:remove() end

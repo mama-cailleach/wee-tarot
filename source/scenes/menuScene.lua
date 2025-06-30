@@ -4,6 +4,7 @@ local pd <const> = playdate
 local gfx <const> = playdate.graphics
 
 class('MenuScene').extends(gfx.sprite)
+-- local MenuScene = MenuScene | fixing the squigly line?
 
 local MAX_VISIBLE_LINES = 1
 local SCROLL_SPEED_DIVISOR = 90

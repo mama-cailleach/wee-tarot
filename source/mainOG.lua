@@ -55,6 +55,7 @@ gfx.setFont(myFont)
 local function startGame()
     --SCENE_MANAGER:switchScene(PostSceneDebug) DEBUG
     SCENE_MANAGER:switchScene(TitleScene)
+    onlyMajor = true
     
 end
 

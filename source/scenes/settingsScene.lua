@@ -27,7 +27,7 @@ function SettingsScene:init()
     self.arrowSprite = gfx.sprite.new(self.arrowImage)
     self.arrowSprite:moveTo(150,70)
     self.arrowSprite:setScale(0.2)
-    self.arrowSprite:add()
+    --self.arrowSprite:add()
     
     gfx.setImageDrawMode(gfx.kDrawModeNXOR) -- for text color
 
