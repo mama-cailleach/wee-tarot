@@ -1,13 +1,13 @@
---import "libraries/AnimatedSprite"
-
 local pd <const> = playdate
 local gfx <const> = playdate.graphics
 
-class('afterDialogueScene').extends(gfx.sprite)
 
 
-function afterDialogueScene:init()
-    afterDialogueScene.super.init(self)
+class('AfterDialogueScene').extends(gfx.sprite)
+
+
+function AfterDialogueScene:init()
+    AfterDialogueScene.super.init(self)
 
     -- scene variables
     self.imagetable = gfx.imagetable.new("images/bg/dinahBG-table-400-266")
@@ -23,7 +23,7 @@ function afterDialogueScene:init()
 end
 
 
-function afterDialogueScene:dinahSpriteLoad()
+function AfterDialogueScene:dinahSpriteLoad()
     self.dinahSprite:addState("idle", 1, 6, {tickStep = 4, yoyo = true})
     self.dinahSprite:addState("transition", 1, 17, {tickStep = 1, loop = false})
     self.dinahSprite:moveTo(200,120)
@@ -31,26 +31,57 @@ function afterDialogueScene:dinahSpriteLoad()
     self.dinahSprite:playAnimation()
 end
 
-
-
-function afterDialogueScene:optionsText()
-    gfx.setImageDrawMode(gfx.kDrawModeInverted)
-    self.settingsText = gfx.sprite.spriteWithText("first time? B", 400, 120, nil, nil, nil, kTextAlignment.left)
-    self.settingsText:moveTo(75, 220)
-    self.settingsText:add()
-    self.interactText = gfx.sprite.spriteWithText("reading? A", 400, 120, nil, nil, nil, kTextAlignment.right)
-    self.interactText:moveTo(333, 220)
-    self.interactText:add()
-    gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+function AfterDialogueScene:makeButtonSprite(letter, x, y, radius)
+    local r = radius or 16
+    local img = gfx.image.new(r*2, r*2)
+    gfx.pushContext(img)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillCircleAtPoint(r, r, r)
+        gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+        gfx.setLineWidth(2)
+        gfx.drawCircleAtPoint(r, r, r)
+        local font = gfx.getSystemFont()
+        local w, h = gfx.getTextSize(letter, font)
+        gfx.drawTextAligned(letter, r - w/2, r - h/2, kTextAlignment.left)
+    gfx.popContext()
+    local sprite = gfx.sprite.new(img)
+    sprite:moveTo(x, y)
+    sprite:add()
+    return sprite
 end
 
-function afterDialogueScene:loadGameAnimation()
+function AfterDialogueScene:optionsText()
+    gfx.setImageDrawMode(gfx.kDrawModeInverted)
+    -- Remove old sprites if they exist
+    if self.settingsText then self.settingsText:remove() end
+    if self.interactText then self.interactText:remove() end
+
+
+
+    -- Use the typewriter utility for both texts
+    self.settingsText = utils.PromptTextTypewriterOneWay(
+        "menu",
+        35, 203,   -- x, y
+        80        -- delayPerChar
+    )
+    self.interactText = utils.PromptTextTypewriterOneWay(
+        "reading",
+        282, 203,  -- x, y
+        80        -- delayPerChar
+    )
+    
+    self.settingsButton = self:makeButtonSprite("B", 16, 222, 14)
+    self.interactButton = self:makeButtonSprite("A", 384, 222, 14)
+
+end
+
+function AfterDialogueScene:loadGameAnimation()
     self.dinahSprite.states["transition"].onAnimationEndEvent = function ()
         SCENE_MANAGER:switchScene(GameScene)
     end
 end
 
-function afterDialogueScene:update()
+function AfterDialogueScene:update()
 
     if self.optionsTextOn then
         -- Only allow A/B for options after text is gone

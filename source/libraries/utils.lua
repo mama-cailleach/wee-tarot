@@ -1,7 +1,7 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-local utilities = {}
+utils = {}
 
 function createTextWithBackground(text, textColor, backgroundColor, paddingX, paddingY)
     local font = gfx.getSystemFont()
@@ -49,7 +49,7 @@ textSprite:add()
 
 -- type writer style boomerang text
 
-function utilities.showPromptTextTypewriter(text, x, y, delayPerChar, visibleTime, fadeOutTime)
+function utils.PromptTextTypewriterBoomerang(text, x, y, delayPerChar, visibleTime, fadeOutTime)
     local width, height = gfx.getTextSize(text)
     if width == 0 or height == 0 then width, height = 10, 10 end
 
@@ -106,17 +106,58 @@ function utilities.showPromptTextTypewriter(text, x, y, delayPerChar, visibleTim
     return promptSprite
 end
 
-return utilities
+
+
+
+function utils.PromptTextTypewriterOneWay(text, x, y, delayPerChar)
+    local font = gfx.getSystemFont()
+    local width, height = gfx.getTextSize(text, font)
+    if width == 0 or height == 0 then width, height = 10, 10 end
+
+    local promptSprite = gfx.sprite.new()
+    promptSprite:setCenter(0, 0)
+    promptSprite:moveTo(x or 8, y or 8)
+    promptSprite:add()
+
+    local currentLength = 0
+    local function updateText()
+        currentLength += 1
+        local shownText = string.sub(text, 1, currentLength)
+        local textImage = gfx.image.new(width, height)
+        gfx.pushContext(textImage)
+            gfx.setColor(gfx.kColorWhite)
+            gfx.drawTextAligned(shownText, 0, 0, kTextAlignment.left)
+        gfx.popContext()
+        promptSprite:setImage(textImage)
+    end
+
+    local typeTimer -- declare first!
+    typeTimer = pd.timer.keyRepeatTimerWithDelay(delayPerChar or 40, delayPerChar or 40, function()
+        if currentLength < #text then
+            updateText()
+        else
+            typeTimer:remove()
+            -- After full text is shown, wait, then fade out (hide)
+        end
+    end)
+
+    -- Show the first character immediately
+    updateText()
+
+    return promptSprite
+end
+
+return utils
 
 
 --[[
 example
 
 call this at the top of the scene
-local utilities = import "libraries/utilities"
+local utilities = import "libraries/utils"
 
 then use 
-utilities.showPromptTextTypewriter("Hello!", 20, 4, 40, 2000)
+utilities.PromptTextTypewriterBoomerang("Hello!", 20, 4, 40, 2000)
 
 
 

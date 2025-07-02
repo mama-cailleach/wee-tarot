@@ -36,7 +36,10 @@ local gfx <const> = pd.graphics
 SCENE_MANAGER = SceneManager()
 
 bgMusic1 = pd.sound.fileplayer.new("sound/bgMusic2")
+bgMusic1:setVolume(0.5)
 bgMusic1:setLoopRange(0,22) -- Title Loop no beats
+ambience = pd.sound.fileplayer.new("sound/ambience2")
+ambience:play(0)
 
 
 

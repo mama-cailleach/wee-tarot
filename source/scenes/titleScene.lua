@@ -1,7 +1,7 @@
 local pd <const> = playdate
 local gfx <const> = playdate.graphics
 
-local utilities = import "libraries/utils"
+--local utilities = import "libraries/utils"
 
 class('TitleScene').extends(gfx.sprite)
 

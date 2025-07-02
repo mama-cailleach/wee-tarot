@@ -1,16 +1,15 @@
---import "libraries/AnimatedSprite"
-
 local pd <const> = playdate
 local gfx <const> = playdate.graphics
 
 class('MenuScene').extends(gfx.sprite)
--- local MenuScene = MenuScene | fixing the squigly line?
+-- local MenuScene = MenuScene --| fixing the squigly line?
 
 local MAX_VISIBLE_LINES = 1
 local SCROLL_SPEED_DIVISOR = 90
 
 function MenuScene:init()
     MenuScene.super.init(self)
+    print(utils)
 
     -- scene variables
     self.imagetable = gfx.imagetable.new("images/bg/dinahBG-table-400-266")
@@ -29,6 +28,7 @@ function MenuScene:init()
     self.optionsTextOn = false
 
     -- --- TEXT ANIMATION LOOP PARAMETERS ---
+    self.aButtonY = 220
     self.scrollBaseY = 170 -- scroll img base
     self.textBaseY = 182    -- The original, center Y position of the text
     self.textAmplitude = 3.7 -- How many pixels the text will move up and down from titleBaseY
@@ -50,7 +50,7 @@ function MenuScene:dinahTexts()
         "Welcome to my humble abode, I've been expecting you.",
         "Yes, yes... I can see... Your future is bright.\nCare for a reading, darling?",
         "Please...\nHave a seat...\nDon't be scared...",
-        "I speak only what I see, but to find more meaning on the cards is up to you."
+        "I speak only what I see, but to find more meaning in the cards is up to you."
     }
     for _, t in ipairs(texts) do
         for line in t:gmatch("[^\n]+") do
@@ -131,15 +131,50 @@ function MenuScene:onScrollBoxAnimationFinished()
     end
 end
 
+function MenuScene:makeButtonSprite(letter, x, y, radius)
+    local r = radius or 16
+    local img = gfx.image.new(r*2, r*2)
+    gfx.pushContext(img)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillCircleAtPoint(r, r, r)
+        gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+        gfx.setLineWidth(2)
+        gfx.drawCircleAtPoint(r, r, r)
+        local font = gfx.getSystemFont()
+        local w, h = gfx.getTextSize(letter, font)
+        gfx.drawTextAligned(letter, r - w/2, r - h/2, kTextAlignment.left)
+    gfx.popContext()
+    local sprite = gfx.sprite.new(img)
+    sprite:moveTo(x, y)
+    sprite:add()
+    return sprite
+end
+
 function MenuScene:optionsText()
     gfx.setImageDrawMode(gfx.kDrawModeInverted)
-    self.settingsText = gfx.sprite.spriteWithText("first time? B", 400, 120, nil, nil, nil, kTextAlignment.left)
-    self.settingsText:moveTo(75, 220)
-    self.settingsText:add()
-    self.interactText = gfx.sprite.spriteWithText("reading? A", 400, 120, nil, nil, nil, kTextAlignment.right)
-    self.interactText:moveTo(333, 220)
-    self.interactText:add()
-    gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+    -- Remove old sprites if they exist
+    if self.settingsText then self.settingsText:remove() end
+    if self.interactText then self.interactText:remove() end
+
+
+
+    -- Use the typewriter utility for both texts
+    self.settingsText = utils.PromptTextTypewriterOneWay(
+        "menu",
+        35, 203,   -- x, y
+        60        -- delayPerChar
+    )
+    self.interactText = utils.PromptTextTypewriterOneWay(
+        "reading",
+        282, 203,  -- x, y
+        60        -- delayPerChar
+    )
+    
+
+
+    self.settingsButton = self:makeButtonSprite("B", 16, 222, 14)
+    self.interactButton = self:makeButtonSprite("A", 384, 222, 14)
+
 end
 
 function MenuScene:loadGameAnimation()
@@ -159,6 +194,7 @@ function MenuScene:update()
     local oscillationOffset = self.textAmplitude * math.sin((elapsed - (self.oscillationStartTime or 0)) * self.textSpeed)
     local textNewY = self.textBaseY + oscillationOffset + 0.2
     local scrollNewY = 170 + oscillationOffset + 0.2
+    local abuttonNewY = self.aButtonY + oscillationOffset + 0.2
     if self.scrollBoxLoad then
         if self.dinahScrollText then
             self.dinahScrollText:moveTo(self.dinahScrollText.x, textNewY)
@@ -166,10 +202,14 @@ function MenuScene:update()
         if self.scrollBoxSprite then
             self.scrollBoxSprite:moveTo(self.scrollBoxSprite.x, scrollNewY)
         end
+        if self.aButton then
+            self.aButton:moveTo(self.aButton.x, abuttonNewY)
+        end
     end
 
-    -- Only allow crank scrolling if options are not shown
+    -- Only allow A to advance text (crank logic commented out)
     if self.scrollBoxLoad and not self.optionsTextOn then
+        --[[]
         local crankChange = pd.getCrankChange() / SCROLL_SPEED_DIVISOR
         if crankChange ~= 0 then
             local prevOffset = self.scrollOffset
@@ -178,19 +218,23 @@ function MenuScene:update()
                 self:showTextWindow()
             end
         end
-        -- Show A blink only if at end
-        if math.floor(self.scrollOffset + 0.5) >= self.maxScroll then
-            if not self.aButton then self:buttonABlink() end
-        else
-            self:removeAButton()
-        end
-        -- Only allow A to proceed if at end
-        if pd.buttonJustPressed(pd.kButtonA) and math.floor(self.scrollOffset + 0.5) >= self.maxScroll then
-            if self.dinahScrollText then self.dinahScrollText:remove() self.dinahScrollText = nil end
-            if self.scrollBoxSprite then self.scrollBoxSprite:remove() end
-            self:removeAButton()
-            self:optionsText()
-            self.optionsTextOn = true
+        --]]
+        -- Always show A button
+        if not self.aButton then self:buttonABlink() end
+
+        -- Allow A to proceed to next text
+        if pd.buttonJustPressed(pd.kButtonA) then
+            if self.scrollOffset < self.maxScroll then
+                self.scrollOffset = self.scrollOffset + 1
+                self:showTextWindow()
+            else
+                -- At end, proceed to options
+                if self.dinahScrollText then self.dinahScrollText:remove() self.dinahScrollText = nil end
+                if self.scrollBoxSprite then self.scrollBoxSprite:remove() end
+                self:removeAButton()
+                self:optionsText()
+                self.optionsTextOn = true
+            end
         end
     elseif self.optionsTextOn then
         -- Only allow A/B for options after text is gone
@@ -204,6 +248,3 @@ function MenuScene:update()
         end
     end
 end
-
-
-

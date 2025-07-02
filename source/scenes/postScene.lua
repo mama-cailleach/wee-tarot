@@ -18,7 +18,7 @@ local function shuffle_table(tbl)
 
     while n > 1 do
         local k = math.random(n) -- Pick a random element from 1 to n
-        shuffled_copy[n], shuffled_copy[k] = shuffled_copy[k], shuffled_copy[n] -- Swap it with the current lastLine = "You can press A now darling, but I will not tell you what to do.\n"" element
+        shuffled_copy[n], shuffled_copy[k] = shuffled_copy[k], shuffled_copy[n] -- 
         n = n - 1
     end
     return shuffled_copy
@@ -39,12 +39,8 @@ function PostScene:init(playerCard, isInverted)
     self.scrollBoxImg = gfx.image.new("images/textScroll/scroll1b")
     self.scrollBoxSprite = gfx.sprite.new(self.scrollBoxImg)
     self.dinahText = {} -- This will be populated by addCardTextToDinah
-    self.currentIndex = 1
     self.dinahScrollText = nil -- The text sprite itself
-    self.bButton = nil
-    self.aButton = nil
     self.canButton = false
-    self.lastText = false
     self.scrollBoxAnimatorIn = nil -- Will be created later
     self.scrollOffset = 0
     self.maxScroll = 0
@@ -53,10 +49,11 @@ function PostScene:init(playerCard, isInverted)
     self.scrollBoxHeight = 120
     self.scrollBoxWidth = 310
     self.lastLine = "You can press A now darling, but I will not tell you what to do.\n"
+    self.crankFlag = false
+    self.CrankAnim = false
 
     -- --- Call initial setup methods ---
     self:dinahSpriteLoad()
-    self:buttonABlink()
 
     -- Add card specific text, now as a method call
     self:addCardTextToDinah(self.card)
@@ -86,7 +83,7 @@ end
 -- Callback for scroll box animation finish
 function PostScene:onScrollBoxAnimationFinished()
     self:drawScrollTextWindow()
-    self.canButton = true
+    self.CrankAnim = true
 end
 
 -- text display logic (currentIndex is now self.currentIndex)
@@ -94,6 +91,7 @@ function PostScene:drawScrollTextWindow()
     -- Create an image for the scroll box
     local img = gfx.image.new(self.scrollBoxWidth, self.scrollBoxHeight)
     gfx.pushContext(img)
+        gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
         gfx.setColor(gfx.kColorBlack)
         gfx.drawTextInRect(self.dinahTextBlock, 0, -self.scrollY, self.scrollBoxWidth, 1500, nil, "...", kTextAlignment.center)
     gfx.popContext()
@@ -105,13 +103,6 @@ end
 
 
 
-function PostScene:loadGameAnimation()
-    self.dinahSprite.states["transition"].onAnimationEndEvent = function ()
-        SCENE_MANAGER:switchScene(GameScene) -- SCENE_MANAGER is global, so it's okay here
-    end
-end
-
-
 function PostScene:dinahSpriteLoad()
     self.dinahSprite:addState("idle", 1, 6, {tickStep = 4, yoyo = true})
     self.dinahSprite:addState("transition", 1, 20, {tickStep = 1, loop = false})
@@ -120,50 +111,50 @@ function PostScene:dinahSpriteLoad()
     self.dinahSprite:playAnimation()
 end
 
-function PostScene:buttonABlink()
-    gfx.setImageDrawMode(gfx.kDrawModeInverted)
-    self.aButton = gfx.sprite.spriteWithText("A", 400, 40, nil, nil, nil, kTextAlignment.center)
-    self.aButton:moveTo(360, 220)
-    -- self.aButton:add() -- Don't add initially
-    
-    local blinkerTimer = pd.timer.new(800, function()
-        if self.aButton then self.aButton:setVisible(not self.aButton:isVisible()) end
-    end)
-    blinkerTimer.repeats = true
-    gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+function PostScene:crankSpriteLoad()
+    local crankImageTable = gfx.imagetable.new("images/crank/crank-frames-1x-table-52-38")
+    self.crankSprite = AnimatedSprite.new(crankImageTable)
+    self.crankSprite:addState("idle", 1, 12, {tickStep = 2, loop = true})
+    self.crankSprite:moveTo(200,180)
+    self.crankSprite:add()
+    self.crankSprite:playAnimation()
 end
+
 
 
 function PostScene:update()
     local scrollBoxY = self.scrollBoxAnimatorIn:currentValue()
     self.scrollBoxSprite:moveTo(202, scrollBoxY)
 
+    if self.CrankAnim and not self.crankFlag then
+        self.crankFlag = true
+        self:crankSpriteLoad()
+    end
     -- Crank scroll logic
-    if self.canButton then
-        local crankChange = pd.getCrankChange()
-        if crankChange ~= 0 then
-            local _, textHeight = gfx.getTextSizeForMaxWidth(self.dinahTextBlock, self.scrollBoxWidth)
-            local maxScrollY = math.max(0, textHeight - self.scrollBoxHeight)
-            self.scrollY = math.max(0, math.min(self.scrollY + crankChange * 2, maxScrollY)) -- *2 for speed, adjust as needed
-            self:drawScrollTextWindow()
+    local crankChange = pd.getCrankChange()
+    if crankChange ~= 0 then
+        self.crankSprite:remove()
+        local _, textHeight = gfx.getTextSizeForMaxWidth(self.dinahTextBlock, self.scrollBoxWidth)
+        local maxScrollY = math.max(0, textHeight - self.scrollBoxHeight)
+        self.scrollY = math.max(0, math.min(self.scrollY + crankChange * 0.5, maxScrollY))
+        self:drawScrollTextWindow()
+        -- Check if at end after scrolling (FIX TO BE EASIER) 
+        if math.abs(self.scrollY - maxScrollY) < 1 then
+            self.canButton = true
+        else
+            self.canButton = false
         end
     end
+
 
     if pd.buttonJustPressed(pd.kButtonA) and self.canButton then
         if self.dinahScrollText then
             self.dinahScrollText:remove()
         end
         self.scrollBoxSprite:remove()
-        self:loadGameAnimation() -- Call as a method
-        self.dinahSprite:changeState("transition")
-        if self.lastText then
-            self.aButton:remove()
-        end
+        AfterDialogueScene()
     end
 
-    if pd.buttonJustPressed(pd.kButtonB) and self.canButton then
-        SCENE_MANAGER:switchScene(CardScene, self.card, self.card.suit, self.invert)
-    end
 end
 
 
@@ -178,6 +169,7 @@ function PostScene:addCardTextToDinah(cardName)
     end
 
     local lines = {}
+    table.insert(lines, "")
     table.insert(lines, "")
     table.insert(lines, "")
 
@@ -265,5 +257,5 @@ function PostScene:addCardTextToDinah(cardName)
         end
     end
     self.dinahTextBlock = table.concat(self.dinahTextLines, "\n")
-    print(self.dinahTextBlock)
+    --print(self.dinahTextBlock)
 end

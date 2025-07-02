@@ -8,8 +8,8 @@ function Card:init(cardNumber, cardSuit)
     local suitFolder = suitName[cardSuit]
     local cardImage = gfx.image.new("images/" .. suitFolder .. "/" .. cardNumber)
     self:setImage(cardImage)
-    self:moveTo(300, 120)
-    self:setScale(1.5)
+    self:moveTo(200, 120)
+    self:setScale(1)
     self.inverted = false
     self:upsideDown(self)
     --self:setZIndex(100)
