@@ -1,4 +1,3 @@
---import "libraries/AnimatedSprite"
 import "data/cardDescriptions"
 
 
@@ -23,6 +22,7 @@ local function shuffle_table(tbl)
     end
     return shuffled_copy
 end
+local MAX_VISIBLE_LINES = 1
 
 class('PostScene').extends(gfx.sprite)
 
@@ -39,25 +39,36 @@ function PostScene:init(playerCard, isInverted)
     self.scrollBoxImg = gfx.image.new("images/textScroll/scroll1b")
     self.scrollBoxSprite = gfx.sprite.new(self.scrollBoxImg)
     self.dinahText = {} -- This will be populated by addCardTextToDinah
+    self.aButton = nil
+    self.aButtonBlinkTimer = nil
     self.dinahScrollText = nil -- The text sprite itself
     self.canButton = false
     self.scrollBoxAnimatorIn = nil -- Will be created later
     self.scrollOffset = 0
     self.maxScroll = 0
-    self.visibleLines = 3 -- Number of lines to show at once
-    self.scrollY = 0
     self.scrollBoxHeight = 120
     self.scrollBoxWidth = 310
-    self.lastLine = "You can press A now darling, but I will not tell you what to do.\n"
-    self.crankFlag = false
-    self.CrankAnim = false
+    self.lastLine = "You can press A now darling, but I will not tell you what to do."
+    self.optionsTextOn = false
+
+
+    -- --- TEXT ANIMATION LOOP PARAMETERS ---
+    self.aButtonY = 220
+    self.scrollBaseY = 170 -- scroll img base
+    self.textBaseY = 182    -- The original, center Y position of the text
+    self.textAmplitude = 3.7 -- How many pixels the text will move up and down from titleBaseY
+    self.textSpeed = 2.5 -- Controls the speed/frequency of the oscillation.
+    self.oscillationStartTime = nil -- Used to track the start time of the oscillation
+
 
     -- --- Call initial setup methods ---
     self:dinahSpriteLoad()
 
     -- Add card specific text, now as a method call
     self:addCardTextToDinah(self.card)
-    self.maxScroll = math.max(0, #self.dinahTextLines - self.visibleLines)
+    self:addCardTextToDinah(self.card)
+    self.scrollOffset = 0
+    self.maxScroll = math.max(0, #self.dinahTextLines - 1)
 
     -- Set up the scroll box animator, and crucially, its callback
     self.scrollBoxAnimatorIn = gfx.animator.new(3000, 300, 170, pd.easingFunctions.outBack)
@@ -67,7 +78,7 @@ function PostScene:init(playerCard, isInverted)
     
 
     -- delay for text to come after animation
-    pd.timer.performAfterDelay(3200, function ()
+    self.scrollBoxTimer = pd.timer.performAfterDelay(3200, function ()
         self:onScrollBoxAnimationFinished()
         
     end)
@@ -82,25 +93,16 @@ end
 
 -- Callback for scroll box animation finish
 function PostScene:onScrollBoxAnimationFinished()
-    self:drawScrollTextWindow()
-    self.CrankAnim = true
-end
+    self:showTextWindow()
+    self.scrollBoxLoad = true -- Show the first text
+    self.canButton = true
+    self.oscillationStartTime = pd.getElapsedTime()
+    -- Set the oscillation base to the final animator Y position for smooth transition
+    if self.scrollBoxAnimatorIn then
+        self.scrollBaseY = self.scrollBoxAnimatorIn:currentValue()
+    end
 
--- text display logic (currentIndex is now self.currentIndex)
-function PostScene:drawScrollTextWindow()
-    -- Create an image for the scroll box
-    local img = gfx.image.new(self.scrollBoxWidth, self.scrollBoxHeight)
-    gfx.pushContext(img)
-        gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-        gfx.setColor(gfx.kColorBlack)
-        gfx.drawTextInRect(self.dinahTextBlock, 0, -self.scrollY, self.scrollBoxWidth, 1500, nil, "...", kTextAlignment.center)
-    gfx.popContext()
-    if self.dinahScrollText then self.dinahScrollText:remove() end
-    self.dinahScrollText = gfx.sprite.new(img)
-    self.dinahScrollText:moveTo(190, 185) -- Center as before
-    self.dinahScrollText:add()
 end
-
 
 
 function PostScene:dinahSpriteLoad()
@@ -111,50 +113,99 @@ function PostScene:dinahSpriteLoad()
     self.dinahSprite:playAnimation()
 end
 
-function PostScene:crankSpriteLoad()
-    local crankImageTable = gfx.imagetable.new("images/crank/crank-frames-1x-table-52-38")
-    self.crankSprite = AnimatedSprite.new(crankImageTable)
-    self.crankSprite:addState("idle", 1, 12, {tickStep = 2, loop = true})
-    self.crankSprite:moveTo(200,180)
-    self.crankSprite:add()
-    self.crankSprite:playAnimation()
+function PostScene:showTextWindow()
+    gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+    if self.dinahScrollText then
+        self.dinahScrollText:remove()
+        self.dinahScrollText = nil
+    end
+    local startLine = math.floor(self.scrollOffset) + 1
+    local lines = {}
+    local idx = startLine
+    if self.dinahTextLines[idx] then
+        table.insert(lines, self.dinahTextLines[idx])
+    end
+    local text = table.concat(lines, "\n")
+    self.dinahScrollText = gfx.sprite.spriteWithText(text, self.scrollBoxWidth, 200, nil, nil, nil, kTextAlignment.center)
+    self.dinahScrollText:moveTo(190, self.textBaseY)
+    self.dinahScrollText:add()
+end
+
+function PostScene:buttonABlink()
+    if self.aButton then return end
+    gfx.setImageDrawMode(gfx.kDrawModeInverted)
+    self.aButton = gfx.sprite.spriteWithText("A", 40, 40, nil, nil, nil, kTextAlignment.center)
+    self.aButton:moveTo(360, 220)
+    self.aButton:add()
+    self.aButtonBlinkTimer = pd.timer.new(800, function()
+        if self.aButton then self.aButton:setVisible(not self.aButton:isVisible()) end
+    end)
+    self.aButtonBlinkTimer.repeats = true
+    gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+end
+
+function PostScene:removeAButton()
+    if self.aButton then
+        self.aButton:remove()
+        self.aButton = nil
+    end
+    if self.aButtonBlinkTimer then
+        self.aButtonBlinkTimer:remove()
+        self.aButtonBlinkTimer = nil
+    end
 end
 
 
-
 function PostScene:update()
-    local scrollBoxY = self.scrollBoxAnimatorIn:currentValue()
-    self.scrollBoxSprite:moveTo(202, scrollBoxY)
-
-    if self.CrankAnim and not self.crankFlag then
-        self.crankFlag = true
-        self:crankSpriteLoad()
-    end
-    -- Crank scroll logic
-    local crankChange = pd.getCrankChange()
-    if crankChange ~= 0 then
-        self.crankSprite:remove()
-        local _, textHeight = gfx.getTextSizeForMaxWidth(self.dinahTextBlock, self.scrollBoxWidth)
-        local maxScrollY = math.max(0, textHeight - self.scrollBoxHeight)
-        self.scrollY = math.max(0, math.min(self.scrollY + crankChange * 0.5, maxScrollY))
-        self:drawScrollTextWindow()
-        -- Check if at end after scrolling (FIX TO BE EASIER) 
-        if math.abs(self.scrollY - maxScrollY) < 1 then
-            self.canButton = true
-        else
-            self.canButton = false
-        end
+     -- Animate scroll box in
+    if self.scrollBoxAnimatorIn and not self.scrollBoxAnimatorIn:ended() then
+        local scrollBoxY = self.scrollBoxAnimatorIn:currentValue()
+        self.scrollBoxSprite:moveTo(202, scrollBoxY)
     end
 
+    -- Always show A button when text is ready and not at options
+    if self.canButton and not self.optionsTextOn and not self.aButton then
+        self:buttonABlink()
+    end
 
-    if pd.buttonJustPressed(pd.kButtonA) and self.canButton then
+    local elapsed = pd.getElapsedTime()
+    local oscillationOffset = self.textAmplitude * math.sin((elapsed - (self.oscillationStartTime or 0)) * self.textSpeed)
+    local textNewY = self.textBaseY + oscillationOffset + 0.2
+    local scrollNewY = 170 + oscillationOffset + 0.2
+    local abuttonNewY = self.aButtonY + oscillationOffset + 0.2
+    if self.scrollBoxLoad then
         if self.dinahScrollText then
-            self.dinahScrollText:remove()
+            self.dinahScrollText:moveTo(self.dinahScrollText.x, textNewY)
         end
-        self.scrollBoxSprite:remove()
-        AfterDialogueScene()
+        if self.scrollBoxSprite then
+            self.scrollBoxSprite:moveTo(self.scrollBoxSprite.x, scrollNewY)
+        end
+        if self.aButton then
+            self.aButton:moveTo(self.aButton.x, abuttonNewY)
+        end
     end
 
+    -- Advance text with A button
+    if self.canButton and not self.optionsTextOn and pd.buttonJustPressed(pd.kButtonA) then
+        if self.scrollOffset < self.maxScroll then
+            self.scrollOffset = self.scrollOffset + 1
+            self:showTextWindow()
+        else
+            -- At end, proceed to next scene or options
+            self.canButton = false
+            self:removeAButton()
+            if self.dinahScrollText then 
+                self.dinahScrollText:remove() 
+                self.dinahScrollText = nil 
+            end
+            if self.scrollBoxSprite then 
+                self.scrollBoxSprite:remove() 
+            end
+            -- You can add optionsText here if you want options, or just go to next scene:
+            AfterDialogueScene()
+            self.optionsTextOn = true
+        end
+    end
 end
 
 
@@ -169,9 +220,6 @@ function PostScene:addCardTextToDinah(cardName)
     end
 
     local lines = {}
-    table.insert(lines, "")
-    table.insert(lines, "")
-    table.insert(lines, "")
 
     -- 1. Card intro
     local introOptions = {
@@ -185,17 +233,16 @@ function PostScene:addCardTextToDinah(cardName)
         "Ah, this one… I remember its dance with fate.",
     }
     table.insert(lines, introOptions[math.random(1, #introOptions)])
-    table.insert(lines, "")
 
     local intro = "You pulled:\n" .. cardName .. (self.invert and "\nUpside down" or "")
     table.insert(lines, intro)
-    table.insert(lines, "")
 
     -- 2. Correspondence
     local correspondence_data = cardInfo.correspondence
     if correspondence_data and #correspondence_data > 0 then
-        table.insert(lines, table.concat(correspondence_data))
-        table.insert(lines, "")
+        for _, line in ipairs(correspondence_data) do -- allows for multiple strings divided by line
+            table.insert(lines, line)
+        end
     end
 
     -- 3. Keywords
@@ -207,17 +254,16 @@ function PostScene:addCardTextToDinah(cardName)
     end
 
     local keywordIntroOptions = {
-        "The spirits whisper of: ",
-        "The energy of the card calls forth: ",
-        "The ancient oracles breath carries: ",
-        "The card holds within the sands of time: ",
-        "Echoes from your own intuition speak of: ",
+        "The spirits whisper... ",
+        "The card's pulse summons forth: ",
+        "The oracles of old murmur of: ",
+        "From the sands of time, this card reveals: ",
+        "This card hums with forgotten truths: ",
         "From the woven threads of fate, we find: ",
-        "This is the essence now unveiled: ",
-        "Let these currents flow through you: "
+        "Here lies the essence unveiled: ",
+        "Let these currents stir the soul: "
     }
     table.insert(lines, keywordIntroOptions[math.random(1, #keywordIntroOptions)])
-    table.insert(lines, "")
 
     local final_keywords_to_display = {}
     local num_keywords_to_select = 3
@@ -232,7 +278,6 @@ function PostScene:addCardTextToDinah(cardName)
             end
         end
         table.insert(lines, table.concat(final_keywords_to_display, ", ") .. ".")
-        table.insert(lines, "")
     end
 
     -- 4. Fortune line
@@ -243,19 +288,24 @@ function PostScene:addCardTextToDinah(cardName)
         fortune_lines = cardInfo.upright_fortune
     end
     table.insert(lines, fortune_lines[math.random(1, #fortune_lines)])
-    table.insert(lines, "")
-    table.insert(lines, "---")
     table.insert(lines, self.lastLine)
-    table.insert(lines, "---")
 
-    -- Store as lines for scrolling
-    self.dinahTextLines = {}
-    for _, block in ipairs(lines) do
-        for line in tostring(block):gmatch("([^\n]*)\n?")do
-                    -- Always insert, even if empty
-        table.insert(self.dinahTextLines, line)
-        end
-    end
+    -- Each entry is a "screen" of text for A button advance
+    self.dinahTextLines = lines
     self.dinahTextBlock = table.concat(self.dinahTextLines, "\n")
-    --print(self.dinahTextBlock)
+end
+
+
+function PostScene:deinit()
+    if self.dinahSprite then self.dinahSprite:remove() self.dinahSprite = nil end
+    if self.scrollBoxSprite then self.scrollBoxSprite:remove() self.scrollBoxSprite = nil end
+    if self.dinahScrollText then self.dinahScrollText:remove() self.dinahScrollText = nil end
+    if self.aButton then self.aButton:remove() self.aButton = nil end
+    if self.aButtonBlinkTimer then self.aButtonBlinkTimer:remove() self.aButtonBlinkTimer = nil end
+    if self.scrollBoxAnimatorIn then self.scrollBoxAnimatorIn = nil end
+    if self.scrollBoxTimer then self.scrollBoxTimer:remove() self.scrollBoxTimer = nil end
+    if self.crankSprite then self.crankSprite:remove() self.crankSprite = nil end
+    if PostScene.super and PostScene.super.deinit then
+        PostScene.super.deinit(self)
+    end
 end

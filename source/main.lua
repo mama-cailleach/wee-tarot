@@ -35,11 +35,17 @@ local gfx <const> = pd.graphics
 
 SCENE_MANAGER = SceneManager()
 
-bgMusic1 = pd.sound.fileplayer.new("sound/bgMusic2")
-bgMusic1:setVolume(0.5)
+
+-- SOUND
+
+bgMusic1 = pd.sound.fileplayer.new("sound/bgMusic3")
+bgMusic1:setVolume(0.7)
 bgMusic1:setLoopRange(0,22) -- Title Loop no beats
+
 ambience = pd.sound.fileplayer.new("sound/ambience2")
 ambience:play(0)
+
+thunder = pd.sound.sampleplayer.new("sound/thunder")
 
 
 
@@ -56,7 +62,6 @@ gfx.setFont(myFont)
 
 -- call first scene (do I need this as a function?)
 local function startGame()
-    --SCENE_MANAGER:switchScene(PostSceneDebug) DEBUG
     SCENE_MANAGER:switchScene(TitleScene)
     
 end

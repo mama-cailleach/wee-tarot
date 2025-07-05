@@ -18,7 +18,7 @@ CARD_DATA_CUPS = {
         },
     },
     ["Two of Cups"] = {
-        correspondence = {"Venus in Cancer. A glance, a pact, a mirrored heart. Emotion recognizes itself and dares to connect."},
+        correspondence = {"Venus in Cancer. A glance, a pact, a mirrored heart.", "Emotion recognizes itself and dares to connect."},
         upright_keywords = {"partnership", "attraction", "harmony", "union", "connection", "shared emotions"},
         reversed_keywords = {"imbalance", "disharmony", "breakup", "misunderstanding", "unrequited love", "misalignment"},
         upright_fortune = {
@@ -33,11 +33,11 @@ CARD_DATA_CUPS = {
         },
     },
     ["Three of Cups"] = {
-        correspondence = {"Mercury in Cancer. The cup is shared. Voices rise in harmony, clinking joy that echoes beyond the veil."},
+        correspondence = {"Mercury in Cancer. The cup is shared.", "Voices rise in harmony, clinking joy that echoes beyond the veil."},
         upright_keywords = {"celebration", "friendship", "joy", "reunion", "community", "emotional support"},
         reversed_keywords = {"overindulgence", "gossip", "isolation", "third parties", "emotional burnout", "exclusion"},
         upright_fortune = {
-            "Memories sweeten. The future leans in: 'Can I crash the party? I brought regrets.'",
+            "Memories sweeten. Future leans: 'Can I crash the party? I brought regrets.'",
             "Laughter braids the tides. This'll end in tears… later.",
             "A circle unbroken. A cosmic toast. To chaos, cheap wine, and borrowed time."
         },
@@ -48,7 +48,7 @@ CARD_DATA_CUPS = {
         },
     },
     ["Four of Cups"] = {
-        correspondence = {"Moon in Cancer. Still waters grow stagnant. The hand offers again… but the heart is elsewhere."},
+        correspondence = {"Moon in Cancer. Still waters grow stagnant.", "The hand offers again… but the heart is elsewhere."},
         upright_keywords = {"apathy", "contemplation", "reevaluation", "disconnection", "introspection", "emotional detachment"},
         reversed_keywords = {"new outlook", "acceptance", "emotional renewal", "reengagement", "openness", "motivation"},
         upright_fortune = {
@@ -63,11 +63,11 @@ CARD_DATA_CUPS = {
         },
     },
     ["Five of Cups"] = {
-        correspondence = {"Mars in Scorpio. Three spill. Two remain. Grief's fog hides what hope still floats."},
+        correspondence = {"Mars in Scorpio. Three spill. Two remain.", "Grief's fog hides what hope still floats."},
         upright_keywords = {"regret", "grief", "loss", "disappointment", "sorrow", "emotional focus"},
         reversed_keywords = {"acceptance", "healing", "forgiveness", "moving on", "perspective shift", "renewal"},
         upright_fortune = {
-            "Three rivers lost to sand. A storm snickers. Did you really think you'd hold them all?",
+            "Three rivers lost to sand. A storm snickers. You really think you'd hold them all?",
             "Loss tallies. The mirror cracks. You're collecting regrets like seashells. Cute.",
             "The heart counts cracks. Mars grins. Drama's your best work, isn't it?"
         },
@@ -78,7 +78,7 @@ CARD_DATA_CUPS = {
         },
     },
     ["Six of Cups"] = {
-        correspondence = {"Sun in Scorpio. Memory sweetens the cup. But nostalgia brews both comfort and illusion."},
+        correspondence = {"Sun in Scorpio. Memory sweetens the cup.", "But nostalgia brews both comfort and illusion."},
         upright_keywords = {"nostalgia", "childhood", "memories", "innocence", "comfort", "emotional roots"},
         reversed_keywords = {"living in the past", "clinging", "unrealistic ideals", "emotional stagnation", "unresolved issues", "sentimentality"},
         upright_fortune = {
@@ -93,7 +93,7 @@ CARD_DATA_CUPS = {
         },
     },
     ["Seven of Cups"] = {
-        correspondence = {"Venus in Scorpio. The dream offers seven doors. Choose wrong, and drown in the mirage."},
+        correspondence = {"Venus in Scorpio. The dream offers seven doors.", "Choose wrong, and drown in the mirage."},
         upright_keywords = {"choices", "illusions", "dreams", "temptation", "fantasy", "imagination"},
         reversed_keywords = {"clarity", "decision", "groundedness", "reality check", "narrowed focus", "disillusionment"},
         upright_fortune = {
@@ -108,7 +108,7 @@ CARD_DATA_CUPS = {
         },
     },
     ["Eight of Cups"] = {
-        correspondence = {"Saturn in Pisces. The wine has soured. You walk away: not from love, but from its ghost."},
+        correspondence = {"Saturn in Pisces. The wine has soured.", "You walk away: not from love, but from its ghost."},
         upright_keywords = {"departure", "emotional withdrawal", "searching", "letting go", "inner journey", "dissatisfaction"},
         reversed_keywords = {"fear of change", "stagnation", "avoidance", "stuck emotions", "clinging", "aimlessness"},
         upright_fortune = {
@@ -123,7 +123,7 @@ CARD_DATA_CUPS = {
         },
     },
     ["Nine of Cups"] = {
-        correspondence = {"Jupiter in Pisces. The wish granted. The heart swells. But beware the fullness that forgets the soul."},
+        correspondence = {"Jupiter in Pisces. The wish granted. The heart swells.", "But beware the fullness that forgets the soul."},
         upright_keywords = {"contentment", "satisfaction", "emotional fulfillment", "pleasure", "wish granted", "gratitude"},
         reversed_keywords = {"smugness", "disappointment", "indulgence", "unmet desires", "superficial joy", "hollow success"},
         upright_fortune = {
@@ -138,28 +138,28 @@ CARD_DATA_CUPS = {
         },
     },
     ["Ten of Cups"] = {
-        correspondence = {"Mars in Pisces. The storm has passed. The rainbow arches. Harmony, for a heartbeat or a lifetime."},
+        correspondence = {"Mars in Pisces.\nThe storm has passed.\nThe rainbow arches.", "Harmony, for a heartbeat or a lifetime."},
         upright_keywords = {"harmony", "emotional completion", "family", "joy", "lasting happiness", "shared dreams"},
         reversed_keywords = {"disharmony", "broken connection", "false happiness", "misaligned values", "tension", "emotional instability"},
         upright_fortune = {
             "Family is everything, unless you're a cat, then it's all about the naps.",
             "Joy is contagious, but so is drama. Choose your tribe wisely.",
-            "Harmony is beautiful, appreciate the discordant notes that makes the melody interesting."
+            "Appreciate the discordant notes that makes the melody interesting."
         },
         reversed_fortune = {
             "Emotional rollercoaster: thrilling, but nauseating. Buckle up!",
             "False happiness or too much candy? After the buzz, you'll crash and burn.",
-            "Misaligned values are like shoes that don't fit: you'll trip and stumble, until you find your sole-mate."
+            "Clashing auras, crystal shoe. Trip and stumble until you find your sole-mate."
         },
     },
     ["Page of Cups"] = {
-        correspondence = {"Earth of Water. A fish speaks in riddles. You listen, heart open, logic... conveniently drowned."},
+        correspondence = {"Earth of Water. A fish speaks in riddles.", "You listen, heart open, logic... conveniently drowned."},
         upright_keywords = {"innocence", "emotional curiosity", "messages", "intuition", "creative beginnings", "sensitivity"},
         reversed_keywords = {"emotional immaturity", "creative block", "insecurity", "moodiness", "unrealistic hopes", "avoidance"},
         upright_fortune = {
             "Creative beginnings are like a mermaid's kiss: magical, but slippery.",
             "The universe texts like a crush: cryptic, but worth decoding",
-            "Dolphins whispers secrets, listen full of wonder. And don't forget to bring a towel."
+            "Dolphins whisper secrets full of wonder. Don't forget to bring a towel."
         },
         reversed_fortune = {
             "Feeling like a fish out of water? Stop flailing, darling.",
@@ -168,12 +168,12 @@ CARD_DATA_CUPS = {
         },
     },
     ["Knight of Cups"] = {
-        correspondence = {"Air of Water. He rides dreams like waves. A poet's promise, always just out of reach."},
+        correspondence = {"Air of Water. He rides dreams like waves.", "A poet's promise, always just out of reach."},
         upright_keywords = {"romantic offer", "charm", "idealism", "pursuit of dreams", "emotional quest", "imagination"},
         reversed_keywords = {"manipulation", "mood swings", "jealousy", "unrealistic fantasy", "emotional volatility", "seduction"},
         upright_fortune = {
             "Romantic offer arrives. Words are sweet; actions, the chocolate factory.",
-            "Pursuit of dreams is a noble, don't forget the long and winding road leading to the door.",
+            "Pursuit dreams through the long and winding road that leads to your door.",
             "Idealism's a guiding star. Until you see the next shiny thing."
         },
         reversed_fortune = {
@@ -183,7 +183,7 @@ CARD_DATA_CUPS = {
         },
     },
     ["Queen of Cups"] = {
-        correspondence = {"Water of Water. She listens deeper than words. Her gaze stirs tides. Nothing is truly hidden."},
+        correspondence = {"Water of Water. She listens deeper than words.", "Her gaze stirs tides. Nothing is truly hidden."},
         upright_keywords = {"empathy", "compassion", "intuition", "emotional depth", "nurturing", "inner calm"},
         reversed_keywords = {"emotional overwhelm", "codependency", "suppression", "insecurity", "hypersensitivity", "escapism"},
         upright_fortune = {
@@ -192,13 +192,13 @@ CARD_DATA_CUPS = {
             "The depths of your feelings are a mess, but hey, at least you're consistent."
         },
         reversed_fortune = {
-            "Your emotions are a hot mess, but don't worry, it's not like you're alone or anything. Just kidding, you're totally alone in this mess.",
-            "Your emotional storm is not a metaphor, it's a real thing. Take cover, and try not to get too wet.",
-            "Codependency is not a relationship goal. It's more like a cry for help. Will the spirits guide you out?"
+            "Your're a hot mess, but no worries. Just kidding, you're totes alone in this mess.",
+            "Your emotional storm is not a metaphor. Take cover, and try not to get too wet.",
+            "You keep pouring into others. Strange no one's pouring back."
         },
     },
     ["King of Cups"] = {
-        correspondence = {"Fire of Water. The sea rages. He does not. Emotion held like wine: potent, poised, and masked."},
+        correspondence = {"Fire of Water. The sea rages. He does not.", "Emotion held like wine: potent, poised, and masked."},
         upright_keywords = {"emotional balance", "wisdom", "diplomacy", "compassion", "control", "maturity"},
         reversed_keywords = {"emotional repression", "manipulation", "coldness", "instability", "passive-aggression", "detachment"},
         upright_fortune = {
@@ -209,7 +209,7 @@ CARD_DATA_CUPS = {
         reversed_fortune = {
             "Coldness isn't calmness. One's ice; the other, ocean. Brrr.",
             "Instability's rollercoaster is fun until you have to get out to vomit.",
-            "Repressing emotions or holding your breath underwater?Don't turn blue, darling."
+            "Repressing emotions or holding your breath? Don't turn blue, darling."
         },
     },
 }

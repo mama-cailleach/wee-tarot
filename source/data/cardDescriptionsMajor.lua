@@ -112,7 +112,7 @@ CARD_DATA_MAJOR = {
         upright_keywords = {"willpower", "determination", "control", "triumph", "focus", "drive"},
         reversed_keywords = {"lack of direction", "aggression", "self-doubt", "scattered focus", "delays"},
         upright_fortune = {
-            "Drive and determination fuel your quest. And a worrying amount of caffeine.",
+            "Your quest fueled by drive, purpose, and a worrying amount of caffeine.",
             "Forward! Just make sure you're not charging confidently off a cliff.",
             "Ambition is your co pilot. Let's hope it knows how to read the celestial map."
         },

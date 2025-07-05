@@ -34,10 +34,14 @@ end
 
 function SceneManager:loadNewScene()
     self:cleanupScene()
-    self.newScene(table.unpack(self.sceneArgs))
+    self.currentScene = self.newScene(table.unpack(self.sceneArgs))
 end
 
 function SceneManager:cleanupScene()
+        -- Call deinit on the current scene if it exists
+    if self.currentScene and self.currentScene.deinit then
+        self.currentScene:deinit()
+    end
     -- Remove all sprites except the transition sprite instead of using gfx.sprite.removeAll()
     local allSprites = gfx.sprite.getAllSprites()
     for i = 1, #allSprites do

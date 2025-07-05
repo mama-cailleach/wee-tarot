@@ -85,6 +85,7 @@ function CreditsScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
+        thunder:play(1)
         SCENE_MANAGER:switchScene(SettingsScene)
     end
 

@@ -34,7 +34,7 @@ function TitleScene:init()
         end)
     self.blinkerTimer.repeats = true
 
-    gfx.setImageDrawMode(playdate.graphics.kDrawModeFillBlack)
+    gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
     sideMenuCreate()
 
 

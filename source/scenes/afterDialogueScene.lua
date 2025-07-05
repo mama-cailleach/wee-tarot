@@ -86,10 +86,12 @@ function AfterDialogueScene:update()
     if self.optionsTextOn then
         -- Only allow A/B for options after text is gone
         if pd.buttonJustPressed(pd.kButtonB) then
+            thunder:play(1)
             SCENE_MANAGER:switchScene(SettingsScene)
         end
         if pd.buttonJustPressed(pd.kButtonA) then
             self:loadGameAnimation()
+            thunder:play(1)
             self.dinahSprite:changeState("transition")
         end
     end

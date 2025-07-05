@@ -55,7 +55,7 @@ gfx.setFont(myFont)
 -- call first scene (do I need this as a function?)
 local function startGame()
     --SCENE_MANAGER:switchScene(PostSceneDebug) DEBUG
-    SCENE_MANAGER:switchScene(GameSceneDebug)
+    SCENE_MANAGER:switchScene(PostSceneDebug)
     
 end
 

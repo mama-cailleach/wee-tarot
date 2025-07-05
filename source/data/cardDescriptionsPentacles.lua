@@ -18,7 +18,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Two of Pentacles"] = {
-        correspondence = {"Jupiter in Capricorn. The dance of matter and motion. Coins spin, time sways. Balance or blur?"},
+        correspondence = {"Jupiter in Capricorn. The dance of matter and motion.", "Coins spin, time sways. Balance or blur?"},
         upright_keywords = {"balance", "adaptability", "juggling priorities", "time management", "flow", "organized chaos"},
         reversed_keywords = {"imbalance", "overwhelm", "dropped ball", "poor budgeting", "chaos", "burnout"},
         upright_fortune = {
@@ -33,7 +33,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Three of Pentacles"] = {
-        correspondence = {"Mars in Capricorn. Stone meets vision. The craft demands hands, hearts, and humble plans."},
+        correspondence = {"Mars in Capricorn. Stone meets vision.", "The craft demands hands, hearts, and humble plans."},
         upright_keywords = {"collaboration", "teamwork", "craftsmanship", "skill building", "shared vision", "steady progress"},
         reversed_keywords = {"lack of harmony", "poor workmanship", "ego clash", "disorganization", "misalignment", "no support"},
         upright_fortune = {
@@ -48,7 +48,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Four of Pentacles"] = {
-        correspondence = {"Sun in Capricorn. You clutch the coin. It clutches back. Security or stagnation? Hard to tell."},
+        correspondence = {"Sun in Capricorn.\nYou clutch the coin.\nIt clutches back.", "Security or stagnation? Hard to tell."},
         upright_keywords = {"control", "saving", "boundaries", "security", "holding tight", "protecting assets"},
         reversed_keywords = {"greed", "release", "fear of loss", "scarcity mindset", "financial instability", "letting go"},
         upright_fortune = {
@@ -63,7 +63,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Five of Pentacles"] = {
-        correspondence = {"Mercury in Taurus. Doors shut. Cold bites. But between silence and snow… a light flickers."},
+        correspondence = {"Mercury in Taurus.\nDoors shut.\nCold bites.", "But between silence and snow… a light flickers."},
         upright_keywords = {"hardship", "poverty", "isolation", "spiritual drought", "abandonment", "survival mode"},
         reversed_keywords = {"recovery", "help offered", "hope renewed", "light returning", "rebuilding", "spiritual refuge"},
         upright_fortune = {
@@ -78,7 +78,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Six of Pentacles"] = {
-        correspondence = {"Moon in Taurus. The hand gives. The hand receives. And both are tested by the weight of gold."},
+        correspondence = {"Moon in Taurus.\nThe hand gives.\nThe hand receives.","And both are tested by the weight of gold."},
         upright_keywords = {"generosity", "giving and receiving", "support", "charity", "balance restored", "mutual aid"},
         reversed_keywords = {"strings attached", "debt", "power imbalance", "greed", "withheld support", "unequal exchange"},
         upright_fortune = {
@@ -93,7 +93,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Seven of Pentacles"] = {
-        correspondence = {"Saturn in Taurus. The soil waits. So do you. Patience blooms in the quiet between efforts."},
+        correspondence = {"Saturn in Taurus.\nThe soil waits.\nSo do you.", "Patience blooms in the quiet between efforts."},
         upright_keywords = {"patience", "long-term vision", "slow growth", "investment", "assessment", "harvest pending"},
         reversed_keywords = {"impatience", "wasted effort", "short-term thinking", "frustration", "poor return", "neglect"},
         upright_fortune = {
@@ -108,7 +108,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Eight of Pentacles"] = {
-        correspondence = {"Sun in Virgo. The rhythm of work. Etch, shape, repeat. Mastery hums beneath the mundane."},
+        correspondence = {"Sun in Virgo.\nThe rhythm of work.\nEtch, shape, repeat.", "Mastery hums beneath the mundane."},
         upright_keywords = {"craftsmanship", "dedication", "skill development", "hard work", "mastery", "apprenticeship"},
         reversed_keywords = {"burnout", "sloppy work", "lack of focus", "cutting corners", "stagnation", "disinterest"},
         upright_fortune = {
@@ -123,7 +123,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Nine of Pentacles"] = {
-        correspondence = {"Venus in Virgo. Solitude in silk. What's earned whispers sweeter than what's given."},
+        correspondence = {"Venus in Virgo. Solitude in silk.", "What's earned whispers sweeter than what's given."},
         upright_keywords = {"self-sufficiency", "luxury", "independence", "refinement", "comfort", "earned success"},
         reversed_keywords = {"overdependence", "superficial wealth", "isolation", "financial setbacks", "insecurity", "loss of freedom"},
         upright_fortune = {
@@ -138,7 +138,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Ten of Pentacles"] = {
-        correspondence = {"Mercury in Virgo. Legacy is layered. Coins and bones, names and echoes. What endures, endures well."},
+        correspondence = {"Mercury in Virgo. Legacy is layered.", "Coins and bones, names and echoes. What endures, endures well."},
         upright_keywords = {"legacy", "long-term success", "family wealth", "inheritance", "roots", "stability"},
         reversed_keywords = {"instability", "broken traditions", "financial loss", "family tension", "short-sightedness", "collapse"},
         upright_fortune = {
@@ -153,7 +153,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Page of Pentacles"] = {
-        correspondence = {"Earth of Earth. The apprentice dreams of gold. Not for greed, but for the alchemy of becoming."},
+        correspondence = {"Earth of Earth. The apprentice dreams of gold.", "Not for greed, but for the alchemy of becoming."},
         upright_keywords = {"new goals", "grounded curiosity", "student mindset", "planning", "opportunity", "fresh ideas"},
         reversed_keywords = {"procrastination", "lack of commitment", "daydreaming", "missed chances", "scattered effort", "immaturity"},
         upright_fortune = {
@@ -168,7 +168,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Knight of Pentacles"] = {
-        correspondence = {"Air of Earth. The plow moves slow, but never strays. Duty etched in every careful step."},
+        correspondence = {"Air of Earth. The plow moves slow, but never strays.", "Duty etched in every careful step."},
         upright_keywords = {"responsibility", "routine", "loyalty", "steady progress", "hard-earned results", "diligence"},
         reversed_keywords = {"laziness", "stubbornness", "stuckness", "risk aversion", "boredom", "missed momentum"},
         upright_fortune = {
@@ -183,7 +183,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["Queen of Pentacles"] = {
-        correspondence = {"Water of Earth. She nurtures in stillness. Her abundance is not loud, but everything grows near her."},
+        correspondence = {"Water of Earth. She nurtures in stillness.", "Her abundance is not loud, but everything grows near her."},
         upright_keywords = {"nurturing", "abundance", "practical care", "resourcefulness", "fertility", "financial wisdom"},
         reversed_keywords = {"smothering", "imbalance", "materialism", "overextension", "self-neglect", "disconnection"},
         upright_fortune = {
@@ -198,7 +198,7 @@ CARD_DATA_PENTACLES = {
         },
     },
     ["King of Pentacles"] = {
-        correspondence = {"Fire of Earth. He builds, protects, and remembers. His throne is carved from patience and promise."},
+        correspondence = {"Fire of Earth. He builds, protects, and remembers.", "His throne is carved from patience and promise."},
         upright_keywords = {"prosperity", "mastery", "stability", "leadership", "wealth", "grounded power"},
         reversed_keywords = {"greed", "control issues", "corruption", "insecurity masked by wealth", "rigidity", "fear of failure"},
         upright_fortune = {
@@ -208,7 +208,7 @@ CARD_DATA_PENTACLES = {
         },
         reversed_fortune = {
             "Why bend when you can just break everything around you?",
-            "You're starring in a one puppet show as the only marionette who doesn't realize they got strings.",
+            "In a one puppet show you're the marionette who doesn't realize it got strings.",
             "Corrupt? Just optimizing the system. Exclusively for yourself of course."
         },
     },

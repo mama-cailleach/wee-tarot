@@ -18,7 +18,7 @@ CARD_DATA_WANDS = {
         },
     },
     ["Two of Wands"] = {
-        correspondence = {"Mars in Aries. Fire peers past the threshold, a hunger for what still flickers beyond sight."},
+        correspondence = {"Mars in Aries. Fire peers past the threshold.", "A hunger for what still flickers beyond sight."},
         upright_keywords = {"planning", "vision", "future potential", "decision-making", "personal power", "boldness", "ambition", "crossroads"},
         reversed_keywords = {"fear of change", "indecision", "playing it safe", "lack of direction", "unfulfilled plans", "hesitation", "restricted vision", "missed chance"},
         upright_fortune = {
@@ -33,7 +33,7 @@ CARD_DATA_WANDS = {
         },
     },
     ["Three of Wands"] = {
-        correspondence = {"Sun in Aries. A flame sent forth still longs to return. The horizon remembers its source."},
+        correspondence = {"Sun in Aries.\nA flame sent forth still longs to return.","The horizon remembers its source."},
         upright_keywords = {"progress", "foresight", "expansion", "momentum", "long-term vision", "opportunity"},
         reversed_keywords = {"delays", "disappointment", "lack of progress", "poor planning", "shrinking vision", "missed ships"},
         upright_fortune = {
@@ -48,7 +48,7 @@ CARD_DATA_WANDS = {
         },
     },
     ["Four of Wands"] = {
-        correspondence = {"Venus in Aries. A hearth is lit, and voices gather. Joy, fleeting, but real as smoke in the wind."},
+        correspondence = {"Venus in Aries.\nA hearth is lit, and voices gather.","Joy, fleeting, but real as smoke in the wind."},
         upright_keywords = {"celebration", "harmony", "homecoming", "joy", "stability", "shared success", "foundation", "union"},
         reversed_keywords = {"instability", "tension at home", "canceled plans", "fleeting joy", "disconnection", "lack of support", "disharmony"},
         upright_fortune = {
@@ -63,7 +63,7 @@ CARD_DATA_WANDS = {
         },
     },
     ["Five of Wands"] = {
-        correspondence = {"Saturn in Leo. When too many flames dance, the shadows grow bold. A test of will and spark."},
+        correspondence = {"Saturn in Leo. When too many flames dance, the shadows grow bold.","A test of will and spark."},
         upright_keywords = {"conflict", "competition", "chaos", "tension", "differing views", "challenge", "provocation", "ego clash"},
         reversed_keywords = {"avoidance", "inner conflict", "suppressed anger", "retreat", "passive aggression", "unresolved tension", "false peace"},
         upright_fortune = {
@@ -93,7 +93,7 @@ CARD_DATA_WANDS = {
         },
     },
     ["Seven of Wands"] = {
-        correspondence = {"Mars in Leo. The last light at the gate. One flame, surrounded, refuses to flicker."},
+        correspondence = {"Mars in Leo. The last light at the gate.", "One flame, surrounded, refuses to flicker."},
         upright_keywords = {"defense", "perseverance", "standing ground", "resilience", "challenge met", "holding the line"},
         reversed_keywords = {"overwhelmed", "giving up", "lack of defense", "insecurity", "surrender", "burnout", "unsupported stance"},
         upright_fortune = {
@@ -108,7 +108,7 @@ CARD_DATA_WANDS = {
         },
     },
     ["Eight of Wands"] = {
-        correspondence = {"Mercury in Sagittarius. Messages in the firelight... arrows of intent, swifter than thought."},
+        correspondence = {"Mercury in Sagittarius. Messages in the firelight...","Arrows of intent, swifter than thought."},
         upright_keywords = {"swift movement", "momentum", "communication", "rapid progress", "alignment", "green light"},
         reversed_keywords = {"delays", "miscommunication", "scattered focus", "chaos", "interruption", "stuck energy", "crossed signals"},
         upright_fortune = {
@@ -123,7 +123,7 @@ CARD_DATA_WANDS = {
         },
     },
     ["Nine of Wands"] = {
-        correspondence = {"Moon in Sagittarius. Battered wood, scorched earth. But the flame still stands."},
+        correspondence = {"Moon in Sagittarius. Battered wood, scorched earth.", "But the flame still stands."},
         upright_keywords = {"resilience", "last stand", "perseverance", "guardedness", "battle-worn", "persistence", "near completion"},
         reversed_keywords = {"defeat", "paranoia", "giving up", "wounded pride", "unnecessary barriers", "hypervigilance", "collapse"},
         upright_fortune = {
@@ -138,7 +138,7 @@ CARD_DATA_WANDS = {
         },
     },
     ["Ten of Wands"] = {
-        correspondence = {"Saturn in Sagittarius. Even fire may falter when burdened. Release what smothers the spark."},
+        correspondence = {"Saturn in Sagittarius.\nEven fire may falter when burdened.", "Release what smothers the spark."},
         upright_keywords = {"burden", "responsibility", "stress", "hard work", "overwhelm", "obligation", "weight of success"},
         reversed_keywords = {"release", "avoidance", "burnout", "letting go", "misplaced priorities", "unsustainable pressure", "collapse"},
         upright_fortune = {
@@ -153,7 +153,7 @@ CARD_DATA_WANDS = {
         },
     },
     ["Page of Wands"] = {
-        correspondence = {"Earth of Fire. The spark grins, curious and wild. Unaware it might soon become a wildfire."},
+        correspondence = {"Earth of Fire.\nThe spark grins, curious and wild.", "Unaware it might soon become a wildfire."},
         upright_keywords = {"curiosity", "spark of adventure", "inspiration", "enthusiasm", "creative messenger", "playful energy"},
         reversed_keywords = {"scattered energy", "immaturity", "false start", "lack of direction", "unfinished ideas", "fleeting spark"},
         upright_fortune = {
@@ -174,7 +174,7 @@ CARD_DATA_WANDS = {
         upright_fortune = {
             "Your steps ignite, the smoke charms. Or perhaps just chokes, the masses.",
             "Fire in your wake, embers in your eyes. The stars gossip: fluke or force.",
-            "A spark rides the wind, laughing at the horizon. It trusts the air more than it should."
+            "A spark rides the wind, laughing at the horizon. It trusts more than it should."
         },
         reversed_fortune = {
             "Arrogance wears a sparkly crown. Pity it's flammable, bless its heart.",
@@ -183,7 +183,7 @@ CARD_DATA_WANDS = {
         },
     },
     ["Queen of Wands"] = {
-        correspondence = {"Water of Fire. She commands without asking. Fire wraps around her, not the other way."},
+        correspondence = {"Water of Fire. She commands without asking.", "Fire wraps around her, not the other way."},
         upright_keywords = {"confidence", "magnetism", "independence", "inner power", "warmth", "creative authority", "fiery grace"},
         reversed_keywords = {"jealousy", "insecurity", "manipulation", "shadow charisma", "controlling nature", "scattered focus"},
         upright_fortune = {
@@ -193,12 +193,12 @@ CARD_DATA_WANDS = {
         },
         reversed_fortune = {
             "Vanity's mirror cracks. A Queen reflects. Flame needs fuel, not just flair.",
-            "Passion's queen? More like prisoner. Drama's exhausting, the sun needs to set.",
+            "Passion's queen? More like prisoner. Drama's wearing, the sun needs to set.",
             "The crown tilts. Spirits laughs, whispering who trully wears it tonight."
         },
     },
     ["King of Wands"] = {
-        correspondence = {"Air of Fire. The flame speaks in strategy now. Not every fire is loud, some rule in silence."},
+        correspondence = {"Air of Fire.\nThe flame speaks in strategy now.", "Not every fire is loud, some rule in silence."},
         upright_keywords = {"leadership", "vision", "strategic fire", "command", "ambition", "inspiration", "wise authority"},
         reversed_keywords = {"tyranny", "impulsive rule", "arrogance", "inflated ego", "intolerance", "abuse of power", "lost direction"},
         upright_fortune = {
@@ -207,9 +207,9 @@ CARD_DATA_WANDS = {
             "Majesty with a smirk. The sun's ego is legendary. And it's taking notes."
         },
         reversed_fortune = {
-            "Authority flails. The kingdom's betting on how long the charade lasts. Place your coins.",
+            "Authority flails. The kingdom's betting on how long the charade lasts.",
             "Charisma fades. The stars just rolled their eyes into another dimension.",
-            "King of nothing but embers. Even the ash is packing its bags. Cue the violin."
+            "King of nothing but embers. Even the ash is packing. Cue the violin."
         },
     },
 }

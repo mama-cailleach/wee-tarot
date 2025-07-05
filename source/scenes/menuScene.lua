@@ -9,7 +9,7 @@ local SCROLL_SPEED_DIVISOR = 90
 
 function MenuScene:init()
     MenuScene.super.init(self)
-    print(utils)
+    thunder:play(1)
 
     -- scene variables
     self.imagetable = gfx.imagetable.new("images/bg/dinahBG-table-400-266")
@@ -151,6 +151,7 @@ function MenuScene:makeButtonSprite(letter, x, y, radius)
 end
 
 function MenuScene:optionsText()
+    thunder:play(1)
     gfx.setImageDrawMode(gfx.kDrawModeInverted)
     -- Remove old sprites if they exist
     if self.settingsText then self.settingsText:remove() end
@@ -239,12 +240,14 @@ function MenuScene:update()
     elseif self.optionsTextOn then
         -- Only allow A/B for options after text is gone
         if pd.buttonJustPressed(pd.kButtonB) then
+            thunder:play(1)
             SCENE_MANAGER:switchScene(SettingsScene)
         end
         if pd.buttonJustPressed(pd.kButtonA) then
             self:loadGameAnimation()
             self.dinahSprite:changeState("transition")
             self:removeAButton()
+            thunder:play(1)
         end
     end
 end

@@ -18,7 +18,7 @@ CARD_DATA_SWORDS = {
         },
     },
     ["Two of Swords"] = {
-        correspondence = {"Moon in Libra. The wind stills. Blades cross in silence. Peace or paralysis? The heart knows."},
+        correspondence = {"Moon in Libra. The wind stills. Blades cross in silence.", "Peace or paralysis? The heart knows."},
         upright_keywords = {"stalemate", "indecision", "blocked emotions", "difficult choice", "inner conflict", "silence"},
         reversed_keywords = {"avoidance", "overload", "emotional eruption", "bad timing", "hidden truth", "forced hand"},
         upright_fortune = {
@@ -33,7 +33,7 @@ CARD_DATA_SWORDS = {
         },
     },
     ["Three of Swords"] = {
-        correspondence = {"Saturn in Libra. Rain falls through the wound. The storm speaks plainly when the heart cannot."},
+        correspondence = {"Saturn in Libra. Rain falls through the wound.", "The storm speaks plainly when the heart cannot."},
         upright_keywords = {"heartbreak", "betrayal", "grief", "sorrow", "emotional pain", "harsh truth"},
         reversed_keywords = {"healing", "repression", "denial", "wounds fester", "delayed closure", "emotional numbness"},
         upright_fortune = {
@@ -48,7 +48,7 @@ CARD_DATA_SWORDS = {
         },
     },
     ["Four of Swords"] = {
-        correspondence = {"Jupiter in Libra. Swords laid to rest. The mind exhales. Let the hush mend what battle could not."},
+        correspondence = {"Jupiter in Libra.\nSwords laid to rest.\nThe mind exhales.", "Let the hush mend what battle could not."},
         upright_keywords = {"rest", "recovery", "retreat", "contemplation", "mental reset", "sacred pause"},
         reversed_keywords = {"restlessness", "burnout", "no peace", "racing thoughts", "refusal to heal", "disturbed sleep"},
         upright_fortune = {
@@ -63,7 +63,7 @@ CARD_DATA_SWORDS = {
         },
     },
     ["Five of Swords"] = {
-        correspondence = {"Venus in Aquarius. The clash ends, but no one's smiling. Victory with a hollow echo."},
+        correspondence = {"Venus in Aquarius.\nThe clash ends, but no one's smiling.", "Victory with a hollow echo."},
         upright_keywords = {"conflict", "betrayal", "hollow victory", "selfishness", "tension", "manipulation"},
         reversed_keywords = {"remorse", "resolution", "surrender", "lingering resentment", "lessons learned", "damage control"},
         upright_fortune = {
@@ -78,7 +78,7 @@ CARD_DATA_SWORDS = {
         },
     },
     ["Six of Swords"] = {
-        correspondence = {"Mercury in Aquarius. The blade turns toward the horizon. Not escape, transition cloaked in shadow."},
+        correspondence = {"Mercury in Aquarius.\nThe blade turns toward the horizon.","Not escape, transition cloaked in shadow."},
         upright_keywords = {"transition", "moving on", "mental shift", "journey", "healing", "escape"},
         reversed_keywords = {"stuck", "emotional baggage", "resistance to change", "can't let go", "stagnation", "unfinished business"},
         upright_fortune = {
@@ -93,7 +93,7 @@ CARD_DATA_SWORDS = {
         },
     },
     ["Seven of Swords"] = {
-        correspondence = {"Moon in Aquarius. Footsteps fade. The truth stays hidden, tucked beneath a cloak of cunning."},
+        correspondence = {"Moon in Aquarius.\nFootsteps fade...", "The truth stays hidden, tucked beneath a cloak of cunning."},
         upright_keywords = {"deception", "strategy", "secrets", "sneakiness", "independence", "mental agility"},
         reversed_keywords = {"truth revealed", "getting caught", "guilt", "poor planning", "confession", "self-deception"},
         upright_fortune = {
@@ -108,7 +108,7 @@ CARD_DATA_SWORDS = {
         },
     },
     ["Eight of Swords"] = {
-        correspondence = {"Jupiter in Gemini. The cage is made of thought. The key? Whispered by the wind, often unheard."},
+        correspondence = {"Jupiter in Gemini.\nThe cage is made of thought.", "The key? Whispered by the wind, often unheard."},
         upright_keywords = {"restriction", "trapped", "fear", "paralysis", "mental prison", "helplessness"},
         reversed_keywords = {"liberation", "clarity returns", "new perspective", "self-empowerment", "escape", "fear dissolves"},
         upright_fortune = {
@@ -123,7 +123,7 @@ CARD_DATA_SWORDS = {
         },
     },
     ["Nine of Swords"] = {
-        correspondence = {"Mars in Gemini. Night sharpens the mind into blades. Sleep flees. Shadows gather to whisper."},
+        correspondence = {"Mars in Gemini.\nNight sharpens the mind into blades.", "Sleep flees. Shadows gather to whisper."},
         upright_keywords = {"anxiety", "guilt", "nightmares", "overthinking", "despair", "inner torment"},
         reversed_keywords = {"healing begins", "perspective shift", "facing fears", "insomnia fades", "emotional release", "light breaking through"},
         upright_fortune = {
@@ -138,7 +138,7 @@ CARD_DATA_SWORDS = {
         },
     },
     ["Ten of Swords"] = {
-        correspondence = {"Sun in Gemini. The end is here, cruel and honest. But from ruin… air stirs once more."},
+        correspondence = {"Sun in Gemini.\nThe end is here, cruel and honest.","But from ruin… air stirs once more."},
         upright_keywords = {"betrayal", "rock bottom", "painful end", "defeat", "collapse", "inevitable fall"},
         reversed_keywords = {"recovery", "resurrection", "closure", "lessons learned", "dawn after darkness", "surviving the worst"},
         upright_fortune = {
@@ -153,22 +153,22 @@ CARD_DATA_SWORDS = {
         },
     },
     ["Page of Swords"] = {
-        correspondence = {"Earth of Air. Eyes sharp, tongue sharper. A question on every breeze, and no fear of storms."},
+        correspondence = {"Earth of Air.\nEyes sharp, tongue sharper.","A question on every breeze, and no fear of storms."},
         upright_keywords = {"curiosity", "mental spark", "truth-seeker", "vigilance", "fresh ideas", "youthful intellect"},
         reversed_keywords = {"gossip", "scattered thoughts", "overthinking", "spy energy", "manipulation", "mental immaturity"},
         upright_fortune = {
-            "Your curiosity just found a new hypefocus. The universe apologizes in advance.",
+            "Your curiosity found a new hyperfocus. Cosmos apologizes in advance.",
             "Prepare for clarity. It rarely comes with a how-to manual.",
-            "The truth may sting, but at least now you have something interesting to talk about."
+            "Truth may sting, at least now you have something interesting to talk about."
         },
         reversed_fortune = {
             "Your mind's a maze today. The exit sign is in another dimension.",
             "The truth is out there. Are you with Mulder or Scully?",
-            "You're collecting information. Mostly gossip. The universe is not bothered."
+            "Collecting information? Mostly gossip. Spirits are not bothered."
         },
     },
     ["Knight of Swords"] = {
-        correspondence = {"Fire of Air. He charges thought-first, sword aloft. Swift, certain, and frequently late to doubt."},
+        correspondence = {"Fire of Air.\nHe charges thought-first, sword aloft.", "Swift, certain, and frequently late to doubt."},
         upright_keywords = {"bold action", "ambition", "unstoppable", "sharp focus", "charging ahead", "swift decisions"},
         reversed_keywords = {"recklessness", "burnout", "cruel words", "tunnel vision", "impulsiveness", "storm without aim"},
         upright_fortune = {
@@ -183,7 +183,7 @@ CARD_DATA_SWORDS = {
         },
     },
     ["Queen of Swords"] = {
-        correspondence = {"Water of Air. She sees all. Her silence cuts cleaner than most speeches. Truth bows before her."},
+        correspondence = {"Water of Air.\nShe sees all.", "Her silence cuts cleaner than most speeches. Truth bows before her."},
         upright_keywords = {"clarity", "truth", "independence", "wisdom through pain", "discernment", "no-nonsense"},
         reversed_keywords = {"coldness", "bitterness", "harshness", "emotional walls", "sharp tongue", "clouded judgment"},
         upright_fortune = {
@@ -198,7 +198,7 @@ CARD_DATA_SWORDS = {
         },
     },
     ["King of Swords"] = {
-        correspondence = {"Air of Air. Thought distilled into command. A ruler of reason: precise, cold, incorruptible."},
+        correspondence = {"Air of Air.\nThought distilled into command.", "A ruler of reason: precise, cold, incorruptible."},
         upright_keywords = {"authority", "intellect", "truth", "clear thinking", "fair judgment", "mental mastery"},
         reversed_keywords = {"tyranny", "manipulation", "cold control", "abuse of power", "ruthless logic", "distorted truth"},
         upright_fortune = {

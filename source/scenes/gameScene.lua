@@ -5,6 +5,11 @@ local gfx <const> = pd.graphics
 
 class('GameScene').extends(gfx.sprite)
 
+
+-- pre lodaing imagetable
+local explodeImagetable = gfx.imagetable.new("images/shuffleAnimation/explode_finale-table-400-240")
+local scaleTable = gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
+
 function GameScene:init()
     self.deck = Deck()
 
@@ -37,6 +42,8 @@ function GameScene:init()
     self.playerCard = nil
     self.isInverted = false
     self:showFirstPrompt()
+
+    self.crankEnabled = true
 
     self:add()
 end
@@ -111,11 +118,15 @@ function GameScene:showFirstPrompt()
     self.firstPromptSprite = self:showPromptTextTypewriter(prompt, 20, 4, 40, 1500)
 
      -- Remove any existing timer
-    if self.firstPromptTimer then self.firstPromptTimer:remove() end
+    if self.firstPromptTimer then 
+    self.firstPromptTimer:remove() 
+    self.firstPromptTimer = nil 
+    end
 
     -- Only keep showing prompts if still in shuffle state and A hasn't been pressed
     self.firstPromptTimer = pd.timer.performAfterDelay(math.random(10000, 15000), function()
         if self.state == "shuffle" and not pd.buttonIsPressed(pd.kButtonA) then
+            thunder:play(1)
             self:showFirstPrompt()
         end
     end)
@@ -175,18 +186,8 @@ function GameScene:setup16CardShuffleAnimation()
     self.shuffleAnimSprite:playAnimation()
 end
 
-function GameScene:setupCardSpinAnimation()
-    local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/card_spin_slide-table-400-240")
-    self.spinAnimSprite = AnimatedSprite.new(imagetableShuffle)
-    self.spinAnimSprite:addState("spin", 1, 60, {tickStep = 1, loop = false})
-    self.spinAnimSprite:moveTo(207, 135)
-    self.spinAnimSprite:add()
-    self.spinAnimSprite:playAnimation()
-end
-
 function GameScene:setupCardExplodeAnimation()
-    local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/explode_finale-table-400-240")
-    self.explodeAnimSprite = AnimatedSprite.new(imagetableShuffle)
+    self.explodeAnimSprite = AnimatedSprite.new(explodeImagetable)
     self.explodeAnimSprite:addState("explode", 1, 100, {tickStep = 1, loop = false, onAnimationEndEvent = function()
         -- what happens after
         self.explodeAnimSprite:remove()
@@ -241,10 +242,11 @@ function GameScene:revealAnimation(x, y)
     self.revealSprite:add()
     self.revealSprite:changeState("animate", true)
     self.revealSprite:playAnimation()
+    thunder:play(1)
 end
 
 function GameScene:scaleAnimation(x, y)
-    local scaleTable = gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
+    
     self.scaleSprite = AnimatedSprite.new(scaleTable)
     self.scaleSprite:addState("scale", 1, 60, {tickStep = 1, loop = false, onAnimationEndEvent = function()
         self.scaleSprite:remove()
@@ -257,24 +259,6 @@ function GameScene:scaleAnimation(x, y)
     self.scaleSprite:add()
     self.scaleSprite:changeState("scale", true)
     self.scaleSprite:playAnimation()
-end
-
-
-function GameScene:scaleAnimation2()
-    local scaleTable = gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
-    self.scaleSprite2 = AnimatedSprite.new(scaleTable)
-    self.scaleSprite2:addState("scaleHalfWay", 30, 60, {tickStep = 1, loop = false, animationStartingFrame = 1, onAnimationEndEvent = function()
-        self.scaleSprite2:remove()
-        self.scaleSprite2 = nil
-        self:showPlacementSprite()
-        self.state = "revealed"
-        --self:drawCardLogic()
-        
-    end}, true)
-    self.scaleSprite2:moveTo(220, 120)
-    self.scaleSprite2:add()
-    self.scaleSprite2:changeState("scaleHalfWay", true)
-    self.scaleSprite2:playAnimation()
 end
 
 -- --- Update Method ---
@@ -299,8 +283,10 @@ function GameScene:update()
                 if currentFrame < finishFrame then
                     self.shuffleAnimSprite:setFrame(currentFrame + 1)
                 else
-                    if self.shuffleFinishTimer then self.shuffleFinishTimer:remove() end
-                    self.shuffleFinishTimer = nil
+                    if self.shuffleFinishTimer then 
+                        self.shuffleFinishTimer:remove() 
+                        self.shuffleFinishTimer = nil 
+                    end
                     self.shuffleAnimSprite:changeState("idle")
                     pd.timer.performAfterDelay(100, function()
                         self.shuffleAnimSprite:remove()
@@ -319,6 +305,7 @@ function GameScene:update()
         
         if self.state == "fortune" then
             if self.playerCard and self.isInverted ~= nil then
+                thunder:play(1)
                 SCENE_MANAGER:switchScene(PostScene, self.playerCard, self.isInverted)
             else
                 print("Error: Card not drawn yet or inverted state missing for PostScene transition.")
@@ -332,37 +319,21 @@ function GameScene:update()
             self:drawCardLogic()
             self.state = "fortune"
         end)                   
-        pd.timer.performAfterDelay(10000, function()
-            if self.playerCard and self.isInverted ~= nil then
-            SCENE_MANAGER:switchScene(PostScene, self.playerCard, self.isInverted)
-            else
-                print("Error: Card not drawn yet or inverted state missing for PostScene transition.")
-            end
-            end)
-    end
-
-    -- delete this just for testing
-    if pd.buttonJustPressed(pd.kButtonB) then
-        if self.shuffleAnimSprite then
-            self.shuffleAnimSprite:changeState("idle")
-            self.shuffleAnimSprite:pauseAnimation()
-        end
-        SCENE_MANAGER:switchScene(GameScene)
-        if self.fortunePromptSprite then 
-            self.fortunePromptSprite:remove() 
-        end
     end
 
     -- --- Crank Shuffle Logic ---
     if self.state == "shuffle" and self.shuffleAnimSprite and not self.shuffleFinishTimer then
         local crankChange, acceleratedChange = pd.getCrankChange()
-        if crankChange ~= 0 then
+        if crankChange ~= 0 then           
             -- Loop the frame index in both directions / it takes 4 crank units to advance 1 frame.
-            self.shuffleFrame = ((self.shuffleFrame - 1 + math.floor(acceleratedChange / 6)) % self.shuffleFrameCount) + 1
+            self.shuffleFrame = ((self.shuffleFrame - 1 + math.floor(crankChange / 4)) % self.shuffleFrameCount) + 1
             self.shuffleAnimSprite:setFrame(self.shuffleFrame)
         end
 
-        --[[ This way, a full crank rotation = one full animation cycle.]
+                
+        --self.crankEnabled = false
+
+        --[[ This way, a full crank rotation = one full animation cycle.
         local crankPos = pd.getCrankPosition() -- 0..359
         local frame = math.floor((crankPos / 360) * self.shuffleFrameCount) + 1
         self.shuffleAnimSprite:setFrame(frame)]]
@@ -437,11 +408,15 @@ end
 
 
 function GameScene:deinit()
-    if self.promptTextSprite then self.promptTextSprite:remove() end
-    if self.fortunePromptSprite then self.fortunePromptSprite:remove() end
-    if self.cardPlacementSprite then self.cardPlacementSprite:remove() end
-    if self.drawnCardVisual then self.drawnCardVisual:remove() end
-    if self.invertedTextSprite then self.invertedTextSprite:remove() end
-    if self.shuffleAnimSprite then self.shuffleAnimSprite:remove() end
-    GameScene.super.deinit(self)
+    if self.promptTextSprite then self.promptTextSprite:remove() self.promptTextSprite = nil end
+    if self.fortunePromptSprite then self.fortunePromptSprite:remove() self.fortunePromptSprite = nil end
+    if self.cardPlacementSprite then self.cardPlacementSprite:remove() self.cardPlacementSprite = nil end
+    if self.drawnCardVisual then self.drawnCardVisual:remove() self.drawnCardVisual = nil end
+    if self.invertedTextSprite then self.invertedTextSprite:remove() self.invertedTextSprite = nil end
+    if self.shuffleAnimSprite then self.shuffleAnimSprite:remove() self.shuffleAnimSprite = nil end
+    if self.firstPromptSprite then self.firstPromptSprite:remove() self.firstPromptSprite = nil end
+    if self.firstPromptTimer then self.firstPromptTimer:remove() self.firstPromptTimer = nil end
+    if self.shuffleFinishTimer then self.shuffleFinishTimer:remove() self.shuffleFinishTimer = nil end
+    -- Remove any other timers or sprites you create
+    --GameScene.super.deinit(self)
 end
