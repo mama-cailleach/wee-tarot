@@ -12,6 +12,7 @@ local scaleTable = gfx.imagetable.new("images/shuffleAnimation/scaled_card-table
 
 function GameScene:init()
     self.deck = Deck()
+    print(onlyMajor)
 
 
     self.bgSprite = gfx.sprite.new(gfx.image.new("images/bg/tarot_playspace"))
@@ -66,24 +67,6 @@ function GameScene:showPromptText(text, x, y)
     promptSprite:moveTo(x or 8, y or 8)
     promptSprite:add()
     return promptSprite
-end
-
-function GameScene:showDrawnCard(cardName, isInverted)
-    if self.currentPromptSprite then self.currentPromptSprite:remove() end
-    local prompt = cardName
-    if isInverted then
-        --prompt = prompt .. "\nUpside Down"
-    end
-    self.currentPromptSprite = self:showPromptTextTypewriter(prompt, 100, 10, 40, 20000)
-end
-
-function GameScene:showDrawnMajorCard(cardName, isInverted)
-    if self.currentPromptSprite then self.currentPromptSprite:remove() end
-    local prompt = cardName
-    if isInverted then
-        ---prompt = prompt .. "\nUpside Down"
-    end
-    self.currentPromptSprite = self:showPromptText(prompt, 8, 8)
 end
 
 function GameScene:showFortunePrompt()
@@ -156,20 +139,15 @@ function GameScene:drawCardLogic()
     end
 
     self.playerCard = cardDrawed
+    self.playerCardNumber = cardNumber
+    self.playerCardSuit = cardSuit
+    self.isInverted = self.drawnCardVisual and self.drawnCardVisual.inverted or false
 
-    -- is card inverted check
+    --[[ is card inverted check
     if self.drawnCardVisual then
         self.isInverted = self.drawnCardVisual.inverted
-    end
-
-    --[[ Show the card name and inverted text in the prompt
-    if cardDrawed then
-        if self.onlyMajor then
-            self:showDrawnMajorCard(cardDrawed, self.isInverted)
-        else
-            self:showDrawnCard(cardDrawed, self.isInverted)
-        end
     end]]
+
     self:revealAnimation()
 end
 
@@ -306,7 +284,7 @@ function GameScene:update()
         if self.state == "fortune" then
             if self.playerCard and self.isInverted ~= nil then
                 thunder:play(1)
-                SCENE_MANAGER:switchScene(PostScene, self.playerCard, self.isInverted)
+                SCENE_MANAGER:switchScene(PostScene, self.playerCard, self.playerCardNumber, self.playerCardSuit, self.isInverted)
             else
                 print("Error: Card not drawn yet or inverted state missing for PostScene transition.")
             end

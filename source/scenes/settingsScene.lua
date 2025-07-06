@@ -115,8 +115,10 @@ function SettingsScene:update()
         -- Set global onlyMajor
         if self.deckTextIndex == 1 then
             onlyMajor = false
+            print(onlyMajor)
         else
             onlyMajor = true
+            print(onlyMajor)
         end
     -- SOUND OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step*2 then
@@ -132,28 +134,28 @@ function SettingsScene:update()
         -- (Optional) Set a global or do something with the sound mode here  
         if self.soundTextIndex == 1 then
             -- Music&Ambience
-            if not bgMusic1:isPlaying() then
-                bgMusic1:setVolume(0.5)
-                bgMusic1:play(0)
+            if bgMusic:getVolume() == 0 then
+                bgMusic:setVolume(0.7)
             end
             if not ambience:isPlaying() then
+                ambience:setVolume(0.3)
                 ambience:play(0)
             end
         elseif self.soundTextIndex == 2 then
             -- Play only music
-            if not bgMusic1:isPlaying() then
-                bgMusic1:setVolume(0.5)
-                bgMusic1:play(0)
+            if bgMusic:getVolume() == 0 then
+                bgMusic:setVolume(0.7)
             end
             if ambience:isPlaying() then
                 ambience:stop()
             end
         elseif self.soundTextIndex == 3 then
             -- Play only ambience
-            if bgMusic1:isPlaying() then
-                bgMusic1:stop()
+            if bgMusic:getVolume() ~= 0 then
+                bgMusic:setVolume(0)
             end
             if not ambience:isPlaying() then
+                ambience:setVolume(0.3)
                 ambience:play(0)
             end
         end

@@ -13,7 +13,6 @@ import "libraries/AnimatedSprite"
 
 -- Scenes
 import "scenes/allScenes"
-import "scripts/sideMenu"
 
 
 --card scripts
@@ -36,8 +35,8 @@ local gfx <const> = pd.graphics
 
 SCENE_MANAGER = SceneManager()
 
-bgMusic1 = pd.sound.fileplayer.new("sound/bgMusic2")
-bgMusic1:setLoopRange(0,22) -- Title Loop no beats
+bgMusic = pd.sound.fileplayer.new("sound/bgMusic2")
+bgMusic:setLoopRange(0,22) -- Title Loop no beats
 
 
 

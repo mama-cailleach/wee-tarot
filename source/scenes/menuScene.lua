@@ -5,7 +5,6 @@ class('MenuScene').extends(gfx.sprite)
 -- local MenuScene = MenuScene --| fixing the squigly line?
 
 local MAX_VISIBLE_LINES = 1
-local SCROLL_SPEED_DIVISOR = 90
 
 function MenuScene:init()
     MenuScene.super.init(self)
@@ -122,6 +121,7 @@ function MenuScene:scrollBoxCreate()
 end
 
 function MenuScene:onScrollBoxAnimationFinished()
+    ambience:play(0)
     self:showTextWindow()
     self.scrollBoxLoad = true -- Show the first text
     self.oscillationStartTime = pd.getElapsedTime()
@@ -211,7 +211,7 @@ function MenuScene:update()
     -- Only allow A to advance text (crank logic commented out)
     if self.scrollBoxLoad and not self.optionsTextOn then
         --[[]
-        local crankChange = pd.getCrankChange() / SCROLL_SPEED_DIVISOR
+        local crankChange = pd.getCrankChange() / 90
         if crankChange ~= 0 then
             local prevOffset = self.scrollOffset
             self.scrollOffset = math.max(0, math.min(self.scrollOffset + crankChange, self.maxScroll))

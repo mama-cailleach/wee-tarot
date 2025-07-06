@@ -13,8 +13,6 @@ import "libraries/AnimatedSprite"
 
 -- Scenes
 import "scenes/allScenes"
-import "scripts/sideMenu"
-
 
 --card scripts
 import "scripts/card"
@@ -38,9 +36,9 @@ SCENE_MANAGER = SceneManager()
 
 -- SOUND
 
-bgMusic1 = pd.sound.fileplayer.new("sound/bgMusic1")
-bgMusic1:setVolume(0.4)
-bgMusic1:setLoopRange(0,22) -- Title Loop no beats
+bgMusic = pd.sound.fileplayer.new("sound/bgMusic")
+bgMusic:setVolume(0.4)
+bgMusic:setLoopRange(0,22) -- Title Loop no beats
 
 ambience = pd.sound.fileplayer.new("sound/ambience2")
 ambience:play(0)

@@ -22,15 +22,16 @@ local function shuffle_table(tbl)
     end
     return shuffled_copy
 end
-local MAX_VISIBLE_LINES = 1
 
 class('PostScene').extends(gfx.sprite)
 
 
-function PostScene:init(playerCard, isInverted)
+function PostScene:init(cardName, cardNumber, cardSuit, isInverted)
     PostScene.super.init(self) -- IMPORTANT: Call the superclass init for sprite functionality
 
-    self.card = playerCard
+    self.card = cardName
+    self.cardNumber = cardNumber
+    self.cardSuit = cardSuit
     self.invert = isInverted
 
     -- --- Scene-Specific Variables ---
@@ -48,9 +49,7 @@ function PostScene:init(playerCard, isInverted)
     self.maxScroll = 0
     self.scrollBoxHeight = 120
     self.scrollBoxWidth = 310
-    self.lastLine = "You can press A now darling, but I will not tell you what to do."
     self.optionsTextOn = false
-
 
     -- --- TEXT ANIMATION LOOP PARAMETERS ---
     self.aButtonY = 220
@@ -89,6 +88,8 @@ function PostScene:init(playerCard, isInverted)
     print(self.card)
     print(self.invert)
 end
+
+
 
 
 -- Callback for scroll box animation finish
@@ -206,6 +207,20 @@ function PostScene:update()
             self.optionsTextOn = true
         end
     end
+
+    if self.canButton and not self.optionsTextOn and pd.buttonJustPressed(pd.kButtonB) then
+        self.canButton = false
+        self:removeAButton()
+        if self.dinahScrollText then 
+            self.dinahScrollText:remove() 
+            self.dinahScrollText = nil 
+        end
+        if self.scrollBoxSprite then 
+            self.scrollBoxSprite:remove() 
+        end
+        -- Go back to the card view scene
+        SCENE_MANAGER:switchScene(CardViewScene, self.card, self.cardNumber, self.cardSuit, self.isInverted)
+    end
 end
 
 
@@ -288,7 +303,21 @@ function PostScene:addCardTextToDinah(cardName)
         fortune_lines = cardInfo.upright_fortune
     end
     table.insert(lines, fortune_lines[math.random(1, #fortune_lines)])
-    table.insert(lines, self.lastLine)
+
+
+   -- 
+   local lastLine =     {
+    "Press *A* or *B* now darling, but I will not tell you what to do.",
+    "*B* will show you what was. *A* moves you forward. Ghosts hate being summoned twice.",
+    "Take a final peek with *B*.\nOr press *A* and let fate close the door.",
+    "*B* reveals. *A* releases. You only haunt the past if you stay too long.",
+    "One more look with *B*? To move on? *A* knows the way. The card will not follow.",--
+    "If your heart clings, press *B*. If it dares, *A*. The card forgets you soon.",--
+    "Press *B* for one last look. Press *A* to move on. The past doesn't wait, dearie.",
+    "One last glance? Press *B*. Ready to let go? Press *A*. The veil doesn't open twice."
+
+    }
+    table.insert(lines, lastLine[math.random(1, #lastLine)])
 
     -- Each entry is a "screen" of text for A button advance
     self.dinahTextLines = lines

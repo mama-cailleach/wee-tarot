@@ -13,7 +13,6 @@ import "libraries/AnimatedSprite"
 
 -- Scenes
 import "scenes/allScenes"
-import "scripts/sideMenu"
 
 
 --card scripts
@@ -35,15 +34,18 @@ local gfx <const> = pd.graphics
 
 SCENE_MANAGER = SceneManager()
 
+onlyMajor = false -- global variable 
+
 
 -- SOUND
 
-bgMusic1 = pd.sound.fileplayer.new("sound/bgMusic3")
-bgMusic1:setVolume(0.7)
-bgMusic1:setLoopRange(0,22) -- Title Loop no beats
+bgMusic = pd.sound.fileplayer.new("sound/bgMusic3")
+bgMusic:setVolume(0.7)
+bgMusic:setLoopRange(0,22) -- Title Loop no beats
 
-ambience = pd.sound.fileplayer.new("sound/ambience2")
-ambience:play(0)
+ambience = pd.sound.fileplayer.new("sound/rain1")
+ambience:setVolume(0.3)
+
 
 thunder = pd.sound.sampleplayer.new("sound/thunder")
 

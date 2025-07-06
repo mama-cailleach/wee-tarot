@@ -5,7 +5,6 @@ class('HowToScene').extends(gfx.sprite)
 -- local HowToScene = HowToScene | fixing the squigly line?
 
 local MAX_VISIBLE_LINES = 1
-local SCROLL_SPEED_DIVISOR = 90
 
 function HowToScene:init()
     HowToScene.super.init(self)
@@ -56,11 +55,11 @@ function HowToScene:dinahTexts()
         "Full deck or Major Arcana only? Depends how much truth you can handle.",
         "Once the card reveals itself...",
         "I listen. The whispers don't speak to just anyone.",
-        "I won't stop you squinting at fate. Press A only if you're ready",
-        "Your fortune will rise like mist, or smoke, or something you forgot to name",
+        "I won't stop you squinting at fate. Press A only if you're ready.",
+        "Your fortune will rise like mist, or smoke, or something you forgot to name.",
         "When the spirits go quiet, you may seek another reading.",
         "I won't judge. Curiosity is practically holy.",
-        "But remember, darling... the cards don't lie. Even when you do."
+        "But remember, darling...\nThe cards don't lie. Even when you do."
     }
     for _, t in ipairs(texts) do
         for line in t:gmatch("[^\n]+") do
@@ -92,7 +91,6 @@ function HowToScene:showTextWindow()
 end
 
 function HowToScene:buttonABlink()
-    print(self.allowAButton)
     if self.aButton then return end
     gfx.setImageDrawMode(gfx.kDrawModeInverted)
     self.aButton = gfx.sprite.spriteWithText("A", 40, 40, nil, nil, nil, kTextAlignment.center)
@@ -176,16 +174,6 @@ function HowToScene:update()
 
       -- Only allow A to advance text (crank logic commented out)
     if self.scrollBoxLoad then
-        --[[
-        local crankChange = pd.getCrankChange() / SCROLL_SPEED_DIVISOR
-        if crankChange ~= 0 then
-            local prevOffset = self.scrollOffset
-            self.scrollOffset = math.max(0, math.min(self.scrollOffset + crankChange, self.maxScroll))
-            if math.floor(self.scrollOffset) ~= math.floor(prevOffset) then
-                self:showTextWindow()
-            end
-        end
-        --]]
         -- Always show A button
         if self.allowAButton and not self.aButton then 
             self:buttonABlink() 
