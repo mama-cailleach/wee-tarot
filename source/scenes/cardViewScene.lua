@@ -1,47 +1,15 @@
---import "scripts/deck"
-
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 class('CardViewScene').extends(gfx.sprite)
 
---Helpers to extract card number and suit from card name
-
-local function parseCardName(cardName)
-    -- Major Arcana
-    local majorArcana = {
-        "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor",
-        "The Hierophant", "The Lovers", "The Chariot", "Strength", "The Hermit",
-        "Wheel of Fortune", "Justice", "The Hanged Man", "Death", "Temperance",
-        "The Devil", "The Tower", "The Star", "The Moon", "The Sun", "Judgement", "The World"
-    }
-    for i, name in ipairs(majorArcana) do
-        if cardName == name then
-            return i, 5 -- 5 = majorArcana
-        end
-    end
-
-    -- Minor Arcana
-    local suits = {["Cups"]=1, ["Wands"]=2, ["Swords"]=3, ["Pentacles"]=4}
-    local ranks = {
-        ["Ace"]=1, ["Two"]=2, ["Three"]=3, ["Four"]=4, ["Five"]=5, ["Six"]=6,
-        ["Seven"]=7, ["Eight"]=8, ["Nine"]=9, ["Ten"]=10,
-        ["Page"]=11, ["Knight"]=12, ["Queen"]=13, ["King"]=14
-    }
-    local rank, suit = cardName:match("^(%w+) of (%w+)$")
-    if rank and suit and suits[suit] and ranks[rank] then
-        return ranks[rank], suits[suit]
-    end
-
-    -- fallback
-    return 1, 1
-end
-
 function CardViewScene:init(cardName, cardNumber, cardSuit, isInverted)
+    thunder:play(1)
     self.card = cardName
     self.cardNumber = cardNumber
     self.cardSuit = cardSuit
     self.invert = isInverted
+    print(isInverted)
 
     self.bgSprite = gfx.sprite.new(gfx.image.new("images/bg/darkcloth"))
     self.bgSprite:moveTo(200,120)
@@ -60,7 +28,6 @@ function CardViewScene:init(cardName, cardNumber, cardSuit, isInverted)
 end
 
 
-
 -- --- Card Drawing Logic ---
 
 function CardViewScene:drawCardLogic()
@@ -74,7 +41,8 @@ function CardViewScene:drawCardLogic()
     self.drawnCardVisual = Card(self.cardNumber, self.cardSuit)
     if self.invert then
         self.drawnCardVisual:setRotation(180)
-        self.drawnCardVisual.inverted = true
+    else
+        self.drawnCardVisual:setRotation(0)
     end
 end
 

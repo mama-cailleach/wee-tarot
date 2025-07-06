@@ -39,15 +39,16 @@ onlyMajor = false -- global variable
 
 -- SOUND
 
-bgMusic = pd.sound.fileplayer.new("sound/bgMusic3")
-bgMusic:setVolume(0.7)
+bgMusic = pd.sound.fileplayer.new("sound/bgMusic3quieter")
+bgMusic:setVolume(0.9)
 bgMusic:setLoopRange(0,22) -- Title Loop no beats
 
-ambience = pd.sound.fileplayer.new("sound/rain1")
-ambience:setVolume(0.3)
+ambience = pd.sound.fileplayer.new("sound/rain1quieter")
+ambience:setVolume(0.1)
 
 
 thunder = pd.sound.sampleplayer.new("sound/thunder")
+thunder:setVolume(0.75)
 
 
 

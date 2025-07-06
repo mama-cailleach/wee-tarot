@@ -135,7 +135,7 @@ function SettingsScene:update()
         if self.soundTextIndex == 1 then
             -- Music&Ambience
             if bgMusic:getVolume() == 0 then
-                bgMusic:setVolume(0.7)
+                bgMusic:setVolume(0.9)
             end
             if not ambience:isPlaying() then
                 ambience:setVolume(0.3)
@@ -144,7 +144,7 @@ function SettingsScene:update()
         elseif self.soundTextIndex == 2 then
             -- Play only music
             if bgMusic:getVolume() == 0 then
-                bgMusic:setVolume(0.7)
+                bgMusic:setVolume(0.9)
             end
             if ambience:isPlaying() then
                 ambience:stop()

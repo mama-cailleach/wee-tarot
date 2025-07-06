@@ -219,7 +219,7 @@ function PostScene:update()
             self.scrollBoxSprite:remove() 
         end
         -- Go back to the card view scene
-        SCENE_MANAGER:switchScene(CardViewScene, self.card, self.cardNumber, self.cardSuit, self.isInverted)
+        SCENE_MANAGER:switchScene(CardViewScene, self.card, self.cardNumber, self.cardSuit, self.invert)
     end
 end
 
@@ -307,7 +307,7 @@ function PostScene:addCardTextToDinah(cardName)
 
    -- 
    local lastLine =     {
-    "Press *A* or *B* now darling, but I will not tell you what to do.",
+    "You can press *A* or *B* now darling, but I will not tell you what to do.",
     "*B* will show you what was. *A* moves you forward. Ghosts hate being summoned twice.",
     "Take a final peek with *B*.\nOr press *A* and let fate close the door.",
     "*B* reveals. *A* releases. You only haunt the past if you stay too long.",

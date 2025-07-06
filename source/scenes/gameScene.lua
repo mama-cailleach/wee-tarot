@@ -171,7 +171,7 @@ function GameScene:setupCardExplodeAnimation()
         self.explodeAnimSprite:remove()
         self.explodeAnimSprite = nil
     end}, true)
-    self.explodeAnimSprite:moveTo(200, 118)
+    self.explodeAnimSprite:moveTo(208, 125)
     self.explodeAnimSprite:add()
     self.explodeAnimSprite:playAnimation()
 end
@@ -231,7 +231,6 @@ function GameScene:scaleAnimation(x, y)
         self.scaleSprite = nil
         self:showPlacementSprite()
         self.state = "revealed"
-        --self:drawCardLogic()
     end}, true)
     self.scaleSprite:moveTo(x or 180, y or 120)
     self.scaleSprite:add()
@@ -293,7 +292,7 @@ function GameScene:update()
     
     if self.state == "revealed" and not self.revealedTimersStarted then
         self.revealedTimersStarted = true
-        pd.timer.performAfterDelay(2000, function()
+        pd.timer.performAfterDelay(1500, function()
             self:drawCardLogic()
             self.state = "fortune"
         end)                   

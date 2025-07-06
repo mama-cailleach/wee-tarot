@@ -8,7 +8,7 @@ local MAX_VISIBLE_LINES = 1
 
 function MenuScene:init()
     MenuScene.super.init(self)
-    thunder:play(1)
+    ambience:setVolume(0.4)
 
     -- scene variables
     self.imagetable = gfx.imagetable.new("images/bg/dinahBG-table-400-266")
@@ -121,7 +121,6 @@ function MenuScene:scrollBoxCreate()
 end
 
 function MenuScene:onScrollBoxAnimationFinished()
-    ambience:play(0)
     self:showTextWindow()
     self.scrollBoxLoad = true -- Show the first text
     self.oscillationStartTime = pd.getElapsedTime()

@@ -81,10 +81,29 @@ function TitleScene:changeAnim()
     end
 end
 
+function TitleScene:soundTrigger()
+    pd.timer.performAfterDelay(200, function()
+        thunder:play(1)
+    end)
+    pd.timer.performAfterDelay(500, function()
+        ambience:play(0)
+    end)
+    pd.timer.performAfterDelay(600, function()
+        ambience:setVolume(0.18)
+        pd.timer.performAfterDelay(200, function()
+            ambience:setVolume(0.25)
+        end)
+    end)
+
+end
+
+
 function TitleScene:loadMenuAnimation()
     self.BGSprite.states["idleEnd"].onAnimationEndEvent = function ()
         SCENE_MANAGER:switchScene(MenuScene)
         bgMusic:setLoopRange(0)
+        self:soundTrigger()
+
     end
 end
 
