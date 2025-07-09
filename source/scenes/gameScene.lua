@@ -108,7 +108,7 @@ function GameScene:showFirstPrompt()
     end
 
     -- Only keep showing prompts if still in shuffle state and A hasn't been pressed
-    self.firstPromptTimer = pd.timer.performAfterDelay(math.random(10000, 15000), function()
+    self.firstPromptTimer = pd.timer.performAfterDelay(math.random(20000, 25000), function()
         if self.state == "shuffle" and not pd.buttonIsPressed(pd.kButtonA) then
             thunder:play(1)
             self:showFirstPrompt()
