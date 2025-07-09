@@ -9,6 +9,7 @@ class('GameScene').extends(gfx.sprite)
 -- pre lodaing imagetable
 local explodeImagetable = gfx.imagetable.new("images/shuffleAnimation/explode_finale-table-400-240")
 local scaleTable = gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
+local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/1_card_shuffle-table-400-240")
 
 function GameScene:init()
     self.deck = Deck()
@@ -155,7 +156,7 @@ end
 
 --OG 16card
 function GameScene:setup16CardShuffleAnimation()
-    local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/1_card_shuffle-table-400-240")
+    if self.shuffleAnimSprite then self.shuffleAnimSprite:remove() self.shuffleAnimSprite = nil end
     self.shuffleAnimSprite = AnimatedSprite.new(imagetableShuffle)
     self.shuffleAnimSprite:addState("idle", 1, 1)
     self.shuffleAnimSprite:addState("shuffle", 1, 60, {tickStep = 1})
@@ -165,6 +166,7 @@ function GameScene:setup16CardShuffleAnimation()
 end
 
 function GameScene:setupCardExplodeAnimation()
+    if self.explodeAnimSprite then self.explodeAnimSprite:remove() self.explodeAnimSprite = nil end
     self.explodeAnimSprite = AnimatedSprite.new(explodeImagetable)
     self.explodeAnimSprite:addState("explode", 1, 100, {tickStep = 1, loop = false, onAnimationEndEvent = function()
         -- what happens after
@@ -197,6 +199,7 @@ function GameScene:showPlacementSprite(x, y)
 end
 
 function GameScene:revealAnimation(x, y)
+    if self.revealSprite then self.revealSprite:remove() self.revealSprite = nil end
     local revealTable = gfx.imagetable.new("images/shuffleAnimation/reveal-table-236-342")
     self.revealSprite = AnimatedSprite.new(revealTable)
     self.revealSprite:addState(
@@ -224,7 +227,7 @@ function GameScene:revealAnimation(x, y)
 end
 
 function GameScene:scaleAnimation(x, y)
-    
+    if self.scaleSprite then self.scaleSprite:remove() self.scaleSprite = nil end
     self.scaleSprite = AnimatedSprite.new(scaleTable)
     self.scaleSprite:addState("scale", 1, 60, {tickStep = 1, loop = false, onAnimationEndEvent = function()
         self.scaleSprite:remove()
@@ -379,8 +382,6 @@ function GameScene:showPromptTextTypewriter(text, x, y, delayPerChar, visibleTim
 
     return promptSprite
 end
-
-
 
 
 

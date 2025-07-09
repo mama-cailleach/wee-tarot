@@ -44,12 +44,12 @@ function PostScene:init(cardName, cardNumber, cardSuit, isInverted)
     self.aButtonBlinkTimer = nil
     self.dinahScrollText = nil -- The text sprite itself
     self.canButton = false
+    self.aPress = 0
     self.scrollBoxAnimatorIn = nil -- Will be created later
     self.scrollOffset = 0
     self.maxScroll = 0
     self.scrollBoxHeight = 120
     self.scrollBoxWidth = 310
-    self.optionsTextOn = false
 
     -- --- TEXT ANIMATION LOOP PARAMETERS ---
     self.aButtonY = 220
@@ -165,7 +165,7 @@ function PostScene:update()
     end
 
     -- Always show A button when text is ready and not at options
-    if self.canButton and not self.optionsTextOn and not self.aButton then
+    if self.canButton and not self.aButton then
         self:buttonABlink()
     end
 
@@ -187,7 +187,8 @@ function PostScene:update()
     end
 
     -- Advance text with A button
-    if self.canButton and not self.optionsTextOn and pd.buttonJustPressed(pd.kButtonA) then
+    if self.canButton and pd.buttonJustPressed(pd.kButtonA) then
+        self.aPress += 1
         if self.scrollOffset < self.maxScroll then
             self.scrollOffset = self.scrollOffset + 1
             self:showTextWindow()
@@ -204,11 +205,10 @@ function PostScene:update()
             end
             -- You can add optionsText here if you want options, or just go to next scene:
             AfterDialogueScene()
-            self.optionsTextOn = true
         end
     end
 
-    if self.canButton and not self.optionsTextOn and pd.buttonJustPressed(pd.kButtonB) then
+    if self.canButton and self.aPress >= 6 and pd.buttonJustPressed(pd.kButtonB) then
         self.canButton = false
         self:removeAButton()
         if self.dinahScrollText then 

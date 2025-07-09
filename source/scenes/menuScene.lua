@@ -8,7 +8,7 @@ local MAX_VISIBLE_LINES = 1
 
 function MenuScene:init()
     MenuScene.super.init(self)
-    ambience:setVolume(0.4)
+    ambience:setVolume(0.3)
 
     -- scene variables
     self.imagetable = gfx.imagetable.new("images/bg/dinahBG-table-400-266")

@@ -39,7 +39,7 @@ onlyMajor = false -- global variable
 
 -- SOUND
 
-bgMusic = pd.sound.fileplayer.new("sound/bgMusic3quieter")
+bgMusic = pd.sound.fileplayer.new("sound/bgMusic1")
 bgMusic:setVolume(0.9)
 bgMusic:setLoopRange(0,22) -- Title Loop no beats
 
