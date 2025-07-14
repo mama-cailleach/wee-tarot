@@ -11,7 +11,7 @@ function SettingsScene:init()
     self.bgSprite:add()
 
 
-    local img = gfx.image.new("images/bg/Wands_test2")
+    local img = gfx.image.new("images/bg/menu_icon")
     self.spritewands = gfx.sprite.new(img)
     self.spritewands:moveTo(150, 70)
     self.spritewands:add()
@@ -34,7 +34,7 @@ function SettingsScene:init()
     self.deckTextIndex = onlyMajor and 2 or 1
 
     self.soundText = {"Music&Rain", "Just Music", "Just Rain"}
-    self.soundTextIndex = 1
+    self.soundTextIndex = soundMode
 
 
     self.topY = 70
@@ -115,15 +115,17 @@ function SettingsScene:update()
         -- Set global onlyMajor
         if self.deckTextIndex == 1 then
             onlyMajor = false
-            print(onlyMajor)
         else
             onlyMajor = true
-            print(onlyMajor)
         end
     -- SOUND OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step*2 then
         -- Toggle soundTextIndex
         self.soundTextIndex = self.soundTextIndex % #self.soundText + 1
+
+         -- SET THE GLOBAL HERE
+        soundMode = self.soundTextIndex
+
         -- Update the button text
         if self.soundButton then
             self.soundButton:remove()
@@ -131,7 +133,7 @@ function SettingsScene:update()
         self.soundButton = self:addButton(self.soundText[self.soundTextIndex], 200, self.topY + self.step*2)
         -- Update the options table so selector uses the new text
         self.options[3].text = self.soundText[self.soundTextIndex]
-        -- (Optional) Set a global or do something with the sound mode here  
+        -- apply changes
         if self.soundTextIndex == 1 then
             -- Music&Ambience
             if bgMusic:getVolume() == 0 then

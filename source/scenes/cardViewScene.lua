@@ -9,7 +9,6 @@ function CardViewScene:init(cardName, cardNumber, cardSuit, isInverted)
     self.cardNumber = cardNumber
     self.cardSuit = cardSuit
     self.invert = isInverted
-    print(isInverted)
 
     self.bgSprite = gfx.sprite.new(gfx.image.new("images/bg/darkcloth"))
     self.bgSprite:moveTo(200,120)

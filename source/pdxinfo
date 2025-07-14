@@ -1,7 +1,7 @@
-name=Tarot
-author=Rach
-description=Tarot 1 card spread
-bundleID=
+name=Wee Tarot
+author=mama
+description=A wee tarot pull for curious souls, skeptics minds, and the mildly cursed.
+bundleID=com.mama.weetarot
 version=1.0.0
 buildNumber=1
 imagePath=SystemAssets/

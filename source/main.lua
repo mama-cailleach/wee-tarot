@@ -23,10 +23,6 @@ import "scripts/card"
 import "scripts/decks/allDecks"
 
 
--- DEBUG SCENES
---import "scenes/PostSceneDebug"
-
-
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
@@ -35,11 +31,12 @@ local gfx <const> = pd.graphics
 SCENE_MANAGER = SceneManager()
 
 onlyMajor = false -- global variable 
+soundMode = 1 -- 1 = Music&Rain, 2 = Just Music, 3 = Just Rain
 
 
 -- SOUND
 
-bgMusic = pd.sound.fileplayer.new("sound/bgMusic1")
+bgMusic = pd.sound.fileplayer.new("sound/bgMusic3quieter")
 bgMusic:setVolume(0.9)
 bgMusic:setLoopRange(0,22) -- Title Loop no beats
 

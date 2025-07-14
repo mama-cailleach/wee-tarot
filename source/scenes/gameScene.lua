@@ -13,7 +13,6 @@ local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/1_card_shu
 
 function GameScene:init()
     self.deck = Deck()
-    print(onlyMajor)
 
 
     self.bgSprite = gfx.sprite.new(gfx.image.new("images/bg/tarot_playspace"))

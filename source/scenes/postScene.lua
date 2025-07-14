@@ -35,7 +35,7 @@ function PostScene:init(cardName, cardNumber, cardSuit, isInverted)
     self.invert = isInverted
 
     -- --- Scene-Specific Variables ---
-    self.imagetable = gfx.imagetable.new("images/bg/dinahBG-table-400-66")
+    self.imagetable = gfx.imagetable.new("images/bg/dinahBG-table-400-266")
     self.dinahSprite = AnimatedSprite.new(self.imagetable)
     self.scrollBoxImg = gfx.image.new("images/textScroll/scroll1b")
     self.scrollBoxSprite = gfx.sprite.new(self.scrollBoxImg)
@@ -48,7 +48,6 @@ function PostScene:init(cardName, cardNumber, cardSuit, isInverted)
     self.scrollBoxAnimatorIn = nil -- Will be created later
     self.scrollOffset = 0
     self.maxScroll = 0
-    self.scrollBoxHeight = 120
     self.scrollBoxWidth = 310
 
     -- --- TEXT ANIMATION LOOP PARAMETERS ---
@@ -64,7 +63,6 @@ function PostScene:init(cardName, cardNumber, cardSuit, isInverted)
     self:dinahSpriteLoad()
 
     -- Add card specific text, now as a method call
-    self:addCardTextToDinah(self.card)
     self:addCardTextToDinah(self.card)
     self.scrollOffset = 0
     self.maxScroll = math.max(0, #self.dinahTextLines - 1)
@@ -84,9 +82,7 @@ function PostScene:init(cardName, cardNumber, cardSuit, isInverted)
 
     self:add()
 
-    -- print to see if cards and inverted is corret
-    print(self.card)
-    print(self.invert)
+
 end
 
 
