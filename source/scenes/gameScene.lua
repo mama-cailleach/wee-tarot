@@ -83,6 +83,7 @@ function GameScene:showFortunePrompt()
 end
 
 function GameScene:showFirstPrompt()
+    cards_slow:play(0)
 
     self.firstPrompts = {
     "Set your intentions, let the cards\nhear your silent whispers.",
@@ -109,7 +110,6 @@ function GameScene:showFirstPrompt()
     -- Only keep showing prompts if still in shuffle state and A hasn't been pressed
     self.firstPromptTimer = pd.timer.performAfterDelay(math.random(20000, 25000), function()
         if self.state == "shuffle" and not pd.buttonIsPressed(pd.kButtonA) then
-            thunder:play(1)
             self:showFirstPrompt()
         end
     end)
@@ -222,7 +222,6 @@ function GameScene:revealAnimation(x, y)
     self.revealSprite:add()
     self.revealSprite:changeState("animate", true)
     self.revealSprite:playAnimation()
-    thunder:play(1)
 end
 
 function GameScene:scaleAnimation(x, y)
@@ -260,6 +259,7 @@ function GameScene:update()
             local function advanceFrame()
                 local currentFrame = self.shuffleAnimSprite._currentFrame
                 if currentFrame < finishFrame then
+                    cards2_fast2:play(1)
                     self.shuffleAnimSprite:setFrame(currentFrame + 1)
                 else
                     if self.shuffleFinishTimer then 
@@ -267,10 +267,13 @@ function GameScene:update()
                         self.shuffleFinishTimer = nil 
                     end
                     self.shuffleAnimSprite:changeState("idle")
+                    cards2_fast2:stop()
                     pd.timer.performAfterDelay(100, function()
                         self.shuffleAnimSprite:remove()
                         self.shuffleAnimSprite = nil
                         self:setupCardExplodeAnimation()
+                        cards_slow:stop()
+                        cards2_slow:play(1)
                         pd.timer.performAfterDelay(2800, function()
                             self:scaleAnimation(200, 110)
                         end)
@@ -284,7 +287,7 @@ function GameScene:update()
         
         if self.state == "fortune" then
             if self.playerCard and self.isInverted ~= nil then
-                thunder:play(1)
+                cards_fast2:play(1)
                 SCENE_MANAGER:switchScene(PostScene, self.playerCard, self.playerCardNumber, self.playerCardSuit, self.isInverted)
             else
                 print("Error: Card not drawn yet or inverted state missing for PostScene transition.")
@@ -293,8 +296,9 @@ function GameScene:update()
     end
     
     if self.state == "revealed" and not self.revealedTimersStarted then
+        cards_fast3:play(1)
         self.revealedTimersStarted = true
-        pd.timer.performAfterDelay(1500, function()
+        pd.timer.performAfterDelay(1400, function()
             self:drawCardLogic()
             self.state = "fortune"
         end)                   

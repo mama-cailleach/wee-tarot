@@ -89,15 +89,15 @@ function SettingsScene:update()
 
     -- BACK OPTION
     if pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.bottomY then
-        thunder:play(1)
+        cards_slow2:play(1)
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     --HOW TO OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY then
-        thunder:play(1)
+        cards_slow2:play(1)
         SCENE_MANAGER:switchScene(HowToScene)
     -- CREDITS OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.bottomY - self.step then
-        thunder:play(1)
+        cards_slow2:play(1)
         SCENE_MANAGER:switchScene(CreditsScene)
     --DECK OPtion
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step then
@@ -164,6 +164,7 @@ function SettingsScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
+        cards_slow:play(1)
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end
 

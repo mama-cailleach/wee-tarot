@@ -44,8 +44,21 @@ ambience = pd.sound.fileplayer.new("sound/rain1quieter")
 ambience:setVolume(0.1)
 
 
-thunder = pd.sound.sampleplayer.new("sound/thunder")
-thunder:setVolume(0.75)
+
+cards_fast = pd.sound.sampleplayer.new("sound/cards_fast")
+cards_fast:setVolume(0.55)
+cards_slow = pd.sound.sampleplayer.new("sound/cards_slow")
+cards2_fast = pd.sound.sampleplayer.new("sound/cards2_fast")
+cards2_slow = pd.sound.sampleplayer.new("sound/cards2_slow")
+
+cards_fast2 = pd.sound.sampleplayer.new("sound/cards_fast2")
+cards_fast2:setVolume(0.55)
+cards_slow2 = pd.sound.sampleplayer.new("sound/cards_slow2")
+cards_fast3 = pd.sound.sampleplayer.new("sound/cards_fast3")   
+cards_fast3:setVolume(0.55)
+
+cards2_fast2 = pd.sound.sampleplayer.new("sound/cards2_fast2")
+
 
 
 
@@ -72,6 +85,6 @@ startGame()
 function pd.update()
     gfx.sprite.update()
     pd.timer.updateTimers()
-    pd.drawFPS(380, 5)
+    --pd.drawFPS(380, 5)
     
 end

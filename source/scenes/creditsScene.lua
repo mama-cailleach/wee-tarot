@@ -28,7 +28,7 @@ function CreditsScene:init()
     self.creditsText = "\n\nWEE TAROT \n\n\n" ..
                        "Game by\nmama \n\n" ..
                        "Cards by\nSarah Seekins \n\n" ..
-                       "Sound by\nFelipe Miu \n\n" ..
+                       "Sound by\nFilipe Miu \n\n" ..
                        "Thanks!\nCler McCallum\nFelipe Miu\nVitor Fiacadori\nRaphaël Calabro\nPD Community\nMãe Dináh\n\n\n\n" ..
                        "xxx" ..
                         "\n\n"
@@ -78,14 +78,16 @@ function CreditsScene:update()
         -- Optionally, after a delay, switch scene
         if not self.creditsEnd then
             self.creditsEnd = true
+            
             pd.timer.performAfterDelay(2000, function()
+                cards_fast2:play(1)
                 SCENE_MANAGER:switchScene(SettingsScene)
             end)
         end
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        thunder:play(1)
+        cards_slow:play(1)
         SCENE_MANAGER:switchScene(SettingsScene)
     end
 

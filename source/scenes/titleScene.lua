@@ -70,6 +70,7 @@ function TitleScene:update()
         self.BGSprite:changeState("anim")
         self.startText:remove()
         self:changeAnim()
+        cards_fast:play(1)
     end
 
 end
@@ -83,7 +84,6 @@ end
 
 function TitleScene:soundTrigger()
     pd.timer.performAfterDelay(200, function()
-        thunder:play(1)
     end)
     pd.timer.performAfterDelay(500, function()
         ambience:play(0)

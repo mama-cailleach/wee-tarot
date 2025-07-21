@@ -192,7 +192,7 @@ function HowToScene:update()
                 if self.scrollBoxSprite then self.scrollBoxSprite:remove() end
                 pd.timer.performAfterDelay(100, function()
                     self:loadGameAnimation()
-                    thunder:play(1)
+                    cards_fast2:play(1)
                     self.dinahSprite:changeState("transition")
                     
                 end)

@@ -150,7 +150,6 @@ function MenuScene:makeButtonSprite(letter, x, y, radius)
 end
 
 function MenuScene:optionsText()
-    thunder:play(1)
     gfx.setImageDrawMode(gfx.kDrawModeInverted)
     -- Remove old sprites if they exist
     if self.settingsText then self.settingsText:remove() end
@@ -239,14 +238,14 @@ function MenuScene:update()
     elseif self.optionsTextOn then
         -- Only allow A/B for options after text is gone
         if pd.buttonJustPressed(pd.kButtonB) then
-            thunder:play(1)
+            cards_slow2:play(1)
             SCENE_MANAGER:switchScene(SettingsScene)
         end
         if pd.buttonJustPressed(pd.kButtonA) then
             self:loadGameAnimation()
             self.dinahSprite:changeState("transition")
             self:removeAButton()
-            thunder:play(1)
+            cards_fast2:play(1)
         end
     end
 end
