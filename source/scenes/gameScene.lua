@@ -83,7 +83,6 @@ function GameScene:showFortunePrompt()
 end
 
 function GameScene:showFirstPrompt()
-    cards_slow:play(0)
 
     self.firstPrompts = {
     "Set your intentions, let the cards\nhear your silent whispers.",
@@ -272,10 +271,12 @@ function GameScene:update()
                         self.shuffleAnimSprite:remove()
                         self.shuffleAnimSprite = nil
                         self:setupCardExplodeAnimation()
-                        cards_slow:stop()
                         cards2_slow:play(1)
-                        pd.timer.performAfterDelay(2800, function()
-                            self:scaleAnimation(200, 110)
+                        pd.timer.performAfterDelay(2500, function()
+                            cards_fast3:play(1)
+                            pd.timer.performAfterDelay(300, function()
+                                self:scaleAnimation(200, 110)
+                            end)
                         end)
                     end)
                 end
@@ -296,10 +297,10 @@ function GameScene:update()
     end
     
     if self.state == "revealed" and not self.revealedTimersStarted then
-        cards_fast3:play(1)
         self.revealedTimersStarted = true
-        pd.timer.performAfterDelay(1400, function()
+        pd.timer.performAfterDelay(1150, function()
             self:drawCardLogic()
+            tuin:play(1)
             self.state = "fortune"
         end)                   
     end

@@ -15,7 +15,7 @@ import "libraries/AnimatedSprite"
 import "scenes/allScenes"
 
 
---card scripts
+--card script
 import "scripts/card"
 
 
@@ -36,30 +36,35 @@ soundMode = 1 -- 1 = Music&Rain, 2 = Just Music, 3 = Just Rain
 
 -- SOUND
 
-bgMusic = pd.sound.fileplayer.new("sound/bgMusic3quieter")
+bgMusic = pd.sound.fileplayer.new("sound/bgMusic3quieter") -- bg music loop lofi mix
 bgMusic:setVolume(0.9)
 bgMusic:setLoopRange(0,22) -- Title Loop no beats
 
-ambience = pd.sound.fileplayer.new("sound/rain1quieter")
+ambience = pd.sound.fileplayer.new("sound/rain1quieter") -- rain
 ambience:setVolume(0.1)
 
-
-
-cards_fast = pd.sound.sampleplayer.new("sound/cards_fast")
+cards_fast = pd.sound.sampleplayer.new("sound/cards_fast") -- big intro w/ effect
 cards_fast:setVolume(0.55)
-cards_slow = pd.sound.sampleplayer.new("sound/cards_slow")
-cards2_fast = pd.sound.sampleplayer.new("sound/cards2_fast")
-cards2_slow = pd.sound.sampleplayer.new("sound/cards2_slow")
 
-cards_fast2 = pd.sound.sampleplayer.new("sound/cards_fast2")
+cards_fast2 = pd.sound.sampleplayer.new("sound/cards_fast2") -- transition effects quicker
 cards_fast2:setVolume(0.55)
-cards_slow2 = pd.sound.sampleplayer.new("sound/cards_slow2")
-cards_fast3 = pd.sound.sampleplayer.new("sound/cards_fast3")   
+
+cards_fast3 = pd.sound.sampleplayer.new("sound/cards_fast3") -- transition effects bit longer
 cards_fast3:setVolume(0.55)
 
-cards2_fast2 = pd.sound.sampleplayer.new("sound/cards2_fast2")
+cards_slow = pd.sound.sampleplayer.new("sound/cards_slow") -- transition effects slower quieter
+
+cards_slow2 = pd.sound.sampleplayer.new("sound/cards_slow2") -- transition effects slower louder
+
+tuin = pd.sound.sampleplayer.new("sound/tuin") -- just the tail
+tuin:setVolume(0.65)
+
+cards2_slow = pd.sound.sampleplayer.new("sound/cards2_slow") -- card shuffle sound 1
+
+cards2_fast2 = pd.sound.sampleplayer.new("sound/cards2_fast2") -- card shuffle sound 2
 
 
+-- end of GLOBALS/SOUND
 
 
 -- font tarotheque (https://www.dafont.com/gschaftlhuber.d11133?text=Hello+%E9+%E3+%E7)
@@ -75,6 +80,10 @@ gfx.setFont(myFont)
 
 -- call first scene (do I need this as a function?)
 local function startGame()
+    local loading = gfx.image.new("SystemAssets/launchImage")
+    local loadingSprite = gfx.sprite.new(loading)
+    loadingSprite:moveTo(200, 120) -- center on screen
+    loadingSprite:add()
     SCENE_MANAGER:switchScene(TitleScene)
     
 end
