@@ -29,7 +29,7 @@ function CreditsScene:init()
                        "Game by\nmama \n\n" ..
                        "Cards by\nSarah Seekins \n\n" ..
                        "Sound by\nFilipe Miu \n\n" ..
-                       "Thanks!\nCler McCallum\nFelipe Miu\nVitor Fiacadori\nRaphaël Calabro\nPD Community\nMãe Dináh\n\n\n\n" ..
+                       "Thanks!\nCler McCallum\nFilipe Miu\nVitor Fiacadori\nRaphaël Calabro\nPD Community\nMãe Dináh\n\n\n\n" ..
                        "xxx" ..
                         "\n\n"
 

@@ -30,7 +30,7 @@ local gfx <const> = pd.graphics
 
 SCENE_MANAGER = SceneManager()
 
-onlyMajor = false -- global variable 
+onlyMajor = false -- global variable for major arcana only option
 soundMode = 1 -- 1 = Music&Rain, 2 = Just Music, 3 = Just Rain
 
 
@@ -44,25 +44,28 @@ ambience = pd.sound.fileplayer.new("sound/rain1quieter") -- rain
 ambience:setVolume(0.1)
 
 cards_fast = pd.sound.sampleplayer.new("sound/cards_fast") -- big intro w/ effect
-cards_fast:setVolume(0.55)
+cards_fast:setVolume(0.45)
 
 cards_fast2 = pd.sound.sampleplayer.new("sound/cards_fast2") -- transition effects quicker
-cards_fast2:setVolume(0.55)
+cards_fast2:setVolume(0.45)
 
 cards_fast3 = pd.sound.sampleplayer.new("sound/cards_fast3") -- transition effects bit longer
-cards_fast3:setVolume(0.55)
+cards_fast3:setVolume(0.45)
 
 cards_slow = pd.sound.sampleplayer.new("sound/cards_slow") -- transition effects slower quieter
 
 cards_slow2 = pd.sound.sampleplayer.new("sound/cards_slow2") -- transition effects slower louder
+cards_slow2:setVolume(0.7)
 
 tuin = pd.sound.sampleplayer.new("sound/tuin") -- just the tail
-tuin:setVolume(0.65)
+tuin:setVolume(0.5)
 
 cards2_slow = pd.sound.sampleplayer.new("sound/cards2_slow") -- card shuffle sound 1
 
 cards2_fast2 = pd.sound.sampleplayer.new("sound/cards2_fast2") -- card shuffle sound 2
 
+crank5 = pd.sound.sampleplayer.new("sound/crank5") -- crank sound longish
+crank5:setVolume(0.65)
 
 -- end of GLOBALS/SOUND
 

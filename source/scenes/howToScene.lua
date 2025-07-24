@@ -59,7 +59,7 @@ function HowToScene:dinahTexts()
         "Your fortune will rise like mist, or smoke, or something you forgot to name.",
         "When the spirits go quiet, you may seek another reading.",
         "I won't judge. Curiosity is practically holy.",
-        "But remember, darling...\nThe cards don't lie. Even when you do."
+        "But remember, darling...\nThe cards don't lie.            Even when you do."
     }
     for _, t in ipairs(texts) do
         for line in t:gmatch("[^\n]+") do

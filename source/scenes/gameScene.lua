@@ -46,6 +46,11 @@ function GameScene:init()
 
     self.crankEnabled = true
 
+    -- Add crank sound variables
+    self.crankSoundPlaying = false
+    self.crankInactivityTimer = nil
+    self.lastCrankTime = 0
+
     self:add()
 end
 
@@ -310,21 +315,39 @@ function GameScene:update()
         local crankChange, acceleratedChange = pd.getCrankChange()
         if crankChange ~= 0 then           
             -- Loop the frame index in both directions / it takes 4 crank units to advance 1 frame.
-            self.shuffleFrame = ((self.shuffleFrame - 1 + math.floor(crankChange / 4)) % self.shuffleFrameCount) + 1
+            self.shuffleFrame = ((self.shuffleFrame - 1 + math.floor(crankChange / 7)) % self.shuffleFrameCount) + 1
             self.shuffleAnimSprite:setFrame(self.shuffleFrame)
+            
+            -- CRANK SOUND LOGIC
+            self.lastCrankTime = pd.getElapsedTime()
+            
+            -- Start crank sound if not already playing
+            if not self.crankSoundPlaying then
+                crank5:play(0) -- 0 = loop infinitely
+                self.crankSoundPlaying = true
+            end
+            
+            -- Reset/remove inactivity timer since we're cranking
+            if self.crankInactivityTimer then
+                self.crankInactivityTimer:remove()
+                self.crankInactivityTimer = nil
+            end
+            
+            -- CREATE NEW TIMER EACH TIME WE CRANK (MOVED HERE)
+            local scene = self  -- Capture self reference
+            self.crankInactivityTimer = pd.timer.performAfterDelay(100, function()
+                -- Stop crank sound after delay (with safety checks)
+                if scene.crankSoundPlaying and crank5 then
+                    crank5:stop()
+                    scene.crankSoundPlaying = false
+                end
+                if scene.crankInactivityTimer then
+                    scene.crankInactivityTimer = nil
+                end
+            end)
         end
-
-                
-        --self.crankEnabled = false
-
-        --[[ This way, a full crank rotation = one full animation cycle.
-        local crankPos = pd.getCrankPosition() -- 0..359
-        local frame = math.floor((crankPos / 360) * self.shuffleFrameCount) + 1
-        self.shuffleAnimSprite:setFrame(frame)]]
     end
 end
-
-
 
 function GameScene:showPromptTextTypewriter(text, x, y, delayPerChar, visibleTime, fadeOutTime)
     local width, height = gfx.getTextSize(text)
@@ -399,6 +422,16 @@ function GameScene:deinit()
     if self.firstPromptSprite then self.firstPromptSprite:remove() self.firstPromptSprite = nil end
     if self.firstPromptTimer then self.firstPromptTimer:remove() self.firstPromptTimer = nil end
     if self.shuffleFinishTimer then self.shuffleFinishTimer:remove() self.shuffleFinishTimer = nil end
+        -- Clean up crank sound
+    if self.crankSoundPlaying then
+        crank5:stop()
+        self.crankSoundPlaying = false
+    end
+    if self.crankInactivityTimer then 
+        self.crankInactivityTimer:remove() 
+        self.crankInactivityTimer = nil 
+    end
+    
     -- Remove any other timers or sprites you create
     --GameScene.super.deinit(self)
 end
