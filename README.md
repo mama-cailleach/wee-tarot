@@ -2,7 +2,7 @@
 
 A mystical single-card tarot reading game for the [Playdate](https://play.date) handheld console, featuring atmospheric scenes, crank-controlled shuffle mechanics, and witty fortune telling with original card interpretations.
 
-**🎮💛 [Gaem page on itch.io](https://mama666.itch.io/wee-tarot)**
+**🎮💛 [Game page on itch.io](https://mama666.itch.io/wee-tarot)**
 
 ![Wee Tarot gameplay](https://img.itch.zone/aW1hZ2UvMjgyNjIwNi8xNjc4NDMyNy5naWY=/original/FJ2yBr.gif)
 
