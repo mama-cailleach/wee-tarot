@@ -4,7 +4,6 @@ A mystical single-card tarot reading game for the [Playdate](https://play.date) 
 
 **🎮💛 [Game page on itch.io](https://mama666.itch.io/wee-tarot)**
 
-![Wee Tarot gameplay](https://img.itch.zone/aW1hZ2UvMjgyNjIwNi8xNjc4NDMyNy5naWY=/original/FJ2yBr.gif)
 
 ## 📖 About the Game
 
@@ -93,7 +92,24 @@ source/
     ├── rain1quieter.wav        # Ambient rain sounds
     ├── crank5.wav              # Crank rotation sound
     └── cards_*.wav             # Various card interaction sounds
+testing/
+    ├── mainDebug.lua # Runs debug scenes for card reading and display
+    ├── gameSceneDebug.lua # Iterates through all cards and suits for visual testing
+    ├── postSceneDebug.lua # Debugs fortune display logic, upright/reversed text
+    ├── mainTest.lua # Minimal animation demo for Playdate animator
 ```
+
+## 🧪 Testing & Debug Tools
+
+The `testing/` folder contains dedicated Lua scripts for development, debugging, and QA. These tools help ensure all cards, fortunes, and UI elements display correctly and provide a robust test bed for new features.
+
+- **mainDebug.lua**: Launches custom debug scenes to rapidly test card readings, fortune variations, and UI presentation outside normal game flow.
+- **gameSceneDebug.lua**: Allows developers to cycle through every card in every suit (including Major Arcana), displaying each card visually and confirming correct rendering. Prevents random inversion for controlled testing.
+- **postSceneDebug.lua**: Steps through the fortune text for each card, in both upright and reversed orientations. Displays all possible fortune variations and keyword sets in sequence, mirroring live game narration.
+- **mainTest.lua**: A minimal demo showcasing Playdate's animation system, useful for prototyping and verifying animator/easing functions with simple graphics.
+
+These scripts are designed to be run in the Playdate Simulator during development. They accelerate QA by exposing edge cases (missing fortunes, rendering bugs, etc.) and support asset verification before final hardware builds.
+
 
 ## 🐍 Development Tools
 
