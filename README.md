@@ -1,4 +1,4 @@
-![Image1](https://img.itch.zone/aW1nLzIyMjU4MjA3LnBuZw==/315x250%23c/W%2Bv2CR.png) 
+![Image1](https://img.itch.zone/aW1nLzIyMjU4MjA3LnBuZw==/315x250%23c/W%2Bv2CR.png) ![Image2](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4My5naWY=/347x500/TMVJyt.gif)
 
 # Wee Tarot
 
@@ -6,7 +6,7 @@ A mystical single-card tarot reading game for the [Playdate](https://play.date) 
 
 **🎮💛 [Game page on itch.io](https://mama666.itch.io/wee-tarot)**
 
-![Image2](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4My5naWY=/347x500/TMVJyt.gif) ![Image4](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4Ni5naWY=/347x500/HfWtK5.gif) ![Image3](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4NC5naWY=/347x500/57VWSt.gif)
+![Image4](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4Ni5naWY=/347x500/HfWtK5.gif) ![Image3](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4NC5naWY=/347x500/57VWSt.gif)
 
 
 ## 📖 About the Game
