@@ -1,8 +1,12 @@
+![Image1](https://img.itch.zone/aW1nLzIyMjU4MjA3LnBuZw==/315x250%23c/W%2Bv2CR.png) 
+
 # Wee Tarot
 
 A mystical single-card tarot reading game for the [Playdate](https://play.date) handheld console, featuring atmospheric scenes, crank-controlled shuffle mechanics, and witty fortune telling with original card interpretations.
 
 **🎮💛 [Game page on itch.io](https://mama666.itch.io/wee-tarot)**
+
+![Image2](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4My5naWY=/347x500/TMVJyt.gif) ![Image4](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4Ni5naWY=/347x500/HfWtK5.gif) ![Image3](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4NC5naWY=/347x500/57VWSt.gif)
 
 
 ## 📖 About the Game
@@ -181,26 +185,13 @@ Wee Tarot demonstrates:
 ## 🔧 Build & Development
 
 ### Prerequisites
-- [Playdate SDK](https://play.date/dev/) (includes Lua runtime and development tools)
-- [PlaydateSimulator](https://help.play.date/dev/simulator/) for testing
-
-### Building the Game
-```bash
-# Navigate to source directory
-cd "source/"
-
-# Build using Playdate compiler
-pdc . "Wee Tarot.pdx"
-
-# Run in simulator
-playdate-simulator "Wee Tarot.pdx"
-```
+- [Playdate SDK](https://play.date/dev/) (includes Lua runtime, development tools and simulator)
 
 ### Development Workflow
 1. **Code in Lua**: Using Playdate SDK CoreLibs and custom libraries
-2. **Test in Simulator**: Rapid iteration with PlaydateSimulator
-3. **Deploy to Hardware**: Final testing on actual Playdate console
-4. **Asset Pipeline**: Python tools for content creation and sprite generation
+2. **Asset Pipeline**: Python tools for content creation and sprite generation
+3. **Test in Simulator**: Rapid iteration with PlaydateSimulator
+4. **Deploy to Hardware**: Final testing on actual Playdate console
 
 ## 🎮 Controls
 
