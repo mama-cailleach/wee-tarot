@@ -1,12 +1,12 @@
-![Image1](https://img.itch.zone/aW1nLzIyMjU4MjA3LnBuZw==/315x250%23c/W%2Bv2CR.png) ![Image2](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4My5naWY=/347x500/TMVJyt.gif)
-
+![Image1](https://img.itch.zone/aW1nLzIyMjU4MjA3LnBuZw==/315x250%23c/W%2Bv2CR.png)
 # Wee Tarot
 
 A mystical single-card tarot reading game for the [Playdate](https://play.date) handheld console, featuring atmospheric scenes, crank-controlled shuffle mechanics, and witty fortune telling with original card interpretations.
 
 **🎮💛 [Game page on itch.io](https://mama666.itch.io/wee-tarot)**
 
-![Image4](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4Ni5naWY=/347x500/HfWtK5.gif) ![Image3](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4NC5naWY=/347x500/57VWSt.gif)
+![Image2](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4My5naWY=/347x500/TMVJyt.gif)
+
 
 
 ## 📖 About the Game
@@ -215,6 +215,8 @@ Wee Tarot demonstrates:
 ## 📄 License
 
 See [LICENSE](LICENSE) for details.
+
+![Image3](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4NC5naWY=/347x500/57VWSt.gif)
 
 ---
 
