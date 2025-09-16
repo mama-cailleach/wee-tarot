@@ -1,16 +1,19 @@
+![Image1](https://img.itch.zone/aW1nLzIyMjU4MjA3LnBuZw==/315x250%23c/W%2Bv2CR.png)
+
 # Wee Tarot
 
 A mystical single-card tarot reading game for the [Playdate](https://play.date) handheld console, featuring atmospheric scenes, crank-controlled shuffle mechanics, and witty fortune telling with original card interpretations.
 
 **🎮 [Play on itch.io](https://mama666.itch.io/wee-tarot)**
 
-![Wee Tarot gameplay](https://img.itch.zone/aW1hZ2UvMjgyNjIwNi8xNjc4NDMyNy5naWY=/original/FJ2yBr.gif)
+![Image2](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4My5naWY=/347x500/TMVJyt.gif)
 
-## 📖 About the Game
 
-Wee Tarot transforms the ancient art of tarot reading into an interactive digital experience. Players use the Playdate's unique crank mechanism to shuffle a mystical deck, draw cards, and receive personalized fortune readings from Dinah, your enigmatic tarot reader guide.
+## About the Game
 
-### ✨ Key Features
+Wee Tarot transforms the ancient art of tarot reading into an interactive digital experience. Players use the Playdate's unique crank mechanism to shuffle a mystical deck, draw cards, and receive personalized fortune readings from your enigmatic tarot reader guide.
+
+### Key Features
 
 - **Crank-Controlled Shuffling**: Use the Playdate's signature crank to physically shuffle the deck
 - **78-Card Tarot Deck**: Complete deck with Major Arcana and all four suits (Cups, Wands, Swords, Pentacles)
@@ -20,7 +23,7 @@ Wee Tarot transforms the ancient art of tarot reading into an interactive digita
 - **Inverted Cards**: Cards can appear upside-down for reversed meanings, adding depth to readings
 - **Character-Driven Narration**: Dinah provides mystical, often humorous interpretations
 
-## 🎯 Game Design Philosophy
+## Game Design
 
 Wee Tarot balances respect for tarot tradition with playful, accessible game design:
 
@@ -29,7 +32,7 @@ Wee Tarot balances respect for tarot tradition with playful, accessible game des
 - **Atmospheric Immersion**: Visual and audio design evoke a cozy, mystical reading space
 - **Replayability**: Multiple fortune variations ensure fresh readings each time
 
-## 🛠️ Technical Implementation
+## Technical Implementation
 
 ### Architecture & Code Design
 
@@ -95,11 +98,11 @@ source/
     └── cards_*.wav             # Various card interaction sounds
 ```
 
-## 🐍 Development Tools
+## Development Tools
 
 The card data and animations were created with custom Python tools, showcasing full-stack game development skills:
 
-**[🔗 Wee Tarot Tools Repository](https://github.com/mama-cailleach/python-portfolio/tree/main/python-experiments/wee-tarot-tools)**
+**[ Wee Tarot Tools Repository](https://github.com/mama-cailleach/python-portfolio/tree/main/python-experiments/wee-tarot-tools)**
 
 ### Animation Tools (`shuffleAnimation/`)
 - **Visual Prototyping**: Python scripts for testing shuffle effects and card animations
@@ -113,7 +116,19 @@ The card data and animations were created with custom Python tools, showcasing f
 - **Format Conversion**: Bridge between design documents and game-ready code
 - **Scalability**: Easily adaptable for other card sets or tarot variations
 
-## 🎨 Creative Implementation
+## Testing & Debug Tools
+
+The `testing/` folder contains dedicated Lua scripts for development, debugging, and QA. These tools help ensure all cards, fortunes, and UI elements display correctly and provide a robust test bed for new features.
+
+- **mainDebug.lua**: Launches custom debug scenes to rapidly test card readings, fortune variations, and UI presentation outside normal game flow.
+- **gameSceneDebug.lua**: Allows developers to cycle through every card in every suit (including Major Arcana), displaying each card visually and confirming correct rendering. Prevents random inversion for controlled testing.
+- **postSceneDebug.lua**: Steps through the fortune text for each card, in both upright and reversed orientations. Displays all possible fortune variations and keyword sets in sequence, mirroring live game narration.
+- **mainTest.lua**: A minimal demo showcasing Playdate's animation system, useful for prototyping and verifying animator/easing functions with simple graphics.
+
+These scripts are designed to be run in the Playdate Simulator during development. They accelerate QA by exposing edge cases (missing fortunes, rendering bugs, etc.) and support asset verification before final hardware builds.
+
+
+## Creative Implementation
 
 ### Card Content Design
 - **Original Interpretations**: 78 unique cards with multiple fortune variations each
@@ -135,7 +150,7 @@ The card data and animations were created with custom Python tools, showcasing f
 - **Atmospheric Immersion**: Carefully balanced audio levels for contemplative experience
 - **Audio Integration**: In-game mixing, cutting, and tweaking of original compositions
 
-## 🚀 Development Highlights
+## Development Highlights
 
 ### Game Programming Skills Demonstrated
 - **Hardware Integration**: Custom crank input handling with real-time feedback
@@ -151,7 +166,7 @@ The card data and animations were created with custom Python tools, showcasing f
 - **Cross-Platform Tools**: Python pipeline for content creation and asset generation
 - **Version Control**: Structured Git workflow for game development
 
-## 🎯 Portfolio Significance
+## Portfolio Significance
 
 Wee Tarot demonstrates:
 
@@ -161,37 +176,6 @@ Wee Tarot demonstrates:
 4. **Content Creation Pipeline**: Efficient tools for managing large datasets (78 cards × multiple variations)
 5. **Audio-Visual Coordination**: Synchronized sound, animation, and user input
 6. **Cross-Disciplinary Skills**: Programming, game design, content writing, audio design, and user experience
-
-## 🔧 Build & Development
-
-### Prerequisites
-- [Playdate SDK](https://play.date/dev/) (includes Lua runtime and development tools)
-- [PlaydateSimulator](https://help.play.date/dev/simulator/) for testing
-
-### Building the Game
-```bash
-# Navigate to source directory
-cd "source/"
-
-# Build using Playdate compiler
-pdc . "Wee Tarot.pdx"
-
-# Run in simulator
-playdate-simulator "Wee Tarot.pdx"
-```
-
-### Development Workflow
-1. **Code in Lua**: Using Playdate SDK CoreLibs and custom libraries
-2. **Test in Simulator**: Rapid iteration with PlaydateSimulator
-3. **Deploy to Hardware**: Final testing on actual Playdate console
-4. **Asset Pipeline**: Python tools for content creation and sprite generation
-
-## 🎮 Controls
-
-- **🎲 Crank**: Shuffle the deck (rotate to cycle through cards)
-- **🅰️ A Button**: Confirm selection, advance text, interact
-- **🅱️ B Button**: Back, navigate menus
-- **🎛️ D-Pad**: Menu navigation
 
 ## 🌟 Credits
 
@@ -203,12 +187,8 @@ playdate-simulator "Wee Tarot.pdx"
 - **Additional Art Assets & Adaptations**: mama (including photography, animations, and spritesheets)
 - **Font**: [Tarotheque](https://www.dafont.com/gschaftlhuber.d11133) by Gschaftlhuber
 - **Animation Library**: [AnimatedSprite](https://github.com/Whitebrim/AnimatedSprite) by @Whitebrim (MIT License) with custom modifications
-- **Scene Management Inspiration**: SquidGod's scene management patterns
+- **Scene Management Inspiration**: [SquidGod's](https://github.com/SquidGodDev) scene management patterns
 
-## 📄 License
-
-See [LICENSE](LICENSE) for details.
+![Image3](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4NC5naWY=/347x500/57VWSt.gif)
 
 ---
-
-*Wee Tarot represents a unique intersection of traditional mysticism and modern interactive design, showcasing technical proficiency in constrained hardware environments while delivering an engaging, atmospheric gaming experience.*
