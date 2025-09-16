@@ -4,9 +4,10 @@
 
 A mystical single-card tarot reading game for the [Playdate](https://play.date) handheld console, featuring atmospheric scenes, crank-controlled shuffle mechanics, and witty fortune telling with original card interpretations.
 
-**🎮 [Play on itch.io](https://mama666.itch.io/wee-tarot)**
+**🎮💛 [Game page on itch.io](https://mama666.itch.io/wee-tarot)**
 
 ![Image2](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4My5naWY=/347x500/TMVJyt.gif)
+
 
 
 ## About the Game
@@ -96,6 +97,11 @@ source/
     ├── rain1quieter.wav        # Ambient rain sounds
     ├── crank5.wav              # Crank rotation sound
     └── cards_*.wav             # Various card interaction sounds
+testing/
+    ├── mainDebug.lua # Runs debug scenes for card reading and display
+    ├── gameSceneDebug.lua # Iterates through all cards and suits for visual testing
+    ├── postSceneDebug.lua # Debugs fortune display logic, upright/reversed text
+    ├── mainTest.lua # Minimal animation demo for Playdate animator
 ```
 
 ## Development Tools
@@ -177,7 +183,7 @@ Wee Tarot demonstrates:
 5. **Audio-Visual Coordination**: Synchronized sound, animation, and user input
 6. **Cross-Disciplinary Skills**: Programming, game design, content writing, audio design, and user experience
 
-## 🌟 Credits
+## Credits
 
 - **Programming & Game Design**: mama
 - **Card Interpretations & Writing**: mama
@@ -189,6 +195,12 @@ Wee Tarot demonstrates:
 - **Animation Library**: [AnimatedSprite](https://github.com/Whitebrim/AnimatedSprite) by @Whitebrim (MIT License) with custom modifications
 - **Scene Management Inspiration**: [SquidGod's](https://github.com/SquidGodDev) scene management patterns
 
+## 📄 License
+
+See [LICENSE](LICENSE) for details.
+
 ![Image3](https://img.itch.zone/aW1hZ2UvMzczOTg0Ni8yMjMwNDk4NC5naWY=/347x500/57VWSt.gif)
 
 ---
+
+*Wee Tarot represents a unique intersection of traditional mysticism and modern interactive design, showcasing technical proficiency in constrained hardware environments while delivering an engaging, atmospheric gaming experience.*
