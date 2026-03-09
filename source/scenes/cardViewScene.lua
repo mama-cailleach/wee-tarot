@@ -63,15 +63,13 @@ function CardViewScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonUp) then
-        if self.drawnCardVisual and self.cardPlacementSprite then
-            self.cardPlacementSprite:setScale(1.725)
+        if self.drawnCardVisual then
             self.drawnCardVisual:setScale(1.725)
         end
     end
 
     if pd.buttonJustPressed(pd.kButtonDown) then
-        if self.drawnCardVisual and self.cardPlacementSprite then
-            self.cardPlacementSprite:setScale(1)
+        if self.drawnCardVisual then
             self.drawnCardVisual:setScale(1)
         end
     end

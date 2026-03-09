@@ -23,7 +23,7 @@ import "scripts/card"
 import "scripts/decks/allDecks"
 
 -- Debugs
-import "cardManipulationDebug"
+--import "cardManipulationDebug"
 
 
 local pd <const> = playdate

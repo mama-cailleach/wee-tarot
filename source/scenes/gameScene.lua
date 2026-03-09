@@ -155,6 +155,17 @@ function GameScene:drawCardLogic()
     self:revealAnimation()
 end
 
+function GameScene:zoomInOutCard()
+    if self.drawnCardVisual then
+        if pd.buttonJustPressed(pd.kButtonUp) then
+            self.drawnCardVisual:setScale(1.725)
+        end
+        if pd.buttonJustPressed(pd.kButtonDown) then
+            self.drawnCardVisual:setScale(1)
+        end
+    end
+end
+
 -- --- Shuffle Animation Setup (if needed) ---
 
 --OG 16card
@@ -346,6 +357,10 @@ function GameScene:update()
                 end
             end)
         end
+    end
+
+    if self.state == "fortune" then
+        self:zoomInOutCard()
     end
 end
 
