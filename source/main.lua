@@ -22,6 +22,9 @@ import "scripts/card"
 --Decks
 import "scripts/decks/allDecks"
 
+-- Debugs
+import "cardManipulationDebug"
+
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -88,6 +91,7 @@ local function startGame()
     loadingSprite:moveTo(200, 120) -- center on screen
     loadingSprite:add()
     SCENE_MANAGER:switchScene(TitleScene)
+    --SCENE_MANAGER:switchScene(CardManipulationDebug)
     
 end
 
