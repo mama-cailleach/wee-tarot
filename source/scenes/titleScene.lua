@@ -135,9 +135,9 @@ local systemMenu = pd.getSystemMenu()
     --not really working??? maybe dont do on menu?
     systemMenu:addOptionsMenuItem("Deck", {"Major", "Full"}, "Full", function(flag)
     if flag == "Full" then
-        onlyMajor = false
+        selectedDeck = "full"
     elseif flag== "Major" then
-        onlyMajor = true
+        selectedDeck = "major"
     end
     end)
 

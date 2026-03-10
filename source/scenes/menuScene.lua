@@ -178,7 +178,7 @@ end
 
 function MenuScene:loadGameAnimation()
     self.dinahSprite.states["transition"].onAnimationEndEvent = function ()
-        SCENE_MANAGER:switchScene(GameScene)
+        SCENE_MANAGER:switchScene(SpreadSelectionScene)
     end
 end
 

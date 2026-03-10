@@ -22,7 +22,7 @@ function GameScene:init()
     gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
 
     self.state = "shuffle"
-    self.onlyMajor = onlyMajor
+    self.selectedDeck = selectedDeck or "full"
 
     self.fortunePromptSprite = gfx.sprite.new()
     self.fortunePromptSprite:setCenter(0, 0)
@@ -125,10 +125,16 @@ end
 
 function GameScene:drawCardLogic()
     local cardDrawed, cardNumber, cardSuit
-    if self.onlyMajor then
+    self.selectedDeck = selectedDeck or "full"
+
+    if self.selectedDeck == "major" then
         cardDrawed, cardNumber, cardSuit = self.deck:drawMajor()
+    elseif self.selectedDeck == "minor" then
+        cardDrawed, cardNumber, cardSuit = self.deck:drawMinorArcana()
+    elseif self.selectedDeck == "cups" or self.selectedDeck == "wands" or self.selectedDeck == "swords" or self.selectedDeck == "pentacles" then
+        cardDrawed, cardNumber, cardSuit = self.deck:drawFromSuit(self.selectedDeck)
     else
-        cardDrawed, cardNumber, cardSuit = self.deck:drawRandomCard()
+        cardDrawed, cardNumber, cardSuit = self.deck:drawFullDeck()
     end
 
     -- Remove previous card visual if it exists

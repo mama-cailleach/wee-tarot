@@ -16,8 +16,6 @@ function CardViewScene:init(cardName, cardNumber, cardSuit, isInverted)
 
     gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
 
-    self.onlyMajor = onlyMajor
-
     self.drawnCardVisual = nil
 
     self:showPlacementSprite()

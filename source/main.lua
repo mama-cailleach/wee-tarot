@@ -33,7 +33,7 @@ local gfx <const> = pd.graphics
 
 SCENE_MANAGER = SceneManager()
 
-onlyMajor = false -- global variable for major arcana only option
+selectedDeck = "full" -- full, major, minor, cups, pentacles, swords, wands
 soundMode = 1 -- 1 = Music&Rain, 2 = Just Music, 3 = Just Rain
 
 

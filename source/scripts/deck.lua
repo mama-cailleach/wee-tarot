@@ -2,6 +2,14 @@ import "scripts/decks/allDecks"
 
 class('Deck').extends()
 
+local suitNameToIndex = {
+    cups = 1,
+    wands = 2,
+    swords = 3,
+    pentacles = 4,
+    major = 5
+}
+
 function Deck:init()
     self.cupsDeck = cupsDeck
     self.wandsDeck = wandsDeck
@@ -18,13 +26,58 @@ function Deck:init()
     }
 end
 
+function Deck:drawFromDeck(deck, suitIndex)
+    if not deck or #deck == 0 then return nil end
+    local column = math.random(1, #deck)
+    local cardDrawed = deck[column]
+    local cardNumber = column
+    local cardSuit = suitIndex
+    return cardDrawed, cardNumber, cardSuit
+end
+
 function Deck:drawMajor()
-    if #self.majorArcanaDeck == 0 then return nil end
-    local draw = math.random(1, #self.majorArcanaDeck)
-    local majorDrawed = self.majorArcanaDeck[draw]
-    local majorNumber = draw
-    local majorSuit = 5
-    return majorDrawed, majorNumber, majorSuit
+    return self:drawFromDeck(self.majorArcanaDeck, suitNameToIndex.major)
+end
+
+function Deck:drawFromSuit(suitName)
+    local suit = suitName and string.lower(suitName)
+    local suitIndex = suitNameToIndex[suit]
+
+    if suit == "cups" then
+        return self:drawFromDeck(self.cupsDeck, suitIndex)
+    elseif suit == "wands" then
+        return self:drawFromDeck(self.wandsDeck, suitIndex)
+    elseif suit == "swords" then
+        return self:drawFromDeck(self.swordsDeck, suitIndex)
+    elseif suit == "pentacles" then
+        return self:drawFromDeck(self.pentaclesDeck, suitIndex)
+    elseif suit == "major" then
+        return self:drawFromDeck(self.majorArcanaDeck, suitIndex)
+    end
+
+    return nil
+end
+
+function Deck:drawMinorArcana()
+    local minorDecks = {
+        self.cupsDeck,
+        self.wandsDeck,
+        self.swordsDeck,
+        self.pentaclesDeck
+    }
+
+    local row = math.random(1, #minorDecks)
+    local selectedDeck = minorDecks[row]
+    if #selectedDeck == 0 then return nil end
+    local column = math.random(1, #selectedDeck)
+    local cardDrawed = selectedDeck[column]
+    local cardNumber = column
+    local cardSuit = row
+    return cardDrawed, cardNumber, cardSuit
+end
+
+function Deck:drawFullDeck()
+    return self:drawRandomCard()
 end
 
 function Deck:drawRandomCard()

@@ -3,6 +3,8 @@ local gfx <const> = playdate.graphics
 
 class('SettingsScene').extends(gfx.sprite)
 
+local deckKeys = {"full", "major", "minor", "cups", "pentacles", "swords", "wands"}
+
 
 function SettingsScene:init()
     self.bgImage = gfx.image.new("images/bg/darkcloth")
@@ -30,8 +32,14 @@ function SettingsScene:init()
     -- default options
     self.howTo = false
 
-    self.deckText = {"Full Deck", "Major Arcana"}
-    self.deckTextIndex = onlyMajor and 2 or 1
+    self.deckText = {"Full Deck", "Major Arcana", "Minor Arcana", "Cups", "Pentacles", "Swords", "Wands"}
+    self.deckTextIndex = 1
+    for index, key in ipairs(deckKeys) do
+        if key == (selectedDeck or "full") then
+            self.deckTextIndex = index
+            break
+        end
+    end
 
     self.soundText = {"Music&Rain", "Just Music", "Just Rain"}
     self.soundTextIndex = soundMode
@@ -94,7 +102,7 @@ function SettingsScene:update()
     --HOW TO OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY then
         cards_slow2:play(1)
-        SCENE_MANAGER:switchScene(HowToScene)
+        SCENE_MANAGER:switchScene(HowToMenuScene)
     -- CREDITS OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.bottomY - self.step then
         cards_slow2:play(1)
@@ -112,12 +120,7 @@ function SettingsScene:update()
         -- Update the options table so selector uses the new text
         self.options[2].text = self.deckText[self.deckTextIndex]
 
-        -- Set global onlyMajor
-        if self.deckTextIndex == 1 then
-            onlyMajor = false
-        else
-            onlyMajor = true
-        end
+        selectedDeck = deckKeys[self.deckTextIndex]
     -- SOUND OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step*2 then
         -- Toggle soundTextIndex
