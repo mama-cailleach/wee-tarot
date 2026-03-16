@@ -22,9 +22,9 @@ function SpreadSelectionScene:init()
     self.spreadOptions = {
         { label = "1 Card Fortune", key = "one_card", implemented = true },
         { label = "3 Card Spread", key = "three_card", implemented = true },
-        { label = "Pentagram (5)", key = "pentagram", implemented = true },
-        { label = "Celtic Cross (10)", key = "celtic_cross", implemented = true },
-        { label = "Horoscope (12)", key = "horoscope", implemented = true }
+        { label = "Pentagram", key = "pentagram", implemented = true },
+        { label = "Celtic Cross", key = "celtic_cross", implemented = true },
+        { label = "Horoscope", key = "horoscope", implemented = true }
     }
 
     self.optionSprites = {}

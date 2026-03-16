@@ -15,16 +15,17 @@ function HowToMenuScene:init()
     self.selectorSprite:moveTo(128, 86)
     self.selectorSprite:add()
 
-    self.titleText = gfx.sprite.spriteWithText("HOW TO", 400, 200, nil, nil, nil, kTextAlignment.center)
+    self.titleText = gfx.sprite.spriteWithText("How To", 400, 200, nil, nil, nil, kTextAlignment.center)
     self.titleText:moveTo(200, 30)
     self.titleText:add()
 
     self.topicOptions = {
-        { label = "Fortune Spread (1)", key = "one_card", implemented = true },
-        { label = "Three Card Spread", key = "three_card", implemented = true },
-        { label = "Pentagram (5)", key = "pentagram", implemented = true },
-        { label = "Celtic Cross (10)", key = "celtic_cross", implemented = true },
-        { label = "Horoscope (12)", key = "horoscope", implemented = true }
+        { label = "Table Manners", key = "general", implemented = true },
+        { label = "One Card Fortune", key = "one_card", implemented = true },
+        { label = "Three Card", key = "three_card", implemented = true },
+        { label = "Pentagram", key = "pentagram", implemented = true },
+        { label = "Celtic Cross", key = "celtic_cross", implemented = true },
+        { label = "Horoscope", key = "horoscope", implemented = true }
     }
 
     self.optionSprites = {}

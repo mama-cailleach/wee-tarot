@@ -1,4 +1,5 @@
 import "baseSpreadGameScene"
+import "celticCrossPostScene"
 
 local CELTIC_CROSS_CONFIG = {
     cardCount = 10,
@@ -15,6 +16,6 @@ local CELTIC_CROSS_CONFIG = {
 
 class('CelticCrossGameScene').extends(BaseSpreadGameScene)
 
-function CelticCrossGameScene:init()
-    CelticCrossGameScene.super.init(self, CELTIC_CROSS_CONFIG)
+function CelticCrossGameScene:init(restoreState)
+    CelticCrossGameScene.super.init(self, CELTIC_CROSS_CONFIG, restoreState)
 end

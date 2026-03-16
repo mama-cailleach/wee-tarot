@@ -1,4 +1,5 @@
 import "baseSpreadGameScene"
+import "horoscopePostScene"
 
 local HOROSCOPE_CONFIG = {
     cardCount = 12,
@@ -15,6 +16,6 @@ local HOROSCOPE_CONFIG = {
 
 class('HoroscopeGameScene').extends(BaseSpreadGameScene)
 
-function HoroscopeGameScene:init()
-    HoroscopeGameScene.super.init(self, HOROSCOPE_CONFIG)
+function HoroscopeGameScene:init(restoreState)
+    HoroscopeGameScene.super.init(self, HOROSCOPE_CONFIG, restoreState)
 end

@@ -14,6 +14,6 @@ local PENTAGRAM_POST_CONFIG = {
 
 class('PentagramPostScene').extends(BaseSpreadPostScene)
 
-function PentagramPostScene:init(cardNames, cardNumbers, cardSuits, cardInverted)
-    PentagramPostScene.super.init(self, PENTAGRAM_POST_CONFIG, cardNames, cardNumbers, cardSuits, cardInverted)
+function PentagramPostScene:init(cardNames, cardNumbers, cardSuits, cardInverted, selectedCardIndex)
+    PentagramPostScene.super.init(self, PENTAGRAM_POST_CONFIG, cardNames, cardNumbers, cardSuits, cardInverted, selectedCardIndex)
 end

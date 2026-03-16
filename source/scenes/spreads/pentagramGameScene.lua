@@ -1,4 +1,5 @@
 import "baseSpreadGameScene"
+import "pentagramPostScene"
 
 local PENTAGRAM_CONFIG = {
     cardCount = 5,
@@ -18,6 +19,6 @@ local PENTAGRAM_CONFIG = {
 
 class('PentagramGameScene').extends(BaseSpreadGameScene)
 
-function PentagramGameScene:init()
-    PentagramGameScene.super.init(self, PENTAGRAM_CONFIG)
+function PentagramGameScene:init(restoreState)
+    PentagramGameScene.super.init(self, PENTAGRAM_CONFIG, restoreState)
 end

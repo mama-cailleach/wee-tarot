@@ -100,7 +100,7 @@ end
 
 function TitleScene:loadMenuAnimation()
     self.BGSprite.states["idleEnd"].onAnimationEndEvent = function ()
-        SCENE_MANAGER:switchScene(MenuScene)
+        SCENE_MANAGER:switchScene(ThreeCardGameScene) --MenuScene ********
         bgMusic:setLoopRange(0)
         self:soundTrigger()
 

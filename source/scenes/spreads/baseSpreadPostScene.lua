@@ -5,7 +5,7 @@ local gfx <const> = pd.graphics
 
 class('BaseSpreadPostScene').extends(gfx.sprite)
 
-function BaseSpreadPostScene:init(config, cardNames, cardNumbers, cardSuits, cardInverted)
+function BaseSpreadPostScene:init(config, cardNames, cardNumbers, cardSuits, cardInverted, selectedCardIndex)
     BaseSpreadPostScene.super.init(self)
 
     self.config = config or {}
@@ -13,6 +13,7 @@ function BaseSpreadPostScene:init(config, cardNames, cardNumbers, cardSuits, car
     self.cardNumbers = cardNumbers or {}
     self.cardSuits = cardSuits or {}
     self.cardInverted = cardInverted or {}
+    self.selectedCardIndex = selectedCardIndex or math.ceil((#self.cardNumbers or 1) / 2)
     self.cardSprites = {}
 
     self.imagetable = gfx.imagetable.new("images/bg/dinahBG-table-400-266")
@@ -34,7 +35,6 @@ function BaseSpreadPostScene:init(config, cardNames, cardNumbers, cardSuits, car
     self.oscillationStartTime = nil
 
     self:dinahSpriteLoad()
-    self:createCardPreviewSprites()
 
     self.scrollBoxAnimatorIn = gfx.animator.new(2600, 300, 170, pd.easingFunctions.outBack)
     self.scrollBoxSprite:moveTo(202, 300)
@@ -118,7 +118,41 @@ end
 function BaseSpreadPostScene:finishReading()
     self.canButton = false
     self:removeAButton()
-    SCENE_MANAGER:switchScene(SpreadSelectionScene)
+    SCENE_MANAGER:switchScene(AfterDialogueScene)
+end
+
+function BaseSpreadPostScene:getSpreadGameSceneClass()
+    local spreadKey = self.config.spreadKey
+    if spreadKey == "three_card" then
+        return ThreeCardGameScene
+    elseif spreadKey == "pentagram" then
+        return PentagramGameScene
+    elseif spreadKey == "celtic_cross" then
+        return CelticCrossGameScene
+    elseif spreadKey == "horoscope" then
+        return HoroscopeGameScene
+    end
+    return nil
+end
+
+function BaseSpreadPostScene:goBackToSpreadView()
+    local gameSceneClass = self:getSpreadGameSceneClass()
+    if not gameSceneClass then
+        self:finishReading()
+        return
+    end
+
+    self.canButton = false
+    self:removeAButton()
+
+    SCENE_MANAGER:switchScene(gameSceneClass, {
+        cardNames = self.cardNames,
+        cardNumbers = self.cardNumbers,
+        cardSuits = self.cardSuits,
+        cardInverted = self.cardInverted,
+        selectedCardIndex = self.selectedCardIndex,
+        confirmToMenu = true
+    })
 end
 
 function BaseSpreadPostScene:update()
@@ -154,7 +188,7 @@ function BaseSpreadPostScene:update()
     end
 
     if self.canButton and pd.buttonJustPressed(pd.kButtonB) then
-        self:finishReading()
+        self:goBackToSpreadView()
     end
 end
 

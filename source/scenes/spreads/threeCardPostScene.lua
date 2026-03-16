@@ -12,6 +12,6 @@ local THREE_CARD_POST_CONFIG = {
 
 class('ThreeCardPostScene').extends(BaseSpreadPostScene)
 
-function ThreeCardPostScene:init(cardNames, cardNumbers, cardSuits, cardInverted)
-    ThreeCardPostScene.super.init(self, THREE_CARD_POST_CONFIG, cardNames, cardNumbers, cardSuits, cardInverted)
+function ThreeCardPostScene:init(cardNames, cardNumbers, cardSuits, cardInverted, selectedCardIndex)
+    ThreeCardPostScene.super.init(self, THREE_CARD_POST_CONFIG, cardNames, cardNumbers, cardSuits, cardInverted, selectedCardIndex)
 end

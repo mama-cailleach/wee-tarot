@@ -11,6 +11,6 @@ local HOROSCOPE_POST_CONFIG = {
 
 class('HoroscopePostScene').extends(BaseSpreadPostScene)
 
-function HoroscopePostScene:init(cardNames, cardNumbers, cardSuits, cardInverted)
-    HoroscopePostScene.super.init(self, HOROSCOPE_POST_CONFIG, cardNames, cardNumbers, cardSuits, cardInverted)
+function HoroscopePostScene:init(cardNames, cardNumbers, cardSuits, cardInverted, selectedCardIndex)
+    HoroscopePostScene.super.init(self, HOROSCOPE_POST_CONFIG, cardNames, cardNumbers, cardSuits, cardInverted, selectedCardIndex)
 end

@@ -11,6 +11,6 @@ local CELTIC_CROSS_POST_CONFIG = {
 
 class('CelticCrossPostScene').extends(BaseSpreadPostScene)
 
-function CelticCrossPostScene:init(cardNames, cardNumbers, cardSuits, cardInverted)
-    CelticCrossPostScene.super.init(self, CELTIC_CROSS_POST_CONFIG, cardNames, cardNumbers, cardSuits, cardInverted)
+function CelticCrossPostScene:init(cardNames, cardNumbers, cardSuits, cardInverted, selectedCardIndex)
+    CelticCrossPostScene.super.init(self, CELTIC_CROSS_POST_CONFIG, cardNames, cardNumbers, cardSuits, cardInverted, selectedCardIndex)
 end

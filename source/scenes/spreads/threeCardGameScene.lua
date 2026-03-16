@@ -1,21 +1,22 @@
 import "baseSpreadGameScene"
+import "threeCardPostScene"
 
 local THREE_CARD_CONFIG = {
     cardCount = 3,
     cardPositions = {
-        { x = 160, y = 120 },
+        { x = 100, y = 120 },
         { x = 200, y = 120 },
-        { x = 240, y = 120 }
+        { x = 300, y = 120 }
     },
-    defaultScale = 0.72,
-    zoomScale = 0.95,
+    defaultScale = 0.9,
+    selectedScale = 1.0,
+    zoomScale = 1.725,
     revealDelay = 450,
-    promptText = "3 CARD SPREAD\nUse crank, then press A",
     postSceneClass = ThreeCardPostScene
 }
 
 class('ThreeCardGameScene').extends(BaseSpreadGameScene)
 
-function ThreeCardGameScene:init()
-    ThreeCardGameScene.super.init(self, THREE_CARD_CONFIG)
+function ThreeCardGameScene:init(restoreState)
+    ThreeCardGameScene.super.init(self, THREE_CARD_CONFIG, restoreState)
 end
