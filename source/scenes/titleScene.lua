@@ -100,7 +100,7 @@ end
 
 function TitleScene:loadMenuAnimation()
     self.BGSprite.states["idleEnd"].onAnimationEndEvent = function ()
-        SCENE_MANAGER:switchScene(HoroscopeGameScene) --MenuScene ********
+        SCENE_MANAGER:switchScene(MenuScene) --MenuScene ********
         bgMusic:setLoopRange(0)
         self:soundTrigger()
 
