@@ -4,16 +4,30 @@ import "pentagramPostScene"
 local PENTAGRAM_CONFIG = {
     cardCount = 5,
     cardPositions = {
-        { x = 120, y = 95 },
-        { x = 180, y = 95 },
-        { x = 240, y = 95 },
-        { x = 150, y = 145 },
-        { x = 210, y = 145 }
+        { x = 200, y = 58 },
+        { x = 80, y = 120 },
+        { x = 150, y = 182 },
+        { x = 250, y = 182 },
+        { x = 320, y = 120 }
     },
-    defaultScale = 0.62,
-    zoomScale = 0.86,
+    selectedCardPositions = {
+        { x = 200, y = 80 },
+        { x = 80, y = 120 },
+        { x = 150, y = 160 },
+        { x = 250, y = 160 },
+        { x = 320, y = 120 }
+    },
+    zoomCardPositions = {
+        { x = 200, y = 120 },
+        { x = 80, y = 120 },
+        { x = 150, y = 120 },
+        { x = 250, y = 120 },
+        { x = 320, y = 120 }
+    },
+    defaultScale = 0.75,
+    selectedScale = 1.0,
+    zoomScale = 1.725,
     revealDelay = 380,
-    promptText = "PENTAGRAM SPREAD (5)\nUse crank, then press A",
     postSceneClass = PentagramPostScene
 }
 

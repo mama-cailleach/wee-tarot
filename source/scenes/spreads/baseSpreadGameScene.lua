@@ -46,7 +46,9 @@ function BaseSpreadGameScene:init(config, restoreState)
     self.revealTimers = {}
     self.revealedTimersStarted = false
 
-    self.selectedCardIndex = config.initialSelectedIndex or math.ceil((config.cardCount or 1) / 2)
+    self.defaultSelectedCardIndex = 1
+    self.selectionReady = restoreState ~= nil
+    self.selectedCardIndex = restoreState and self.defaultSelectedCardIndex or nil
     self.selectedScale = config.selectedScale or config.defaultScale
     self.selectedCardZoomed = false
 
@@ -68,7 +70,7 @@ function BaseSpreadGameScene:init(config, restoreState)
     self.confirmToMenu = restoreState and restoreState.confirmToMenu or false
 
     if restoreState then
-        self:showPlacementSprite()
+        self:showPlacementSprite(nil, nil, true)
         self.state = "fortune"
         self:restoreSpreadState(restoreState)
     else
@@ -99,7 +101,12 @@ function BaseSpreadGameScene:restoreSpreadState(restoreState)
 
             local isInverted = cardInverted[index] or false
             visual.inverted = isInverted
-            visual:setRotation(isInverted and 180 or 0)
+            
+            local cardRotations = self.config.cardRotations
+            local baseRotation = isInverted and 180 or 0
+            local customRotation = cardRotations and cardRotations[index]
+            local finalRotation = customRotation or baseRotation
+            visual:setRotation(finalRotation)
 
             table.insert(self.drawnCardVisuals, visual)
             table.insert(self.playerCards, cardNames[index])
@@ -109,6 +116,7 @@ function BaseSpreadGameScene:restoreSpreadState(restoreState)
         end
     end
 
+    self.selectionReady = true
     self.selectedCardZoomed = false
     self:selectCard(restoreState.selectedCardIndex or self.selectedCardIndex)
 end
@@ -270,20 +278,20 @@ function BaseSpreadGameScene:scaleAnimation(x, y)
     self.scaleSprite:playAnimation()
 end
 
-function BaseSpreadGameScene:showPlacementSprite(x, y)
+function BaseSpreadGameScene:showPlacementSprite(x, y, addImmediately)
     if self.bgSprite then
-        local newBgImage = gfx.image.new("images/bg/darkcloth")
+        local newBgImage = gfx.image.new("images/bg/cloth_bits_edges")
         self.bgSprite:setImage(newBgImage)
     end
     if not self.cardPlacementSprite then
-        self.cardPlacementSprite = gfx.sprite.new(gfx.image.new("images/decknback/placementzone_diamond"))
+        self.cardPlacementSprite = gfx.sprite.new(gfx.image.new("images/decknback/placementzone_no_diamond"))
         self.cardPlacementSprite:setScale(1)
         self.cardPlacementSprite:moveTo(x or 200, y or 120)
-        pd.timer.performAfterDelay(self.config.revealDelay + 3000, function()
-            if self.cardPlacementSprite then
-                self.cardPlacementSprite:add()
-            end
-        end)
+        self.cardPlacementSprite:setZIndex(200)
+        self.cardPlacementSprite:setImageDrawMode(gfx.kDrawModeXOR)
+        if addImmediately then
+            self.cardPlacementSprite:add()
+        end
     end
     if self.shuffleAnimSprite then
         self.shuffleAnimSprite:remove()
@@ -316,16 +324,72 @@ function BaseSpreadGameScene:clearDrawnCards()
     self.playerCardsInverted = {}
 end
 
+function BaseSpreadGameScene:buildDrawPoolForSelection()
+    self.selectedDeck = selectedDeck or "full"
+
+    local function appendDeckCards(pool, deckCards, suitIndex)
+        for cardNumber, cardName in ipairs(deckCards or {}) do
+            table.insert(pool, {
+                name = cardName,
+                number = cardNumber,
+                suit = suitIndex
+            })
+        end
+    end
+
+    local pool = {}
+    if self.selectedDeck == "major" then
+        appendDeckCards(pool, self.deck.majorArcanaDeck, 5)
+    elseif self.selectedDeck == "minor" then
+        appendDeckCards(pool, self.deck.cupsDeck, 1)
+        appendDeckCards(pool, self.deck.wandsDeck, 2)
+        appendDeckCards(pool, self.deck.swordsDeck, 3)
+        appendDeckCards(pool, self.deck.pentaclesDeck, 4)
+    elseif self.selectedDeck == "cups" then
+        appendDeckCards(pool, self.deck.cupsDeck, 1)
+    elseif self.selectedDeck == "wands" then
+        appendDeckCards(pool, self.deck.wandsDeck, 2)
+    elseif self.selectedDeck == "swords" then
+        appendDeckCards(pool, self.deck.swordsDeck, 3)
+    elseif self.selectedDeck == "pentacles" then
+        appendDeckCards(pool, self.deck.pentaclesDeck, 4)
+    else
+        appendDeckCards(pool, self.deck.cupsDeck, 1)
+        appendDeckCards(pool, self.deck.wandsDeck, 2)
+        appendDeckCards(pool, self.deck.swordsDeck, 3)
+        appendDeckCards(pool, self.deck.pentaclesDeck, 4)
+        appendDeckCards(pool, self.deck.majorArcanaDeck, 5)
+    end
+
+    for i = #pool, 2, -1 do
+        local j = math.random(i)
+        pool[i], pool[j] = pool[j], pool[i]
+    end
+
+    return pool
+end
+
 function BaseSpreadGameScene:drawCardsLogic()
     self:clearDrawnCards()
 
+    local drawPool = self:buildDrawPoolForSelection()
+
     for index = 1, self.config.cardCount do
-        local cardDrawed, cardNumber, cardSuit = self:drawCardByDeckSelection()
+        local draw = drawPool[index]
+        local cardDrawed = draw and draw.name
+        local cardNumber = draw and draw.number
+        local cardSuit = draw and draw.suit
         if cardNumber and cardSuit then
             local visual = Card(cardNumber, cardSuit)
             visual:moveTo(self.cardPositions[index].x, self.cardPositions[index].y)
             visual:setScale(self.config.defaultScale)
             visual:setVisible(false)
+            
+            local cardRotations = self.config.cardRotations
+            if cardRotations and cardRotations[index] then
+                visual:setRotation(cardRotations[index])
+            end
+            
             table.insert(self.drawnCardVisuals, visual)
 
             table.insert(self.playerCards, cardDrawed)
@@ -335,29 +399,58 @@ function BaseSpreadGameScene:drawCardsLogic()
         end
     end
 
-    self:selectCard(self.selectedCardIndex)
+    if self.selectionReady then
+        self:selectCard(self.selectedCardIndex or self.defaultSelectedCardIndex)
+    end
 
     self:revealCardsSequentially()
 end
 
+function BaseSpreadGameScene:getCardPositionForSelection(index, isSelected)
+    local basePosition = self.cardPositions and self.cardPositions[index]
+    if not isSelected then
+        return basePosition
+    end
+
+    local selectedPositions = self.config.selectedCardPositions
+    local zoomPositions = self.config.zoomCardPositions
+    local selectedPosition = selectedPositions and selectedPositions[index]
+    local zoomPosition = zoomPositions and zoomPositions[index]
+
+    if self.selectedCardZoomed then
+        return zoomPosition or selectedPosition or basePosition
+    end
+
+    return selectedPosition or basePosition
+end
+
 function BaseSpreadGameScene:selectCard(index)
     if #self.drawnCardVisuals == 0 then return end
+    if not self.selectionReady then return end
 
     local total = #self.drawnCardVisuals
-    local wrappedIndex = ((index - 1) % total) + 1
+    local targetIndex = index or self.selectedCardIndex or self.defaultSelectedCardIndex or 1
+    local wrappedIndex = ((targetIndex - 1) % total) + 1
     self.selectedCardIndex = wrappedIndex
 
     local baseZ = self.config.cardBaseZIndex or 100
-    local selectedZ = self.config.selectedCardZIndex or (baseZ + 50)
     local zoomedSelectedZ = self.config.zoomedSelectedCardZIndex or (baseZ + 100)
+    local selectedZ = self.config.selectedCardZIndex or zoomedSelectedZ
 
     for i, visual in ipairs(self.drawnCardVisuals) do
+        local isSelected = i == self.selectedCardIndex
         local targetScale = self.config.defaultScale
         local targetZ = baseZ + i
-        if i == self.selectedCardIndex then
+        if isSelected then
             targetScale = self.selectedCardZoomed and self.config.zoomScale or self.selectedScale
             targetZ = self.selectedCardZoomed and zoomedSelectedZ or selectedZ
         end
+
+        local targetPosition = self:getCardPositionForSelection(i, isSelected)
+        if targetPosition then
+            visual:moveTo(targetPosition.x, targetPosition.y)
+        end
+
         visual:setScale(targetScale)
         visual:setZIndex(targetZ)
     end
@@ -366,12 +459,20 @@ function BaseSpreadGameScene:selectCard(index)
         local selectedCard = self.drawnCardVisuals[self.selectedCardIndex]
         if selectedCard then
             self.cardPlacementSprite:moveTo(selectedCard.x, selectedCard.y)
+            
+            local cardRotations = self.config.cardRotations
+            if cardRotations and cardRotations[self.selectedCardIndex] then
+                self.cardPlacementSprite:setRotation(cardRotations[self.selectedCardIndex])
+            else
+                self.cardPlacementSprite:setRotation(0)
+            end
         end
     end
 end
 
 function BaseSpreadGameScene:cycleSelectedCard(direction)
     if #self.drawnCardVisuals == 0 then return end
+    if not self.selectionReady then return end
     self.selectedCardZoomed = false
     self:selectCard(self.selectedCardIndex + direction)
 end
@@ -389,8 +490,16 @@ function BaseSpreadGameScene:revealCardsSequentially()
     end
 
     pd.timer.performAfterDelay((#self.drawnCardVisuals * revealDelay) + 200, function()
+        if self.cardPlacementSprite then
+            self.cardPlacementSprite:add()
+        end
+        self.selectionReady = true
+        if self.selectedCardIndex == nil then
+            self.selectedCardIndex = self.defaultSelectedCardIndex
+        end
+
         self.selectedCardZoomed = false
-        self:selectCard(self.selectedCardIndex)
+        self:selectCard(self.selectedCardIndex or self.defaultSelectedCardIndex)
         self.state = "fortune"
         tuin:play(1)
     end)
@@ -398,6 +507,7 @@ end
 
 function BaseSpreadGameScene:zoomInOutCards()
     if #self.drawnCardVisuals == 0 then return end
+    if not self.selectionReady then return end
 
     if pd.buttonJustPressed(pd.kButtonLeft) then
         self:cycleSelectedCard(-1)

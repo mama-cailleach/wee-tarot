@@ -13,7 +13,7 @@ function SettingsScene:init()
     self.bgSprite:add()
 
 
-    local img = gfx.image.new("images/bg/menu_icon")
+    local img = gfx.image.new("images/bg/icon_tri_smol")
     self.spritewands = gfx.sprite.new(img)
     self.spritewands:moveTo(150, 70)
     self.spritewands:add()

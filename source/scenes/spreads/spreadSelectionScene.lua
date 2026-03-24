@@ -10,7 +10,7 @@ function SpreadSelectionScene:init()
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
 
-    local selectorImage = gfx.image.new("images/bg/menu_icon")
+    local selectorImage = gfx.image.new("images/bg/icon_tri_smol")
     self.selectorSprite = gfx.sprite.new(selectorImage)
     self.selectorSprite:moveTo(120, 86)
     self.selectorSprite:add()

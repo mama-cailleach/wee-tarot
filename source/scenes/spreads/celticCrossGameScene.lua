@@ -4,13 +4,25 @@ import "celticCrossPostScene"
 local CELTIC_CROSS_CONFIG = {
     cardCount = 10,
     cardPositions = {
-        { x = 83, y = 84 }, { x = 139, y = 84 }, { x = 195, y = 84 }, { x = 251, y = 84 }, { x = 307, y = 84 },
-        { x = 83, y = 136 }, { x = 139, y = 136 }, { x = 195, y = 136 }, { x = 251, y = 136 }, { x = 307, y = 136 }
+        { x = 150, y = 120 }, { x = 150, y = 140 }, { x = 150, y = 190 }, { x = 80, y = 120 }, { x = 150, y = 50 },
+        { x = 220, y = 120 }, { x = 300, y = 190 }, { x = 300, y = 140 }, { x = 300, y = 90 }, { x = 300, y = 50 }
+    }, 
+    selectedCardPositions = {
+        { x = 150, y = 120 }, { x = 150, y = 140 }, { x = 150, y = 160 }, { x = 90, y = 120 }, { x = 150, y = 77 },
+        { x = 220, y = 120 }, { x = 300, y = 160 }, { x = 300, y = 140 }, { x = 300, y = 90 }, { x = 300, y = 77 }
+    }, 
+    zoomCardPositions = {
+        { x = 150, y = 120 }, { x = 150, y = 120 }, { x = 150, y = 120 }, { x = 90, y = 120 }, { x = 150, y = 120 },
+        { x = 220, y = 120 }, { x = 300, y = 120 }, { x = 300, y = 120 }, { x = 300, y = 120 }, { x = 300, y = 120 }
     },
-    defaultScale = 0.47,
-    zoomScale = 0.64,
-    revealDelay = 300,
-    promptText = "CELTIC CROSS (10)\nUse crank, then press A",
+    cardRotations = {
+        0, 90, 0, 0, 0,
+        0, 0, 0, 0, 0
+    },
+    defaultScale = 0.65,
+    selectedScale = 1.0,
+    zoomScale = 1.725,
+    revealDelay = 500,
     postSceneClass = CelticCrossPostScene
 }
 

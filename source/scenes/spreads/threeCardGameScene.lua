@@ -8,6 +8,16 @@ local THREE_CARD_CONFIG = {
         { x = 200, y = 120 },
         { x = 300, y = 120 }
     },
+    selectedCardPositions = {
+        { x = 100, y = 120 },
+        { x = 200, y = 120 },
+        { x = 300, y = 120 }
+    },
+    zoomCardPositions = {
+        { x = 100, y = 120 },
+        { x = 200, y = 120 },
+        { x = 300, y = 120 }
+    },
     defaultScale = 0.9,
     selectedScale = 1.0,
     zoomScale = 1.725,
