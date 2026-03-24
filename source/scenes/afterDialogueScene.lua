@@ -94,6 +94,10 @@ function AfterDialogueScene:update()
             cards_fast2:play(1)
             self.dinahSprite:changeState("transition")
         end
+        if pd.buttonJustPressed(pd.kButtonUp) then
+            cards_slow2:play(1)
+            SCENE_MANAGER:switchScene(DiaryScene)
+        end
     end
 end
 

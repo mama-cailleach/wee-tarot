@@ -247,5 +247,9 @@ function MenuScene:update()
             self:removeAButton()
             cards_fast2:play(1)
         end
+        if pd.buttonJustPressed(pd.kButtonUp) then
+            cards_slow2:play(1)
+            SCENE_MANAGER:switchScene(DiaryScene)
+        end
     end
 end

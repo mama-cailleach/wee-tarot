@@ -8,6 +8,7 @@ import "scenes/settingsScene"
 import "scenes/afterDialogueScene"
 import "scenes/cardViewScene"
 import "scenes/creditsScene"
+import "scenes/diaryScene"
 
 -- How-to base
 import "scenes/baseHowToScene"
