@@ -1,4 +1,5 @@
 import "data/cardDescriptions"
+import "data/save/diaryStore"
 
 
 local pd <const> = playdate
@@ -49,6 +50,7 @@ function PostScene:init(cardName, cardNumber, cardSuit, isInverted)
     self.scrollOffset = 0
     self.maxScroll = 0
     self.scrollBoxWidth = 310
+    self.diaryEntrySaved = false
 
     -- --- TEXT ANIMATION LOOP PARAMETERS ---
     self.aButtonY = 220
@@ -190,6 +192,7 @@ function PostScene:update()
             self:showTextWindow()
         else
             -- At end, proceed to next scene or options
+            self:persistDiaryEntry()
             self.canButton = false
             self:removeAButton()
             if self.dinahScrollText then 
@@ -217,6 +220,37 @@ function PostScene:update()
         -- Go back to the card view scene
         SCENE_MANAGER:switchScene(CardViewScene, self.card, self.cardNumber, self.cardSuit, self.invert)
     end
+end
+
+function PostScene:buildDiaryEntry()
+    local fortuneLines = self.dinahTextLines or {}
+    local fortuneText = self.dinahTextBlock or table.concat(fortuneLines, "\n")
+
+    return {
+        date = DiaryStore.formatDateFromSystem(),
+        spreadType = "one-card",
+        cards = {
+            {
+                name = self.card,
+                number = self.cardNumber,
+                suit = self.cardSuit,
+                inverted = self.invert == true,
+                position = 1
+            }
+        },
+        fortuneLines = fortuneLines,
+        fortuneText = fortuneText
+    }
+end
+
+function PostScene:persistDiaryEntry()
+    if self.diaryEntrySaved then
+        return
+    end
+
+    local entry = self:buildDiaryEntry()
+    DiaryStore.appendEntry(entry)
+    self.diaryEntrySaved = true
 end
 
 

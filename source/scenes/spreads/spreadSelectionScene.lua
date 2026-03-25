@@ -3,6 +3,9 @@ local gfx <const> = playdate.graphics
 
 class('SpreadSelectionScene').extends(gfx.sprite)
 
+local deckKeys = {"full", "major", "minor", "cups", "pentacles", "swords", "wands"}
+local deckLabels = {"Full Deck", "Major Arcana", "Minor Arcana", "Cups", "Pentacles", "Swords", "Wands"}
+
 function SpreadSelectionScene:init()
     SpreadSelectionScene.super.init(self)
 
@@ -12,56 +15,103 @@ function SpreadSelectionScene:init()
 
     local selectorImage = gfx.image.new("images/bg/icon_tri_smol")
     self.selectorSprite = gfx.sprite.new(selectorImage)
-    self.selectorSprite:moveTo(120, 86)
+    self.selectorSprite:moveTo(120, 92)
     self.selectorSprite:add()
 
-    self.titleText = gfx.sprite.spriteWithText("SPREAD", 400, 200, nil, nil, nil, kTextAlignment.center)
+    self.selectorSpriteRight = gfx.sprite.new(selectorImage)
+    self.selectorSpriteRight:setImageFlip(gfx.kImageFlippedX)
+    self.selectorSpriteRight:moveTo(280, 92)
+    self.selectorSpriteRight:add()
+
+    self.titleText = gfx.sprite.spriteWithText("READING", 400, 200, nil, nil, nil, kTextAlignment.center)
     self.titleText:moveTo(200, 30)
     self.titleText:add()
 
     self.spreadOptions = {
-        { label = "1 Card Fortune", key = "one_card", implemented = true },
-        { label = "3 Card Spread", key = "three_card", implemented = true },
+        { label = "1-bit Fortune", key = "one_card", implemented = true },
+        { label = "Past-Present-Future", key = "three_card", implemented = true },
         { label = "Pentagram", key = "pentagram", implemented = true },
         { label = "Celtic Cross", key = "celtic_cross", implemented = true },
         { label = "Horoscope", key = "horoscope", implemented = true }
     }
 
-    self.optionSprites = {}
-    self.selectedIndex = 1
-    self.topY = 70
-    self.step = 26
+    self.spreadOptionIndex = 1
+    self.deckOptionIndex = 1
+    for index, key in ipairs(deckKeys) do
+        if key == (selectedDeck or "full") then
+            self.deckOptionIndex = index
+            break
+        end
+    end
+
+    selectedDeck = deckKeys[self.deckOptionIndex]
+
+    self.rowLabels = {"SPREAD", "DECK", "SEEK"}
+    self.rowY = {70, 138, 212}
+    self.selectedRow = 1
+
+    self.spreadHeaderSprite = nil
+    self.spreadValueSprite = nil
+    self.deckHeaderSprite = nil
+    self.deckValueSprite = nil
+    self.goSprite = nil
 
     self.noticeSprite = nil
     self.noticeTimer = nil
 
-    self:createOptionSprites()
+    self:createLayoutSprites()
     self:updateSelectorPosition()
 
     self:add()
 end
 
-function SpreadSelectionScene:createOptionSprites()
-    for _, sprite in ipairs(self.optionSprites) do
-        sprite:remove()
-    end
-    self.optionSprites = {}
+function SpreadSelectionScene:createLayoutSprites()
+    self.spreadHeaderSprite = gfx.sprite.spriteWithText("SPREAD", 400, 40, nil, nil, nil, kTextAlignment.center)
+    self.spreadHeaderSprite:moveTo(200, self.rowY[1])
+    self.spreadHeaderSprite:add()
 
-    for index, option in ipairs(self.spreadOptions) do
-        local y = self.topY + (index - 1) * self.step
-        local optionSprite = gfx.sprite.spriteWithText(option.label, 280, 40, nil, nil, nil, kTextAlignment.center)
-        optionSprite:moveTo(210, y)
-        optionSprite:add()
-        table.insert(self.optionSprites, optionSprite)
-    end
+    self.spreadValueSprite = gfx.sprite.spriteWithText(self.spreadOptions[self.spreadOptionIndex].label, 400, 40, nil, nil, nil, kTextAlignment.center)
+    self.spreadValueSprite:moveTo(200, self.rowY[1] + 28)
+    self.spreadValueSprite:add()
+
+    self.deckHeaderSprite = gfx.sprite.spriteWithText("DECK", 400, 40, nil, nil, nil, kTextAlignment.center)
+    self.deckHeaderSprite:moveTo(200, self.rowY[2])
+    self.deckHeaderSprite:add()
+
+    self.deckValueSprite = gfx.sprite.spriteWithText(deckLabels[self.deckOptionIndex], 400, 40, nil, nil, nil, kTextAlignment.center)
+    self.deckValueSprite:moveTo(200, self.rowY[2] + 28)
+    self.deckValueSprite:add()
+
+    self.goSprite = gfx.sprite.spriteWithText("SEEK", 400, 40, nil, nil, nil, kTextAlignment.center)
+    self.goSprite:moveTo(200, self.rowY[3])
+    self.goSprite:add()
 end
 
 function SpreadSelectionScene:updateSelectorPosition()
-    local option = self.spreadOptions[self.selectedIndex]
-    local textWidth = gfx.getTextSize(option.label)
+    local rowLabel = self.rowLabels[self.selectedRow]
+    local textWidth = gfx.getTextSize(rowLabel)
     local offset = 18
-    local y = self.topY + (self.selectedIndex - 1) * self.step
-    self.selectorSprite:moveTo(210 - textWidth / 2 - offset, y)
+    local y = self.rowY[self.selectedRow] - 2
+    self.selectorSprite:moveTo(200 - textWidth / 2 - offset, y)
+    self.selectorSpriteRight:moveTo(200 + textWidth / 2 + offset, y)
+end
+
+function SpreadSelectionScene:updateSpreadValueSprite()
+    if self.spreadValueSprite then
+        self.spreadValueSprite:remove()
+    end
+    self.spreadValueSprite = gfx.sprite.spriteWithText(self.spreadOptions[self.spreadOptionIndex].label, 400, 40, nil, nil, nil, kTextAlignment.center)
+    self.spreadValueSprite:moveTo(200, self.rowY[1] + 28)
+    self.spreadValueSprite:add()
+end
+
+function SpreadSelectionScene:updateDeckValueSprite()
+    if self.deckValueSprite then
+        self.deckValueSprite:remove()
+    end
+    self.deckValueSprite = gfx.sprite.spriteWithText(deckLabels[self.deckOptionIndex], 400, 40, nil, nil, nil, kTextAlignment.center)
+    self.deckValueSprite:moveTo(200, self.rowY[2] + 28)
+    self.deckValueSprite:add()
 end
 
 function SpreadSelectionScene:showNotice(text)
@@ -88,7 +138,14 @@ function SpreadSelectionScene:showNotice(text)
 end
 
 function SpreadSelectionScene:confirmSelection()
-    local option = self.spreadOptions[self.selectedIndex]
+    local option = self.spreadOptions[self.spreadOptionIndex]
+    selectedDeck = deckKeys[self.deckOptionIndex]
+
+    if not option.implemented then
+        cards_slow2:play(1)
+        self:showNotice("This spread is coming soon")
+        return
+    end
 
     if option.key == "one_card" then
         cards_fast2:play(1)
@@ -111,28 +168,36 @@ function SpreadSelectionScene:confirmSelection()
         SCENE_MANAGER:switchScene(HoroscopeGameScene)
         return
     end
-
-    cards_slow2:play(1)
-    self:showNotice("This spread is coming soon")
 end
 
 function SpreadSelectionScene:update()
     if pd.buttonJustPressed(pd.kButtonDown) then
-        self.selectedIndex = self.selectedIndex + 1
-        if self.selectedIndex > #self.spreadOptions then
-            self.selectedIndex = 1
+        self.selectedRow = self.selectedRow + 1
+        if self.selectedRow > #self.rowLabels then
+            self.selectedRow = 1
         end
         self:updateSelectorPosition()
     elseif pd.buttonJustPressed(pd.kButtonUp) then
-        self.selectedIndex = self.selectedIndex - 1
-        if self.selectedIndex < 1 then
-            self.selectedIndex = #self.spreadOptions
+        self.selectedRow = self.selectedRow - 1
+        if self.selectedRow < 1 then
+            self.selectedRow = #self.rowLabels
         end
         self:updateSelectorPosition()
     end
 
     if pd.buttonJustPressed(pd.kButtonA) then
-        self:confirmSelection()
+        if self.selectedRow == 1 then
+            self.spreadOptionIndex = self.spreadOptionIndex % #self.spreadOptions + 1
+            cards_slow2:play(1)
+            self:updateSpreadValueSprite()
+        elseif self.selectedRow == 2 then
+            self.deckOptionIndex = self.deckOptionIndex % #deckLabels + 1
+            selectedDeck = deckKeys[self.deckOptionIndex]
+            cards_slow2:play(1)
+            self:updateDeckValueSprite()
+        else
+            self:confirmSelection()
+        end
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
@@ -144,12 +209,13 @@ end
 function SpreadSelectionScene:deinit()
     if self.bgSprite then self.bgSprite:remove() self.bgSprite = nil end
     if self.selectorSprite then self.selectorSprite:remove() self.selectorSprite = nil end
+    if self.selectorSpriteRight then self.selectorSpriteRight:remove() self.selectorSpriteRight = nil end
     if self.titleText then self.titleText:remove() self.titleText = nil end
+    if self.spreadHeaderSprite then self.spreadHeaderSprite:remove() self.spreadHeaderSprite = nil end
+    if self.spreadValueSprite then self.spreadValueSprite:remove() self.spreadValueSprite = nil end
+    if self.deckHeaderSprite then self.deckHeaderSprite:remove() self.deckHeaderSprite = nil end
+    if self.deckValueSprite then self.deckValueSprite:remove() self.deckValueSprite = nil end
+    if self.goSprite then self.goSprite:remove() self.goSprite = nil end
     if self.noticeSprite then self.noticeSprite:remove() self.noticeSprite = nil end
     if self.noticeTimer then self.noticeTimer:remove() self.noticeTimer = nil end
-
-    for _, sprite in ipairs(self.optionSprites or {}) do
-        sprite:remove()
-    end
-    self.optionSprites = nil
 end

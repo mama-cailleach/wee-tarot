@@ -32,14 +32,8 @@ function SettingsScene:init()
     -- default options
     self.howTo = false
 
-    self.deckText = {"Full Deck", "Major Arcana", "Minor Arcana", "Cups", "Pentacles", "Swords", "Wands"}
+    self.deckText = {"Placeholder"}
     self.deckTextIndex = 1
-    for index, key in ipairs(deckKeys) do
-        if key == (selectedDeck or "full") then
-            self.deckTextIndex = index
-            break
-        end
-    end
 
     self.soundText = {"Music&Rain", "Just Music", "Just Rain"}
     self.soundTextIndex = soundMode
@@ -109,18 +103,7 @@ function SettingsScene:update()
         SCENE_MANAGER:switchScene(CreditsScene)
     --DECK OPtion
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step then
-        self.howTo = true
-        self.deckTextIndex = self.deckTextIndex % #self.deckText + 1
-        -- Update the button text
-        if self.deckButton then
-            self.deckButton:remove()
-        end
-        self.deckButton = self:addButton(self.deckText[self.deckTextIndex], 200, self.topY + self.step)
-
-        -- Update the options table so selector uses the new text
-        self.options[2].text = self.deckText[self.deckTextIndex]
-
-        selectedDeck = deckKeys[self.deckTextIndex]
+        print("Menu Placeholder")
     -- SOUND OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step*2 then
         -- Toggle soundTextIndex

@@ -21,8 +21,8 @@ function HowToMenuScene:init()
 
     self.topicOptions = {
         { label = "Table Manners", key = "general", implemented = true },
-        { label = "One Card Fortune", key = "one_card", implemented = true },
-        { label = "Three Card", key = "three_card", implemented = true },
+        { label = "1-bit Fortune", key = "one_card", implemented = true },
+        { label = "Past-Present-Future", key = "three_card", implemented = true },
         { label = "Pentagram", key = "pentagram", implemented = true },
         { label = "Celtic Cross", key = "celtic_cross", implemented = true },
         { label = "Horoscope", key = "horoscope", implemented = true }

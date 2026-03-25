@@ -1,4 +1,5 @@
 import "../../data/spreadReadingData"
+import "../../data/save/diaryStore"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -27,6 +28,7 @@ function BaseSpreadPostScene:init(config, cardNames, cardNumbers, cardSuits, car
     self.aButton = nil
     self.aButtonBlinkTimer = nil
     self.canButton = false
+    self.diaryEntrySaved = false
 
     self.aButtonY = 220
     self.textBaseY = 182
@@ -116,9 +118,59 @@ function BaseSpreadPostScene:onScrollBoxAnimationFinished()
 end
 
 function BaseSpreadPostScene:finishReading()
+    self:persistDiaryEntry()
     self.canButton = false
     self:removeAButton()
     SCENE_MANAGER:switchScene(AfterDialogueScene)
+end
+
+function BaseSpreadPostScene:getDiarySpreadType()
+    local spreadKey = self.config.spreadKey
+    if spreadKey == "three_card" then
+        return "three-card"
+    elseif spreadKey == "celtic_cross" then
+        return "celtic-cross"
+    elseif spreadKey == "pentagram" then
+        return "pentagram"
+    elseif spreadKey == "horoscope" then
+        return "horoscope"
+    end
+
+    return "unknown"
+end
+
+function BaseSpreadPostScene:buildDiaryEntry()
+    local cards = {}
+    for index, cardName in ipairs(self.cardNames or {}) do
+        table.insert(cards, {
+            name = cardName,
+            number = self.cardNumbers and self.cardNumbers[index] or nil,
+            suit = self.cardSuits and self.cardSuits[index] or nil,
+            inverted = self.cardInverted and self.cardInverted[index] == true or false,
+            position = index
+        })
+    end
+
+    local fortuneLines = self.textLines or {}
+    local fortuneText = table.concat(fortuneLines, "\n")
+
+    return {
+        date = DiaryStore.formatDateFromSystem(),
+        spreadType = self:getDiarySpreadType(),
+        cards = cards,
+        fortuneLines = fortuneLines,
+        fortuneText = fortuneText
+    }
+end
+
+function BaseSpreadPostScene:persistDiaryEntry()
+    if self.diaryEntrySaved then
+        return
+    end
+
+    local entry = self:buildDiaryEntry()
+    DiaryStore.appendEntry(entry)
+    self.diaryEntrySaved = true
 end
 
 function BaseSpreadPostScene:getSpreadGameSceneClass()
