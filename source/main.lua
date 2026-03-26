@@ -6,10 +6,12 @@ import "CoreLibs/object"
 import "CoreLibs/ui"
 import "CoreLibs/animation"
 import "CoreLibs/crank"
+import "CoreLibs/keyboard"
 
 -- myLibs
 import "libraries/utils"
 import "libraries/AnimatedSprite"
+import "data/save/playerProfileStore"
 
 -- Scenes
 import "scenes/allScenes"

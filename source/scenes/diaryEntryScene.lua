@@ -1,6 +1,8 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+import "data/save/playerProfileStore"
+
 class('DiaryEntryScene').extends(gfx.sprite)
 
 function DiaryEntryScene:init(entry, returnIndex)
@@ -33,7 +35,7 @@ function DiaryEntryScene:init(entry, returnIndex)
 end
 
 function DiaryEntryScene:buildHeaderText()
-    local date = self.entry.date or "00-00-0000"
+    local date = PlayerProfileStore.formatDiaryDate(self.entry.date or "00-00-0000")
     local spread = self.entry.spreadType or "unknown"
     return date .. " + " .. spread
 end
@@ -128,7 +130,7 @@ function DiaryEntryScene:update()
 
     if pd.buttonJustPressed(pd.kButtonB) then
         cards_slow2:play(1)
-        SCENE_MANAGER:switchScene(DiaryScene, self.returnIndex)
+        SCENE_MANAGER:switchScene(DiaryEntriesListScene, self.returnIndex)
     end
 end
 

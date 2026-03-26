@@ -9,6 +9,8 @@ import "scenes/afterDialogueScene"
 import "scenes/cardViewScene"
 import "scenes/creditsScene"
 import "scenes/diaryScene"
+import "scenes/diaryEntriesListScene"
+import "scenes/diarySettingsScene"
 import "scenes/diaryEntryScene"
 
 -- How-to base

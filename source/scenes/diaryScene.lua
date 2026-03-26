@@ -1,11 +1,11 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-import "data/save/diaryStore"
+import "data/save/playerProfileStore"
 
 class('DiaryScene').extends(gfx.sprite)
 
-function DiaryScene:init(restoreIndex)
+function DiaryScene:init()
     DiaryScene.super.init(self)
 
     self.bgImage = gfx.image.new("images/bg/journal1")
@@ -18,156 +18,85 @@ function DiaryScene:init(restoreIndex)
     self.diaryLabel:moveTo(40, 80)
     self.diaryLabel:add()
 
-    self.diaryLine = gfx.sprite.spriteWithText("________________", 320, 40, nil, nil, nil, kTextAlignment.left)
+    self.name = PlayerProfileStore.getName()
+
+    self.diaryLine = gfx.sprite.spriteWithText(self.name, 120, 40, nil, nil, nil, kTextAlignment.center)
     self.diaryLine:setCenter(0, 0)
     self.diaryLine:moveTo(40, 120)
     self.diaryLine:add()
 
-    self.entries = DiaryStore.getEntries()
-    self.entrySprites = {}
-    self.visibleEntryCount = 8
-    self.listLeft = 240
-    self.listTop = 10
-    self.listWidth = 182
-    self.rowHeight = 28
-    self.selectedIndex = restoreIndex or 1
-    self.listStartIndex = 1
+    self.menuOptions = { "Entries", "Edit", "Back" }
+    self.selectedMenuIndex = 1
+    self.menuSprites = {}
     self.selectorSprite = nil
 
-    local selectorImage = gfx.image.new("images/bg/icon_tri_smol")
+    local selectorImage = gfx.image.new("images/bg/icon_knot1_smol")
     if selectorImage then
         self.selectorSprite = gfx.sprite.new(selectorImage)
         self.selectorSprite:add()
     end
 
-    if #self.entries == 0 then
-        self.selectedIndex = 0
-    elseif self.selectedIndex > #self.entries then
-        self.selectedIndex = #self.entries
-    elseif self.selectedIndex < 1 then
-        self.selectedIndex = 1
-    end
-
-    self:renderEntries()
+    self:renderMenu()
 
     self:add()
 end
 
-function DiaryScene:clearEntrySprites()
-    for _, sprite in ipairs(self.entrySprites) do
+function DiaryScene:renderMenu()
+    for _, sprite in ipairs(self.menuSprites) do
+        if sprite then sprite:remove() end
+    end
+    self.menuSprites = {}
+
+    local startY = 20
+    local rowHeight = 30
+    for i, option in ipairs(self.menuOptions) do
+        local sprite = gfx.sprite.spriteWithText(option, 100, 40, nil, nil, nil, kTextAlignment.left)
         if sprite then
-            sprite:remove()
+            sprite:setCenter(0, 0)
+            sprite:moveTo(260, startY + (i - 1) * rowHeight)
+            sprite:add()
+            table.insert(self.menuSprites, sprite)
         end
     end
-    self.entrySprites = {}
-end
-
-function DiaryScene:formatEntry(entry)
-    local date = entry and entry.date or "00-00-0000"
-    local spread = entry and entry.spreadType or "unknown"
-    return date -- .. " - " .. spread
-end
-
-function DiaryScene:clampSelectionAndWindow()
-    local total = #self.entries
-    if total == 0 then
-        self.selectedIndex = 0
-        self.listStartIndex = 1
-        return
-    end
-
-    if self.selectedIndex < 1 then
-        self.selectedIndex = 1
-    elseif self.selectedIndex > total then
-        self.selectedIndex = total
-    end
-
-    local maxStart = math.max(1, (total - self.visibleEntryCount) + 1)
-    if self.listStartIndex > maxStart then
-        self.listStartIndex = maxStart
-    end
-
-    if self.selectedIndex < self.listStartIndex then
-        self.listStartIndex = self.selectedIndex
-    end
-
-    local lastVisible = self.listStartIndex + self.visibleEntryCount - 1
-    if self.selectedIndex > lastVisible then
-        self.listStartIndex = self.selectedIndex - self.visibleEntryCount + 1
-    end
-end
-
-function DiaryScene:updateSelectorPosition()
-    if not self.selectorSprite then
-        return
-    end
-
-    if self.selectedIndex == 0 then
-        self.selectorSprite:setVisible(false)
-        return
-    end
-
-    self.selectorSprite:setVisible(true)
-    local row = self.selectedIndex - self.listStartIndex + 1
-    local y = self.listTop + ((row - 1) * self.rowHeight) + 12
-    self.selectorSprite:moveTo(self.listLeft - 12, y)
-end
-
-function DiaryScene:renderEntries()
-    self:clearEntrySprites()
-    self:clampSelectionAndWindow()
-
-    for row = 1, self.visibleEntryCount do
-        local index = self.listStartIndex + row - 1
-        local entry = self.entries[index]
-        if not entry then
-            break
-        end
-
-        local text = self:formatEntry(entry)
-        local sprite = gfx.sprite.spriteWithText(text, 150, 40, nil, nil, nil, kTextAlignment.left)
-        if not sprite then
-            self.diaryLine1 = gfx.sprite.spriteWithText(text, 150, 40, nil, nil, nil, kTextAlignment.left)
-            self.diaryLine1:setCenter(0, 0)
-            self.diaryLine1:moveTo(240, 110)
-            self.diaryLine1:add()
-            break
-        end
-
-        sprite:setCenter(0, 0)
-        sprite:moveTo(self.listLeft, self.listTop + ((row - 1) * self.rowHeight))
-        sprite:add()
-        table.insert(self.entrySprites, sprite)
-    end
-
 
     self:updateSelectorPosition()
 end
 
-function DiaryScene:update()
-    local total = #self.entries
+function DiaryScene:updateSelectorPosition()
+    if not self.selectorSprite then return end
+    
+    local startY = 20
+    local rowHeight = 30
+    local y = startY + (self.selectedMenuIndex - 1) * rowHeight
+    self.selectorSprite:moveTo(240, y + 20)
+end
 
-    if pd.buttonJustPressed(pd.kButtonDown) then
-        if total > 0 and self.selectedIndex < total then
-            self.selectedIndex = self.selectedIndex + 1
-            self:renderEntries()
+function DiaryScene:update()
+    if pd.buttonJustPressed(pd.kButtonUp) then
+        if self.selectedMenuIndex > 1 then
+            self.selectedMenuIndex = self.selectedMenuIndex - 1
+            self:updateSelectorPosition()
         end
     end
 
-    if pd.buttonJustPressed(pd.kButtonUp) then
-        if total > 0 and self.selectedIndex > 1 then
-            self.selectedIndex = self.selectedIndex - 1
-            self:renderEntries()
+    if pd.buttonJustPressed(pd.kButtonDown) then
+        if self.selectedMenuIndex < #self.menuOptions then
+            self.selectedMenuIndex = self.selectedMenuIndex + 1
+            self:updateSelectorPosition()
         end
     end
 
     if pd.buttonJustPressed(pd.kButtonA) then
-        if total > 0 and self.selectedIndex > 0 then
-            cards_fast2:play(1)
-            SCENE_MANAGER:switchScene(DiaryEntryScene, self.entries[self.selectedIndex], self.selectedIndex)
+        cards_fast2:play(1)
+        if self.selectedMenuIndex == 1 then
+            SCENE_MANAGER:switchScene(DiaryEntriesListScene)
+        elseif self.selectedMenuIndex == 2 then
+            SCENE_MANAGER:switchScene(DiarySettingsScene)
+        elseif self.selectedMenuIndex == 3 then
+            SCENE_MANAGER:switchScene(AfterDialogueScene)
         end
     end
-    
+
     if pd.buttonJustPressed(pd.kButtonB) then
         cards_slow2:play(1)
         SCENE_MANAGER:switchScene(AfterDialogueScene)
@@ -180,6 +109,9 @@ function DiaryScene:deinit()
     if self.diaryLabel then self.diaryLabel:remove() self.diaryLabel = nil end
     if self.diaryLine then self.diaryLine:remove() self.diaryLine = nil end
     if self.selectorSprite then self.selectorSprite:remove() self.selectorSprite = nil end
-
-    self:clearEntrySprites()
+    
+    for _, sprite in ipairs(self.menuSprites) do
+        if sprite then sprite:remove() end
+    end
+    self.menuSprites = {}
 end
