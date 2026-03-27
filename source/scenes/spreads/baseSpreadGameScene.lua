@@ -19,6 +19,13 @@ local DEFAULT_FIRST_PROMPTS = {
     "With each shuffle, your destiny\nstirs. Trust the journey."
 }
 
+local function clamp01(value)
+    if value == nil then return 0 end
+    if value < 0 then return 0 end
+    if value > 1 then return 1 end
+    return value
+end
+
 function BaseSpreadGameScene:init(config, restoreState)
     BaseSpreadGameScene.super.init(self)
 
@@ -51,6 +58,20 @@ function BaseSpreadGameScene:init(config, restoreState)
     self.selectedCardIndex = restoreState and self.defaultSelectedCardIndex or nil
     self.selectedScale = config.selectedScale or config.defaultScale
     self.selectedCardZoomed = false
+
+    if config.enableCardDimming == nil then
+        self.enableCardDimming = true
+    else
+        self.enableCardDimming = config.enableCardDimming
+    end
+    self.nonSelectedDimAlpha = clamp01(config.nonSelectedDimAlpha or 0.5)
+    self.selectedDimAlpha = clamp01(config.selectedDimAlpha or 0)
+    if config.dimNonSelectedWhenZoomed == nil then
+        self.dimNonSelectedWhenZoomed = true
+    else
+        self.dimNonSelectedWhenZoomed = config.dimNonSelectedWhenZoomed
+    end
+    self.cardImageCache = {}
 
     self.crankSoundPlaying = false
     self.crankInactivityTimer = nil
@@ -107,6 +128,8 @@ function BaseSpreadGameScene:restoreSpreadState(restoreState)
             local customRotation = cardRotations and cardRotations[index]
             local finalRotation = customRotation or baseRotation
             visual:setRotation(finalRotation)
+
+            self:cacheCardImageForVisual(index, visual)
 
             table.insert(self.drawnCardVisuals, visual)
             table.insert(self.playerCards, cardNames[index])
@@ -317,11 +340,73 @@ function BaseSpreadGameScene:clearDrawnCards()
     for _, sprite in ipairs(self.drawnCardVisuals) do
         sprite:remove()
     end
+    self:clearCardImageCache()
     self.drawnCardVisuals = {}
     self.playerCards = {}
     self.playerCardNumbers = {}
     self.playerCardSuits = {}
     self.playerCardsInverted = {}
+end
+
+function BaseSpreadGameScene:createDimmedImage(baseImage, alpha)
+    if not baseImage then return nil end
+    local normalizedAlpha = clamp01(alpha)
+    if normalizedAlpha <= 0 then
+        return baseImage
+    end
+
+    local width, height = baseImage:getSize()
+    local dimmedImage = gfx.image.new(width, height)
+    gfx.pushContext(dimmedImage)
+        baseImage:draw(0, 0)
+        local blackOverlay = gfx.image.new(width, height, gfx.kColorBlack)
+        blackOverlay:drawFaded(0, 0, normalizedAlpha, gfx.image.kDitherTypeBayer8x8)
+    gfx.popContext()
+
+    return dimmedImage
+end
+
+function BaseSpreadGameScene:cacheCardImageForVisual(index, visual)
+    if not self.enableCardDimming or not visual then return end
+
+    local originalImage = visual:getImage()
+    if not originalImage then return end
+
+    self.cardImageCache[index] = {
+        original = originalImage,
+        dimmed = self:createDimmedImage(originalImage, self.nonSelectedDimAlpha),
+        selected = self:createDimmedImage(originalImage, self.selectedDimAlpha)
+    }
+end
+
+function BaseSpreadGameScene:clearCardImageCache()
+    self.cardImageCache = {}
+end
+
+function BaseSpreadGameScene:getCardImageForState(index, isSelected)
+    if not self.enableCardDimming then return nil end
+
+    local cache = self.cardImageCache[index]
+    if not cache then return nil end
+
+    if isSelected then
+        return cache.selected or cache.original
+    end
+
+    if self.selectedCardZoomed and not self.dimNonSelectedWhenZoomed then
+        return cache.original
+    end
+
+    return cache.dimmed or cache.original
+end
+
+function BaseSpreadGameScene:applyCardImageForState(index, visual, isSelected)
+    if not self.enableCardDimming or not visual then return end
+
+    local targetImage = self:getCardImageForState(index, isSelected)
+    if targetImage then
+        visual:setImage(targetImage)
+    end
 end
 
 function BaseSpreadGameScene:buildDrawPoolForSelection()
@@ -389,6 +474,8 @@ function BaseSpreadGameScene:drawCardsLogic()
             if cardRotations and cardRotations[index] then
                 visual:setRotation(cardRotations[index])
             end
+
+            self:cacheCardImageForVisual(index, visual)
             
             table.insert(self.drawnCardVisuals, visual)
 
@@ -451,6 +538,7 @@ function BaseSpreadGameScene:selectCard(index)
             visual:moveTo(targetPosition.x, targetPosition.y)
         end
 
+        self:applyCardImageForState(i, visual, isSelected)
         visual:setScale(targetScale)
         visual:setZIndex(targetZ)
     end

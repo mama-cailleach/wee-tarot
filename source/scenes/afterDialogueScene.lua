@@ -55,6 +55,7 @@ function AfterDialogueScene:optionsText()
     -- Remove old sprites if they exist
     if self.settingsText then self.settingsText:remove() end
     if self.interactText then self.interactText:remove() end
+    if self.diaryText then self.diaryText:remove() end
 
 
 
@@ -69,9 +70,15 @@ function AfterDialogueScene:optionsText()
         282, 203,  -- x, y
         80        -- delayPerChar
     )
+    self.diaryText = utils.PromptTextTypewriterOneWay(
+        "diary",
+        182, 205,   -- x, y
+        80        -- delayPerChar
+    )
     
     self.settingsButton = self:makeButtonSprite("B", 16, 222, 14)
     self.interactButton = self:makeButtonSprite("A", 384, 222, 14)
+    self.diaryButton = self:makeButtonSprite("®", 163, 223, 14)
 
 end
 

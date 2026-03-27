@@ -22,6 +22,7 @@ local THREE_CARD_CONFIG = {
     selectedScale = 1.0,
     zoomScale = 1.725,
     revealDelay = 450,
+    nonSelectedDimAlpha = 0.2,
     postSceneClass = ThreeCardPostScene
 }
 

@@ -6,6 +6,8 @@ class('HowToMenuScene').extends(gfx.sprite)
 function HowToMenuScene:init()
     HowToMenuScene.super.init(self)
 
+    gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+
     self.bgSprite = gfx.sprite.new(gfx.image.new("images/bg/darkcloth"))
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
@@ -75,6 +77,7 @@ function HowToMenuScene:showNotice(text)
         self.noticeTimer = nil
     end
 
+    gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
     self.noticeSprite = gfx.sprite.spriteWithText(text, 400, 40, nil, nil, nil, kTextAlignment.center)
     self.noticeSprite:moveTo(200, 222)
     self.noticeSprite:add()
@@ -122,7 +125,7 @@ function HowToMenuScene:confirmSelection()
     end
 
     cards_slow2:play(1)
-    self:showNotice("Unknown tutorial option")
+    self:showNotice("Scene not implemented yet!")
 end
 
 function HowToMenuScene:update()
@@ -151,6 +154,7 @@ function HowToMenuScene:update()
 end
 
 function HowToMenuScene:deinit()
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
     if self.bgSprite then self.bgSprite:remove() self.bgSprite = nil end
     if self.selectorSprite then self.selectorSprite:remove() self.selectorSprite = nil end
     if self.titleText then self.titleText:remove() self.titleText = nil end

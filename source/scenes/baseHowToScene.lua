@@ -71,6 +71,7 @@ function BaseHowToScene:showTextWindow()
     self.dinahScrollText = gfx.sprite.spriteWithText(text, 310, 200, nil, nil, nil, kTextAlignment.center)
     self.dinahScrollText:moveTo(190, self.textBaseY)
     self.dinahScrollText:add()
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
 end
 
 function BaseHowToScene:buttonABlink()
@@ -86,7 +87,7 @@ function BaseHowToScene:buttonABlink()
         end
     end)
     self.aButtonBlinkTimer.repeats = true
-    gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
 end
 
 function BaseHowToScene:removeAButton()
@@ -196,6 +197,7 @@ function BaseHowToScene:update()
 end
 
 function BaseHowToScene:deinit()
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
     self:removeAButton()
 
     if self.scrollBoxReadyTimer then

@@ -8,7 +8,7 @@ class('DiaryScene').extends(gfx.sprite)
 function DiaryScene:init()
     DiaryScene.super.init(self)
 
-    self.bgImage = gfx.image.new("images/bg/journal1")
+    self.bgImage = gfx.image.new("images/bg/journal3")
     self.bgSprite = gfx.sprite.new(self.bgImage)
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
