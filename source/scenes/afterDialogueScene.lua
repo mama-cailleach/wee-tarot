@@ -62,22 +62,22 @@ function AfterDialogueScene:optionsText()
     -- Use the typewriter utility for both texts
     self.settingsText = utils.PromptTextTypewriterOneWay(
         "menu",
-        35, 203,   -- x, y
+        35, 204,   -- x, y
         80        -- delayPerChar
     )
     self.interactText = utils.PromptTextTypewriterOneWay(
         "reading",
-        282, 203,  -- x, y
+        282, 204,  -- x, y
         80        -- delayPerChar
     )
     self.diaryText = utils.PromptTextTypewriterOneWay(
         "diary",
-        182, 205,   -- x, y
+        182, 204,   -- x, y
         80        -- delayPerChar
     )
     
-    self.settingsButton = self:makeButtonSprite("B", 16, 222, 14)
-    self.interactButton = self:makeButtonSprite("A", 384, 222, 14)
+    self.settingsButton = self:makeButtonSprite("B", 16, 223, 14)
+    self.interactButton = self:makeButtonSprite("A", 384, 223, 14)
     self.diaryButton = self:makeButtonSprite("®", 163, 223, 14)
 
 end

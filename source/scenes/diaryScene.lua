@@ -13,19 +13,19 @@ function DiaryScene:init()
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
 
-    self.diaryLabel = gfx.sprite.spriteWithText("Diary of", 320, 40, nil, nil, nil, kTextAlignment.left)
+    self.diaryLabel = gfx.sprite.spriteWithText("This diary\n belongs to", 320, 80, nil, nil, nil, kTextAlignment.left)
     self.diaryLabel:setCenter(0, 0)
-    self.diaryLabel:moveTo(40, 80)
+    self.diaryLabel:moveTo(40, 45)
     self.diaryLabel:add()
 
     self.name = PlayerProfileStore.getName()
 
-    self.diaryLine = gfx.sprite.spriteWithText(self.name, 120, 40, nil, nil, nil, kTextAlignment.center)
+    self.diaryLine = gfx.sprite.spriteWithText(self.name, 120, 120, nil, nil, nil, kTextAlignment.center)
     self.diaryLine:setCenter(0, 0)
-    self.diaryLine:moveTo(40, 120)
+    self.diaryLine:moveTo(48, 120)
     self.diaryLine:add()
 
-    self.menuOptions = { "Entries", "Edit", "Back" }
+    self.menuOptions = { "Readings", "Mending"}
     self.selectedMenuIndex = 1
     self.menuSprites = {}
     self.selectorSprite = nil
@@ -47,13 +47,13 @@ function DiaryScene:renderMenu()
     end
     self.menuSprites = {}
 
-    local startY = 20
-    local rowHeight = 30
+    local startY = 40
+    local rowHeight = 130
     for i, option in ipairs(self.menuOptions) do
         local sprite = gfx.sprite.spriteWithText(option, 100, 40, nil, nil, nil, kTextAlignment.left)
         if sprite then
             sprite:setCenter(0, 0)
-            sprite:moveTo(260, startY + (i - 1) * rowHeight)
+            sprite:moveTo(255, startY + (i - 1) * rowHeight)
             sprite:add()
             table.insert(self.menuSprites, sprite)
         end
@@ -65,10 +65,10 @@ end
 function DiaryScene:updateSelectorPosition()
     if not self.selectorSprite then return end
     
-    local startY = 20
-    local rowHeight = 30
+    local startY = 40
+    local rowHeight = 130
     local y = startY + (self.selectedMenuIndex - 1) * rowHeight
-    self.selectorSprite:moveTo(240, y + 20)
+    self.selectorSprite:moveTo(235, y + 18)
 end
 
 function DiaryScene:update()
@@ -92,8 +92,6 @@ function DiaryScene:update()
             SCENE_MANAGER:switchScene(DiaryEntriesListScene)
         elseif self.selectedMenuIndex == 2 then
             SCENE_MANAGER:switchScene(DiarySettingsScene)
-        elseif self.selectedMenuIndex == 3 then
-            SCENE_MANAGER:switchScene(AfterDialogueScene)
         end
     end
 

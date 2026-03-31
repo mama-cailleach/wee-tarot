@@ -4,7 +4,7 @@ PlayerProfileStore = {}
 
 local DATASTORE_PATH <const> = "data/save/playerProfile"
 local DEFAULT_NAME <const> = "???"
-local MAX_NAME_LENGTH <const> = 5
+local MAX_NAME_LENGTH <const> = 16
 local DEFAULT_DATE_DISPLAY_REVERSED <const> = false
 
 local function readProfile()

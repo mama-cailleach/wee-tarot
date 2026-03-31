@@ -8,27 +8,27 @@ class('DiarySettingsScene').extends(gfx.sprite)
 function DiarySettingsScene:init()
     DiarySettingsScene.super.init(self)
 
-    self.bgImage = gfx.image.new("images/bg/journal2")
+    self.bgImage = gfx.image.new("images/bg/journal4")
     self.bgSprite = gfx.sprite.new(self.bgImage)
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
 
-    self.diaryLabel = gfx.sprite.spriteWithText("Diary of", 320, 40, nil, nil, nil, kTextAlignment.left)
+    self.diaryLabel = gfx.sprite.spriteWithText("This diary\n belongs to", 320, 80, nil, nil, nil, kTextAlignment.left)
     self.diaryLabel:setCenter(0, 0)
-    self.diaryLabel:moveTo(40, 80)
+    self.diaryLabel:moveTo(40, 45)
     self.diaryLabel:add()
 
     self.maxNameLength = PlayerProfileStore.getMaxNameLength()
     self.name = PlayerProfileStore.getName()
     self.isEditingName = false
 
-    self.diaryLine = gfx.sprite.spriteWithText(self.name, 120, 40, nil, nil, nil, kTextAlignment.center)
+    self.diaryLine = gfx.sprite.spriteWithText(self.name, 120, 120, nil, nil, nil, kTextAlignment.center)
     self.diaryLine:setCenter(0, 0)
-    self.diaryLine:moveTo(40, 120)
+    self.diaryLine:moveTo(48, 120)
     self.diaryLine:add()
 
 
-    self.settingsLabel = gfx.sprite.spriteWithText("EDIT", 150, 40, nil, nil, nil, kTextAlignment.left)
+    self.settingsLabel = gfx.sprite.spriteWithText("MEND", 150, 40, nil, nil, nil, kTextAlignment.left)
     if self.settingsLabel then
         self.settingsLabel:setCenter(0, 0)
         self.settingsLabel:moveTo(260, 1)
@@ -41,6 +41,7 @@ function DiarySettingsScene:init()
     self.dateValueSprite = nil
     self.dateDisplayReversed = PlayerProfileStore.getDateDisplayReversed()
     self.selectorSprite = nil
+    self.menuRowYPositions = { 45, 95, 190 }
 
 
     local selectorImage = gfx.image.new("images/bg/icon_knot1_smol")
@@ -65,10 +66,10 @@ function DiarySettingsScene:setDiaryLineText(text)
         displayText = "?"
     end
 
-    self.diaryLine = gfx.sprite.spriteWithText(displayText, 120, 40, nil, nil, nil, kTextAlignment.left)
+    self.diaryLine = gfx.sprite.spriteWithText(displayText, 120, 120, nil, nil, nil, kTextAlignment.center)
     if self.diaryLine then
         self.diaryLine:setCenter(0, 0)
-        self.diaryLine:moveTo(40, 120)
+        self.diaryLine:moveTo(48, 120)
         self.diaryLine:add()
     end
 end
@@ -110,13 +111,11 @@ function DiarySettingsScene:renderMenu()
     end
     self.menuSprites = {}
 
-    local startY = 45
-    local rowHeight = 70
     for i, option in ipairs(self.menuOptions) do
         local sprite = gfx.sprite.spriteWithText(option, 150, 40, nil, nil, nil, kTextAlignment.left)
         if sprite then
             sprite:setCenter(0, 0)
-            sprite:moveTo(260, startY + (i - 1) * rowHeight)
+            sprite:moveTo(260, self:getMenuRowY(i))
             sprite:add()
             table.insert(self.menuSprites, sprite)
         end
@@ -146,18 +145,23 @@ function DiarySettingsScene:renderDateValue()
     self.dateValueSprite = gfx.sprite.spriteWithText(dateText, 320, 40, nil, nil, nil, kTextAlignment.left)
     if self.dateValueSprite then
         self.dateValueSprite:setCenter(0, 0)
-        self.dateValueSprite:moveTo(245, 145)
+        self.dateValueSprite:moveTo(245, self:getMenuRowY(2) + 28)
         self.dateValueSprite:add()
     end
 end
 
+function DiarySettingsScene:getMenuRowY(index)
+    if self.menuRowYPositions and self.menuRowYPositions[index] then
+        return self.menuRowYPositions[index]
+    end
+    return 45 + (index - 1) * 70
+end
+
 function DiarySettingsScene:updateSelectorPosition()
     if not self.selectorSprite then return end
-    
-    local startY = 45
-    local rowHeight = 70
-    local y = startY + (self.selectedMenuIndex - 1) * rowHeight
-    self.selectorSprite:moveTo(240, y + 20)
+
+    local y = self:getMenuRowY(self.selectedMenuIndex)
+    self.selectorSprite:moveTo(240, y + 18)
 end
 
 function DiarySettingsScene:update()
