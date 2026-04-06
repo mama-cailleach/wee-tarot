@@ -8,7 +8,7 @@ class('DiaryScene').extends(gfx.sprite)
 function DiaryScene:init()
     DiaryScene.super.init(self)
 
-    self.bgImage = gfx.image.new("images/bg/journal3")
+    self.bgImage = gfx.image.new("images/bg/journal6")
     self.bgSprite = gfx.sprite.new(self.bgImage)
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
@@ -25,78 +25,66 @@ function DiaryScene:init()
     self.diaryLine:moveTo(48, 120)
     self.diaryLine:add()
 
-    self.menuOptions = { "Readings", "Mending"}
-    self.selectedMenuIndex = 1
-    self.menuSprites = {}
-    self.selectorSprite = nil
+    --[[
+    gfx.setImageDrawMode(gfx.kDrawModeXOR)
+    self.startText = gfx.sprite.spriteWithText("A", 400, 40, nil, nil, nil, kTextAlignment.center)  
+    self.startText:moveTo(365, 120)
+    self.startText:setZIndex(10)
+    self.startText:add()
+    
+    self.blinkTime = 800
+    --blink text logic 
+    self.blinkerTimer = pd.timer.new(self.blinkTime, function()
+        self.startText:setVisible(not self.startText:isVisible())
+    end)
+    self.blinkerTimer.repeats = true
+    
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    ]]
 
-    local selectorImage = gfx.image.new("images/bg/icon_knot1_smol")
-    if selectorImage then
-        self.selectorSprite = gfx.sprite.new(selectorImage)
-        self.selectorSprite:add()
-    end
-
-    self:renderMenu()
+    self.interactButton = self:makeButtonSprite("A", 297, 122, 24)
+        
+    self.blinkTime = 800
+    --blink text logic 
+    self.blinkerTimer = pd.timer.new(self.blinkTime, function()
+        self.interactButton:setVisible(not self.interactButton:isVisible())
+    end)
+    self.blinkerTimer.repeats = true
 
     self:add()
 end
 
-function DiaryScene:renderMenu()
-    for _, sprite in ipairs(self.menuSprites) do
-        if sprite then sprite:remove() end
-    end
-    self.menuSprites = {}
-
-    local startY = 40
-    local rowHeight = 130
-    for i, option in ipairs(self.menuOptions) do
-        local sprite = gfx.sprite.spriteWithText(option, 100, 40, nil, nil, nil, kTextAlignment.left)
-        if sprite then
-            sprite:setCenter(0, 0)
-            sprite:moveTo(255, startY + (i - 1) * rowHeight)
-            sprite:add()
-            table.insert(self.menuSprites, sprite)
-        end
-    end
-
-    self:updateSelectorPosition()
+function DiaryScene:makeButtonSprite(letter, x, y, radius)
+    local r = radius or 16
+    local img = gfx.image.new(r*2, r*2)
+    gfx.pushContext(img)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillCircleAtPoint(r, r, r)
+        gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+        gfx.setLineWidth(2)
+        gfx.drawCircleAtPoint(r, r, r)
+        local font = gfx.getSystemFont()
+        local w, h = gfx.getTextSize(letter, font)
+        gfx.drawTextAligned(letter, r - w/2, r - h/2, kTextAlignment.left)
+    gfx.popContext()
+    local sprite = gfx.sprite.new(img)
+    sprite:moveTo(x, y)
+    sprite:add()
+    return sprite
 end
 
-function DiaryScene:updateSelectorPosition()
-    if not self.selectorSprite then return end
-    
-    local startY = 40
-    local rowHeight = 130
-    local y = startY + (self.selectedMenuIndex - 1) * rowHeight
-    self.selectorSprite:moveTo(235, y + 18)
-end
 
 function DiaryScene:update()
-    if pd.buttonJustPressed(pd.kButtonUp) then
-        if self.selectedMenuIndex > 1 then
-            self.selectedMenuIndex = self.selectedMenuIndex - 1
-            self:updateSelectorPosition()
-        end
-    end
-
-    if pd.buttonJustPressed(pd.kButtonDown) then
-        if self.selectedMenuIndex < #self.menuOptions then
-            self.selectedMenuIndex = self.selectedMenuIndex + 1
-            self:updateSelectorPosition()
-        end
-    end
 
     if pd.buttonJustPressed(pd.kButtonA) then
         cards_fast2:play(1)
-        if self.selectedMenuIndex == 1 then
-            SCENE_MANAGER:switchScene(DiaryEntriesListScene)
-        elseif self.selectedMenuIndex == 2 then
-            SCENE_MANAGER:switchScene(DiarySettingsScene)
-        end
+        self.interactButton:remove()
+        SCENE_MANAGER:switchScene(DiaryEntriesListScene)
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
         cards_slow2:play(1)
+        self.interactButton:remove()
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end
 
@@ -106,10 +94,7 @@ function DiaryScene:deinit()
     if self.bgSprite then self.bgSprite:remove() self.bgSprite = nil end
     if self.diaryLabel then self.diaryLabel:remove() self.diaryLabel = nil end
     if self.diaryLine then self.diaryLine:remove() self.diaryLine = nil end
-    if self.selectorSprite then self.selectorSprite:remove() self.selectorSprite = nil end
-    
-    for _, sprite in ipairs(self.menuSprites) do
-        if sprite then sprite:remove() end
-    end
-    self.menuSprites = {}
+    if self.interactButton then self.interactButton:remove() self.interactButton = nil end
+    if self.blinkerTimer then self.blinkerTimer:remove() self.blinkerTimer = nil end
+
 end

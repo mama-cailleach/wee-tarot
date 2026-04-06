@@ -17,11 +17,11 @@ function DiaryEntriesListScene:init(restoreIndex)
     self.entries = DiaryStore.getEntries()
     self.entrySprites = {}
     self.previewSprite = nil
-    self.listLeft = 250
+    self.listLeft = 35
     self.listTop = 10
     self.listWidth = 182
     self.rowHeight = 32
-    self.previewLeft = 8
+    self.previewLeft = 220
     self.previewTop = 0
     self.previewWidth = 170
     self.previewHeight = 240
@@ -233,7 +233,7 @@ function DiaryEntriesListScene:renderEntries()
         if not sprite then
             self.diaryLine1 = gfx.sprite.spriteWithText(text, 150, 40, nil, nil, nil, kTextAlignment.left)
             self.diaryLine1:setCenter(0, 0)
-            self.diaryLine1:moveTo(240, 110)
+            self.diaryLine1:moveTo(self.listLeft, self.listTop + ((row - 1) * self.rowHeight))
             self.diaryLine1:add()
             break
         end

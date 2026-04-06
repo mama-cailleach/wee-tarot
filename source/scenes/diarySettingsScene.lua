@@ -191,13 +191,13 @@ function DiarySettingsScene:update()
             self.dateDisplayReversed = PlayerProfileStore.setDateDisplayReversed(not self.dateDisplayReversed)
             self:renderDateValue()
         elseif self.selectedMenuIndex == 3 then
-            SCENE_MANAGER:switchScene(DiaryScene)
+            SCENE_MANAGER:switchScene(SettingsScene)
         end
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
         cards_slow2:play(1)
-        SCENE_MANAGER:switchScene(DiaryScene)
+        SCENE_MANAGER:switchScene(SettingsScene)
     end
 
 end

@@ -25,12 +25,12 @@ function DiaryEntryScene:init(entry, returnIndex)
     self.arrowLeft = nil
     self.arrowRight = nil
 
-    self.viewX = 8
+    self.viewX = 220
     self.viewY = 2
     self.viewWidth = 170
     self.viewHeight = 228
 
-    self.cardCenterX = 305
+    self.cardCenterX = 95
     self.cardCenterY = 160
     self.selectedCardIndex = 1
     self.selectedScale = 1.0
@@ -66,17 +66,17 @@ end
 
 function DiaryEntryScene:animateArrowLeft()
     if not self.arrowLeft then return end
-    local pointLeft1 = playdate.geometry.point.new(self.arrowLeft.x, self.arrowLeft.y)
-    local pointLeft2 = playdate.geometry.point.new(self.arrowLeft.x - 10, self.arrowLeft.y)
-    local animatorLeft = gfx.animator.new(250, pointLeft2, pointLeft1, playdate.easingFunctions.outBounce)
+    local pointLeft1 = playdate.geometry.point.new(self.cardCenterX - 70, self.arrowLeft.y)
+    local pointLeft2 = playdate.geometry.point.new(self.cardCenterX - 80, self.arrowLeft.y)
+    local animatorLeft = gfx.animator.new(250, pointLeft2, pointLeft1, playdate.easingFunctions.outCubic)
     self.arrowLeft:setAnimator(animatorLeft)
 end
 
 function DiaryEntryScene:animateArrowRight()
     if not self.arrowRight then return end
-    local pointRight1 = playdate.geometry.point.new(self.arrowRight.x, self.arrowRight.y)
-    local pointRight2 = playdate.geometry.point.new(self.arrowRight.x + 10, self.arrowRight.y)
-    local animatorRight = gfx.animator.new(250, pointRight2, pointRight1, playdate.easingFunctions.outBounce)
+    local pointRight1 = playdate.geometry.point.new(self.cardCenterX + 70, self.arrowRight.y)
+    local pointRight2 = playdate.geometry.point.new(self.cardCenterX + 80, self.arrowRight.y)
+    local animatorRight = gfx.animator.new(250, pointRight2, pointRight1, playdate.easingFunctions.outCubic)
     self.arrowRight:setAnimator(animatorRight)
 end
 
@@ -190,7 +190,7 @@ function DiaryEntryScene:renderSelectedCard()
     self.cardNameSprite = gfx.sprite.spriteWithText(cardNameText, 160, 80, nil, nil, nil, kTextAlignment.center)
     if self.cardNameSprite then
         self.cardNameSprite:setCenter(0.5, 0.5)
-        self.cardNameSprite:moveTo(305, 40)
+        self.cardNameSprite:moveTo(self.cardCenterX, 40)
         self.cardNameSprite:add()
     end
 

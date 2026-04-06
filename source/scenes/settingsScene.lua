@@ -15,7 +15,7 @@ function SettingsScene:init()
 
     local img = gfx.image.new("images/bg/icon_tri_smol")
     self.spritewands = gfx.sprite.new(img)
-    self.spritewands:moveTo(150, 70)
+    self.spritewands:moveTo(160, 70)
     self.spritewands:add()
 
     -- Add selector button sprite (e.g., ">" or "●")
@@ -25,34 +25,31 @@ function SettingsScene:init()
     gfx.setImageDrawMode(gfx.kDrawModeNXOR) -- for text color
 
     self.titleText = gfx.sprite.spriteWithText("MENU", 400, 200, nil, nil, nil, kTextAlignment.center)  
-    self.titleText:moveTo(200, 30)
+    self.titleText:moveTo(210, 30)
     self.titleText:setScale(1)
     self.titleText:add()
 
     -- default options
     self.howTo = false
 
-    self.deckText = {"Placeholder"}
-    self.deckTextIndex = 1
-
     self.soundText = {"Music&Rain", "Just Music", "Just Rain"}
     self.soundTextIndex = soundMode
 
-
+    self.buttonX = 210
     self.topY = 70
     self.step = 35
     self.bottomY = self.topY + 4 * self.step 
 
     -- Add buttons
-    self:addButton("How To", 200, self.topY)
-    self.deckButton = self:addButton(self.deckText[self.deckTextIndex], 200, self.topY + self.step)
-    self.soundButton = self:addButton(self.soundText[self.soundTextIndex], 200, self.topY + self.step*2)
-    self:addButton("Credits", 200, self.bottomY - self.step)
-    self:addButton("Back", 200, self.bottomY)
+    self:addButton("How To", self.buttonX, self.topY)
+    self:addButton("Diary Mending", self.buttonX, self.topY + self.step)
+    self.soundButton = self:addButton(self.soundText[self.soundTextIndex], self.buttonX, self.topY + self.step*2)
+    self:addButton("Credits", self.buttonX, self.bottomY - self.step)
+    self:addButton("Back", self.buttonX, self.bottomY)
 
     self.options = {
     {text = "How To", y = self.topY},
-    {text = self.deckText[self.deckTextIndex], y = self.topY + self.step},
+    {text = "Diary Mending", y = self.topY + self.step},
     {text = self.soundText[self.soundTextIndex], y = self.topY + self.step*2},
     {text = "Credits", y = self.bottomY - self.step},
     {text = "Back", y = self.bottomY}
@@ -101,9 +98,10 @@ function SettingsScene:update()
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.bottomY - self.step then
         cards_slow2:play(1)
         SCENE_MANAGER:switchScene(CreditsScene)
-    --DECK OPtion
+    --DIARY OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step then
-        print("Menu Placeholder")
+        cards_slow2:play(1)
+        SCENE_MANAGER:switchScene(DiarySettingsScene)
     -- SOUND OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step*2 then
         -- Toggle soundTextIndex
