@@ -5,11 +5,26 @@ import "data/save/playerProfileStore"
 
 class('DiaryEntryScene').extends(gfx.sprite)
 
-function DiaryEntryScene:init(entry, returnIndex)
+local SPREAD_LABELS = {
+    one_card = "1-bit Fortune",
+    three_card = "Root-Trunk- Branch",
+    pentagram = "Pentagram",
+    celtic_cross = "Celtic Cross",
+    horoscope = "Horoscope"
+}
+
+function DiaryEntryScene:init(entry, returnState)
     DiaryEntryScene.super.init(self)
 
     self.entry = entry or {}
-    self.returnIndex = returnIndex or 1
+    if type(returnState) == "table" then
+        self.returnState = returnState
+    else
+        self.returnState = {
+            browserMode = "year",
+            selectedYearIndex = type(returnState) == "number" and returnState or 1
+        }
+    end
 
     self.bgImage = gfx.image.new("images/bg/journal1")
     self.bgSprite = gfx.sprite.new(self.bgImage)
@@ -32,7 +47,7 @@ function DiaryEntryScene:init(entry, returnIndex)
 
     self.cardCenterX = 95
     self.cardCenterY = 160
-    self.selectedCardIndex = 1
+    self.selectedCardIndex = 0
     self.selectedScale = 1.0
     self.zoomScale = 1.725
     self.zoomY = 120
@@ -51,6 +66,25 @@ function DiaryEntryScene:init(entry, returnIndex)
     self:renderSelectedCard()
 
     self:add()
+end
+
+function DiaryEntryScene:getCardCount()
+    if type(self.entry.cards) ~= "table" then
+        return 0
+    end
+
+    return #self.entry.cards
+end
+
+function DiaryEntryScene:getNavigationCount()
+    return self:getCardCount() + 1
+end
+
+function DiaryEntryScene:getSpreadName()
+    local spreadKey = self.entry.spreadType or "unknown"
+    local loweredKey = string.lower(spreadKey)
+    local normalizedKey = string.gsub(loweredKey, "%-", "_")
+    return SPREAD_LABELS[loweredKey] or SPREAD_LABELS[normalizedKey] or spreadKey
 end
 
 function DiaryEntryScene:buildArrows()
@@ -144,14 +178,22 @@ function DiaryEntryScene:renderCardPlacement()
 end
 
 function DiaryEntryScene:getSelectedCard()
+    if self.selectedCardIndex == 0 then
+        return {
+            isSpreadCard = true,
+            name = self:getSpreadName(),
+            imagePath = "images/decknback/placementzone_diamond"
+        }
+    end
+
     if type(self.entry.cards) ~= "table" or #self.entry.cards == 0 then
         return nil
     end
 
     if self.selectedCardIndex < 1 then
-        self.selectedCardIndex = #self.entry.cards
+        self.selectedCardIndex = self:getNavigationCount() - 1
     elseif self.selectedCardIndex > #self.entry.cards then
-        self.selectedCardIndex = 1
+        self.selectedCardIndex = 0
     end
 
     return self.entry.cards[self.selectedCardIndex]
@@ -186,7 +228,7 @@ function DiaryEntryScene:renderSelectedCard()
         return
     end
 
-    local cardNameText = card.name or "Unknown Card"
+    local cardNameText = card.isSpreadCard and self:getSpreadName() or card.name or "Unknown Card"
     self.cardNameSprite = gfx.sprite.spriteWithText(cardNameText, 160, 80, nil, nil, nil, kTextAlignment.center)
     if self.cardNameSprite then
         self.cardNameSprite:setCenter(0.5, 0.5)
@@ -194,11 +236,15 @@ function DiaryEntryScene:renderSelectedCard()
         self.cardNameSprite:add()
     end
 
-    local suitFolder = self.suitFolders[card.suit]
-    local cardNumber = card.number
     local cardImage = nil
-    if suitFolder and cardNumber then
-        cardImage = gfx.image.new("images/" .. suitFolder .. "/" .. tostring(cardNumber))
+    if card.isSpreadCard then
+        cardImage = gfx.image.new(card.imagePath)
+    else
+        local suitFolder = self.suitFolders[card.suit]
+        local cardNumber = card.number
+        if suitFolder and cardNumber then
+            cardImage = gfx.image.new("images/" .. suitFolder .. "/" .. tostring(cardNumber))
+        end
     end
 
     if not cardImage then
@@ -268,16 +314,18 @@ function DiaryEntryScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonLeft) then
-        if type(self.entry.cards) == "table" and #self.entry.cards > 0 and self.selectedCardIndex > 1 then
-            self.selectedCardIndex = self.selectedCardIndex - 1
+        local navigationCount = self:getNavigationCount()
+        if navigationCount > 0 then
+            self.selectedCardIndex = (self.selectedCardIndex - 1 + navigationCount) % navigationCount
             self:renderSelectedCard()
             self:animateArrowLeft()
         end
     end
 
     if pd.buttonJustPressed(pd.kButtonRight) then
-        if type(self.entry.cards) == "table" and #self.entry.cards > 0 and self.selectedCardIndex < #self.entry.cards then
-            self.selectedCardIndex = self.selectedCardIndex + 1
+        local navigationCount = self:getNavigationCount()
+        if navigationCount > 0 then
+            self.selectedCardIndex = (self.selectedCardIndex + 1) % navigationCount
             self:renderSelectedCard()
             self:animateArrowRight()
         end
@@ -299,7 +347,7 @@ function DiaryEntryScene:update()
 
     if pd.buttonJustPressed(pd.kButtonB) then
         cards_slow2:play(1)
-        SCENE_MANAGER:switchScene(DiaryEntriesListScene, self.returnIndex)
+        SCENE_MANAGER:switchScene(DiaryEntriesListScene, self.returnState)
     end
 end
 
