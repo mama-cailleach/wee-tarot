@@ -11,6 +11,19 @@ local MONTH_NAMES = {
     "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 }
 
+local MONTH_NAMES_FULL = {
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+}
+
+local SPREAD_LABELS = {
+    one_card = "1-bit Fortune",
+    three_card = "Root-Trunk- Branch",
+    pentagram = "Pentagram",
+    celtic_cross = "Celtic Cross",
+    horoscope = "Horoscope"
+}
+
 local function parseDiaryDate(dateText)
     local dayText, monthText, yearText = string.match(dateText or "", "^(%d%d)%-(%d%d)%-(%d%d%d%d)$")
     if not dayText or not monthText or not yearText then
@@ -55,6 +68,7 @@ function DiaryEntriesListScene:init(restoreState)
     self.titleSprite = nil
     self.leftArrowSprite = nil
     self.rightArrowSprite = nil
+    self.listLeftOffset = 20
     self.listLeft = 40
     self.listTop = 40
     self.listWidth = 182
@@ -331,18 +345,31 @@ end
 function DiaryEntriesListScene:formatPreviewDate(date)
     local day, month, year = string.match(date or "", "^(%d%d)%-(%d%d)%-(%d%d%d%d)$")
     if not day or not month or not year then
-        return "??? - ?? - ????"
+        return "Erstwhile"
     end
 
     local monthIndex = tonumber(month) or 0
-    local monthText = MONTH_NAMES[monthIndex] or "???"
+    local monthText = MONTH_NAMES_FULL[monthIndex] or "???"
     local dayText = self:toOrdinal(tonumber(day) or 0)
 
-    return monthText .. " - " .. dayText .. " - " .. year
+    local dateString = dayText .. " of \n" .. monthText .. "\n" .. year
+
+    return dateString
 end
 
 function DiaryEntriesListScene:formatSpreadLabel(spreadType)
     local spread = spreadType or "unknown"
+    local lowered = string.lower(spread)
+    local normalized = string.gsub(lowered, "%-", "_")
+
+    if SPREAD_LABELS[lowered] then
+        return SPREAD_LABELS[lowered]
+    end
+
+    if SPREAD_LABELS[normalized] then
+        return SPREAD_LABELS[normalized]
+    end
+
     spread = string.gsub(spread, "[_%-]", " ")
     spread = string.gsub(spread, "(%a)([%w_']*)", function(first, rest)
         return string.upper(first) .. string.lower(rest)
@@ -357,7 +384,7 @@ function DiaryEntriesListScene:buildEntrySummaryText(entry)
 
     local lines = {
         self:formatSpreadLabel(entry.spreadType),
-        "\n\n"
+        "\n---------------------\n"
     }
 
     if type(entry.cards) == "table" and #entry.cards > 0 then
@@ -379,7 +406,69 @@ function DiaryEntriesListScene:buildYearPreviewText()
         return "No diary entries yet."
     end
 
-    return tostring(yearBucket.year)
+    local totalReadings = 0
+    local totalCardsPulled = 0
+    local cardCounts = {}
+    local spreadCounts = {}
+
+    for _, monthBucket in ipairs(yearBucket.months) do
+        for _, item in ipairs(monthBucket.entries or {}) do
+            local entry = item.entry
+            totalReadings = totalReadings + 1
+
+            if entry then
+                local spreadKey = string.lower(entry.spreadType or "unknown")
+                spreadCounts[spreadKey] = (spreadCounts[spreadKey] or 0) + 1
+
+                if type(entry.cards) == "table" then
+                    totalCardsPulled = totalCardsPulled + #entry.cards
+
+                    for _, card in ipairs(entry.cards) do
+                        local cardName = card.name or "Unknown Card"
+                        cardCounts[cardName] = (cardCounts[cardName] or 0) + 1
+                    end
+                end
+            end
+        end
+    end
+
+    local mostSeenCard = "N/A"
+    local mostSeenCardCount = 0
+    for cardName, count in pairs(cardCounts) do
+        if count > mostSeenCardCount then
+            mostSeenCard = cardName
+            mostSeenCardCount = count
+        end
+    end
+
+    local favoriteSpreadKey = nil
+    local favoriteSpreadCount = 0
+    for spreadKey, count in pairs(spreadCounts) do
+        if count > favoriteSpreadCount then
+            favoriteSpreadKey = spreadKey
+            favoriteSpreadCount = count
+        end
+    end
+
+    local favoriteSpread = "N/A"
+    if favoriteSpreadKey then
+        favoriteSpread = self:formatSpreadLabel(favoriteSpreadKey)
+    end
+
+    local lines = {
+        tostring(yearBucket.year),
+        "\n---------------------\n",
+        "Total Readings: ", tostring(totalReadings),
+        "\n---------------------\n",
+        "Total Cards Pulled: ", tostring(totalCardsPulled),
+        "\n---------------------\n",
+        "Card Most Seen: ", mostSeenCard,
+        "\n---------------------\n",
+        "Favorite Spread: ", favoriteSpread,
+        "\n---------------------\n"
+    }
+
+    return table.concat(lines, "")
 end
 
 function DiaryEntriesListScene:buildMonthDayPreviewText()
@@ -391,7 +480,7 @@ function DiaryEntriesListScene:buildMonthDayPreviewText()
 
     local lines = {
         self:formatPreviewDate(selectedItem.date),
-        "\n\n"
+        "\n---------------------\n"
     }
 
     table.insert(lines, self:buildEntrySummaryText(selectedItem.entry))
@@ -429,7 +518,11 @@ function DiaryEntriesListScene:renderPreview(resetScroll)
 
     gfx.pushContext(previewImage)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        gfx.drawTextInRect(previewText, 0, -self.previewScrollY, self.previewWidth, fullHeight, nil, nil, kTextAlignment.left)
+        if self.browserMode == "monthDay" then
+            gfx.drawTextInRect(previewText, 0, -self.previewScrollY, self.previewWidth, fullHeight, nil, nil, kTextAlignment.center)
+        else
+            gfx.drawTextInRect(previewText, 0, -self.previewScrollY, self.previewWidth, fullHeight, nil, nil, kTextAlignment.center)
+        end
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
     gfx.popContext()
 
@@ -486,7 +579,7 @@ function DiaryEntriesListScene:renderModeTitle()
     self.titleSprite = self:createTextSprite(titleText, 160, 60, kTextAlignment.center)
     if self.titleSprite then
         self.titleSprite:setCenter(0.5, 0)
-        self.titleSprite:moveTo(self.listLeft + 60, 4)
+        self.titleSprite:moveTo(self.listLeft + 48, 4)
         self.titleSprite:add()
     end
 
@@ -495,7 +588,7 @@ function DiaryEntriesListScene:renderModeTitle()
         if self.leftArrowSprite then
             self.leftArrowSprite:setRotation(270)
             self.leftArrowSprite:setCenter(0.5, 0.5)
-            self.leftArrowSprite:moveTo(self.listLeft + 12, 21)
+            self.leftArrowSprite:moveTo(self.listLeft, 21)
             self.leftArrowSprite:add()
         end
 
@@ -503,10 +596,32 @@ function DiaryEntriesListScene:renderModeTitle()
         if self.rightArrowSprite then
             self.rightArrowSprite:setRotation(90)
             self.rightArrowSprite:setCenter(0.5, 0.5)
-            self.rightArrowSprite:moveTo(self.listLeft + 108, 21)
+            self.rightArrowSprite:moveTo(self.listLeft + 96, 21)
             self.rightArrowSprite:add()
         end
     end
+end
+
+function DiaryEntriesListScene:animateMonthArrowLeft()
+    if not self.leftArrowSprite then
+        return
+    end
+
+    local point1 = playdate.geometry.point.new(self.listLeft, self.leftArrowSprite.y)
+    local point2 = playdate.geometry.point.new(self.listLeft - 10, self.leftArrowSprite.y)
+    local animator = gfx.animator.new(250, point2, point1, playdate.easingFunctions.outCubic)
+    self.leftArrowSprite:setAnimator(animator)
+end
+
+function DiaryEntriesListScene:animateMonthArrowRight()
+    if not self.rightArrowSprite then
+        return
+    end
+
+    local point1 = playdate.geometry.point.new(self.listLeft + 96, self.rightArrowSprite.y)
+    local point2 = playdate.geometry.point.new(self.listLeft + 106, self.rightArrowSprite.y)
+    local animator = gfx.animator.new(250, point2, point1, playdate.easingFunctions.outCubic)
+    self.rightArrowSprite:setAnimator(animator)
 end
 
 function DiaryEntriesListScene:renderListRows(items, selectedIndex, listStartIndex, itemFormatter)
@@ -521,7 +636,7 @@ function DiaryEntriesListScene:renderListRows(items, selectedIndex, listStartInd
         local sprite = self:createTextSprite(text, 150, 40, kTextAlignment.left)
         if sprite then
             sprite:setCenter(0, 0)
-            sprite:moveTo(self.listLeft, self.listTop + ((row - 1) * self.rowHeight))
+            sprite:moveTo(self.listLeft + self.listLeftOffset, self.listTop + ((row - 1) * self.rowHeight))
             sprite:add()
             table.insert(self.entrySprites, sprite)
         end
@@ -533,7 +648,7 @@ function DiaryEntriesListScene:renderListRows(items, selectedIndex, listStartInd
         self.selectorSprite:setVisible(true)
         local row = selectedIndex - listStartIndex + 1
         local y = self.listTop + ((row - 1) * self.rowHeight) + 12
-        self.selectorSprite:moveTo(self.listLeft - 18, y + 6)
+        self.selectorSprite:moveTo(self.listLeft - 4, y + 6)
     end
 end
 
@@ -589,6 +704,12 @@ function DiaryEntriesListScene:cycleMonth(step)
         self.selectedDayIndex = 1
         self.dayListStartIndex = 1
         self:renderCurrentMode(true)
+
+        if step < 0 then
+            self:animateMonthArrowLeft()
+        elseif step > 0 then
+            self:animateMonthArrowRight()
+        end
     end
 end
 
