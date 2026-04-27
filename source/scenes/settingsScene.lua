@@ -33,7 +33,7 @@ function SettingsScene:init()
     self.howTo = false
 
     self.soundText = {"Music&Rain", "Just Music", "Just Rain"}
-    self.soundTextIndex = soundMode
+    self.soundTextIndex = Sound.getSoundMode()
 
     self.buttonX = 210
     self.topY = 70
@@ -88,27 +88,30 @@ function SettingsScene:update()
 
     -- BACK OPTION
     if pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.bottomY then
-        cards_slow2:play(1)
+        Sound.playABut()
+        Sound.playSFX("cards_slow2")
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     --HOW TO OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY then
-        cards_slow2:play(1)
+        Sound.playABut()
+        Sound.playSFX("cards_slow2")
         SCENE_MANAGER:switchScene(HowToMenuScene)
     -- CREDITS OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.bottomY - self.step then
-        cards_slow2:play(1)
+        Sound.playABut()
+        Sound.playSFX("cards_slow2")
         SCENE_MANAGER:switchScene(CreditsScene)
     --DIARY OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step then
-        cards_slow2:play(1)
+        Sound.playABut()
+        Sound.playSFX("cards_slow2")
         SCENE_MANAGER:switchScene(DiarySettingsScene)
     -- SOUND OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step*2 then
         -- Toggle soundTextIndex
         self.soundTextIndex = self.soundTextIndex % #self.soundText + 1
 
-         -- SET THE GLOBAL HERE
-        soundMode = self.soundTextIndex
+        Sound.setSoundMode(self.soundTextIndex)
 
         -- Update the button text
         if self.soundButton then
@@ -117,45 +120,24 @@ function SettingsScene:update()
         self.soundButton = self:addButton(self.soundText[self.soundTextIndex], 200, self.topY + self.step*2)
         -- Update the options table so selector uses the new text
         self.options[3].text = self.soundText[self.soundTextIndex]
-        -- apply changes
-        if self.soundTextIndex == 1 then
-            -- Music&Ambience
-            if bgMusic:getVolume() == 0 then
-                bgMusic:setVolume(0.9)
-            end
-            if not ambience:isPlaying() then
-                ambience:setVolume(0.3)
-                ambience:play(0)
-            end
-        elseif self.soundTextIndex == 2 then
-            -- Play only music
-            if bgMusic:getVolume() == 0 then
-                bgMusic:setVolume(0.9)
-            end
-            if ambience:isPlaying() then
-                ambience:stop()
-            end
-        elseif self.soundTextIndex == 3 then
-            -- Play only ambience
-            if bgMusic:getVolume() ~= 0 then
-                bgMusic:setVolume(0)
-            end
-            if not ambience:isPlaying() then
-                ambience:setVolume(0.3)
-                ambience:play(0)
-            end
+        if self.soundTextIndex ~= 2 then
+            Sound.setAmbienceVolume(0.3)
+            Sound.playAmbience()
         end
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        cards_slow:play(1)
+        Sound.playSFX("b_button")
+        Sound.playSFX("cards_slow")
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end
 
 
     if pd.buttonJustPressed(pd.kButtonDown) then
+        Sound.playABut()
         self.selectorSprite:moveBy(0, self.step)
     elseif pd.buttonJustPressed(pd.kButtonUp) then  
+        Sound.playABut()
         self.selectorSprite:moveBy(0, -self.step)
         if self.selectorSprite.y < self.topY then
             self.selectorSprite:moveTo(200, self.bottomY)

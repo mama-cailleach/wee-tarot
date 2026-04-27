@@ -571,7 +571,7 @@ function BaseSpreadGameScene:revealCardsSequentially()
         local timer = pd.timer.performAfterDelay((i - 1) * revealDelay, function()
             if visual then
                 visual:setVisible(true)
-                cards_fast3:play(1)
+                Sound.playSFX("cards_fast3")
             end
         end)
         table.insert(self.revealTimers, timer)
@@ -589,7 +589,7 @@ function BaseSpreadGameScene:revealCardsSequentially()
         self.selectedCardZoomed = false
         self:selectCard(self.selectedCardIndex or self.defaultSelectedCardIndex)
         self.state = "fortune"
-        tuin:play(1)
+        Sound.playSFX("tuin")
     end)
 end
 
@@ -626,7 +626,7 @@ function BaseSpreadGameScene:update()
             local function advanceFrame()
                 local currentFrame = self.shuffleAnimSprite._currentFrame
                 if currentFrame < finishFrame then
-                    cards2_fast2:play(1)
+                    Sound.playSFX("cards2_fast2")
                     self.shuffleAnimSprite:setFrame(currentFrame + 1)
                 else
                     if self.shuffleFinishTimer then
@@ -634,16 +634,16 @@ function BaseSpreadGameScene:update()
                         self.shuffleFinishTimer = nil
                     end
                     self.shuffleAnimSprite:changeState("idle")
-                    cards2_fast2:stop()
+                    Sound.stopSFX("cards2_fast2")
                     pd.timer.performAfterDelay(100, function()
                         if self.shuffleAnimSprite then
                             self.shuffleAnimSprite:remove()
                             self.shuffleAnimSprite = nil
                         end
                         self:setupCardExplodeAnimation()
-                        cards2_slow:play(1)
+                        Sound.playSFX("cards2_slow")
                         pd.timer.performAfterDelay(2500, function()
-                            cards_fast3:play(1)
+                            Sound.playSFX("cards_fast3")
                             pd.timer.performAfterDelay(300, function()
                                 self:scaleAnimation(200, 110)
                             end)
@@ -653,7 +653,7 @@ function BaseSpreadGameScene:update()
             end
             self.shuffleFinishTimer = pd.timer.keyRepeatTimerWithDelay(1000 / 500, 1000 / 500, advanceFrame)
         elseif self.state == "fortune" and #self.playerCards == self.config.cardCount then
-            cards_fast2:play(1)
+            Sound.playSFX("cards_fast2")
             if self.confirmToMenu then
                 SCENE_MANAGER:switchScene(AfterDialogueScene)
             else
@@ -676,7 +676,7 @@ function BaseSpreadGameScene:update()
             self.shuffleAnimSprite:setFrame(self.shuffleFrame)
 
             if not self.crankSoundPlaying then
-                crank5:play(0)
+                Sound.startCrankLoop()
                 self.crankSoundPlaying = true
             end
 
@@ -687,8 +687,8 @@ function BaseSpreadGameScene:update()
 
             local scene = self
             self.crankInactivityTimer = pd.timer.performAfterDelay(100, function()
-                if scene.crankSoundPlaying and crank5 then
-                    crank5:stop()
+                if scene.crankSoundPlaying then
+                    Sound.stopCrankLoop()
                     scene.crankSoundPlaying = false
                 end
                 scene.crankInactivityTimer = nil
@@ -717,7 +717,7 @@ function BaseSpreadGameScene:deinit()
     if self.crankInactivityTimer then self.crankInactivityTimer:remove() self.crankInactivityTimer = nil end
 
     if self.crankSoundPlaying then
-        crank5:stop()
+        Sound.stopCrankLoop()
         self.crankSoundPlaying = false
     end
 

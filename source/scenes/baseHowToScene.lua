@@ -148,7 +148,7 @@ function BaseHowToScene:finishTutorial()
     end
     self.transitionDelayTimer = pd.timer.performAfterDelay(100, function()
         self:loadGameAnimation()
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         self.dinahSprite:changeState("transition")
         self.transitionDelayTimer = nil
     end)

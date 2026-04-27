@@ -95,36 +95,36 @@ function HowToMenuScene:confirmSelection()
     local option = self.topicOptions[self.selectedIndex]
 
     if option.key == "one_card" then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(HowToScene)
         return
     end
 
     if option.key == "three_card" then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(HowToThreeCardScene)
         return
     end
 
     if option.key == "pentagram" then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(HowToPentagramScene)
         return
     end
 
     if option.key == "celtic_cross" then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(HowToCelticCrossScene)
         return
     end
 
     if option.key == "horoscope" then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(HowToHoroscopeScene)
         return
     end
 
-    cards_slow2:play(1)
+    Sound.playSFX("cards_slow2")
     self:showNotice("Scene not implemented yet!")
 end
 
@@ -148,7 +148,7 @@ function HowToMenuScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        cards_slow:play(1)
+        Sound.playSFX("cards_slow")
         SCENE_MANAGER:switchScene(SettingsScene)
     end
 end

@@ -346,7 +346,7 @@ function DiaryEntryScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        cards_slow2:play(1)
+        Sound.playSFX("cards_slow2")
         SCENE_MANAGER:switchScene(DiaryEntriesListScene, self.returnState)
     end
 end

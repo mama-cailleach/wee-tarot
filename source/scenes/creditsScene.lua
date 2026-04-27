@@ -80,14 +80,14 @@ function CreditsScene:update()
             self.creditsEnd = true
             
             pd.timer.performAfterDelay(2000, function()
-                cards_fast2:play(1)
+                Sound.playSFX("cards_fast2")
                 SCENE_MANAGER:switchScene(SettingsScene)
             end)
         end
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        cards_slow:play(1)
+        Sound.playSFX("cards_slow")
         SCENE_MANAGER:switchScene(SettingsScene)
     end
 

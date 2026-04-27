@@ -731,7 +731,7 @@ function DiaryEntriesListScene:openCurrentEntry()
         return
     end
 
-    cards_fast2:play(1)
+    Sound.playSFX("cards_fast2")
     SCENE_MANAGER:switchScene(DiaryEntryScene, selectedItem.entry, self:buildReturnState())
 end
 
@@ -766,13 +766,13 @@ function DiaryEntriesListScene:update()
 
         if pd.buttonJustPressed(pd.kButtonA) then
             if totalYears > 0 then
-                cards_fast2:play(1)
+                Sound.playSFX("cards_fast2")
                 self:enterMonthDayMode()
             end
         end
 
         if pd.buttonJustPressed(pd.kButtonB) then
-            cards_slow2:play(1)
+            Sound.playSFX("cards_slow2")
             SCENE_MANAGER:switchScene(DiaryScene)
         end
         return
@@ -811,7 +811,7 @@ function DiaryEntriesListScene:update()
         end
 
         if pd.buttonJustPressed(pd.kButtonB) then
-            cards_slow2:play(1)
+            Sound.playSFX("cards_slow2")
             self.browserMode = "year"
             self:renderCurrentMode(true)
         end

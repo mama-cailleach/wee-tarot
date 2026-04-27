@@ -142,29 +142,29 @@ function SpreadSelectionScene:confirmSelection()
     selectedDeck = deckKeys[self.deckOptionIndex]
 
     if not option.implemented then
-        cards_slow2:play(1)
+        Sound.playSFX("cards_slow2")
         self:showNotice("This spread is coming soon")
         return
     end
 
     if option.key == "one_card" then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(GameScene)
         return
     elseif option.key == "three_card" then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(ThreeCardGameScene)
         return
     elseif option.key == "pentagram" then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(PentagramGameScene)
         return
     elseif option.key == "celtic_cross" then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(CelticCrossGameScene)
         return
     elseif option.key == "horoscope" then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(HoroscopeGameScene)
         return
     end
@@ -188,12 +188,12 @@ function SpreadSelectionScene:update()
     if pd.buttonJustPressed(pd.kButtonA) then
         if self.selectedRow == 1 then
             self.spreadOptionIndex = self.spreadOptionIndex % #self.spreadOptions + 1
-            cards_slow2:play(1)
+            Sound.playSFX("cards_slow2")
             self:updateSpreadValueSprite()
         elseif self.selectedRow == 2 then
             self.deckOptionIndex = self.deckOptionIndex % #deckLabels + 1
             selectedDeck = deckKeys[self.deckOptionIndex]
-            cards_slow2:play(1)
+            Sound.playSFX("cards_slow2")
             self:updateDeckValueSprite()
         else
             self:confirmSelection()
@@ -201,7 +201,7 @@ function SpreadSelectionScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        cards_slow:play(1)
+        Sound.playSFX("cards_slow")
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end
 end

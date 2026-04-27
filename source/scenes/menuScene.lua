@@ -8,7 +8,7 @@ local MAX_VISIBLE_LINES = 1
 
 function MenuScene:init()
     MenuScene.super.init(self)
-    ambience:setVolume(0.3)
+    Sound.setAmbienceVolume(0.3)
 
     -- scene variables
     self.imagetable = gfx.imagetable.new("images/bg/dinahBG-table-400-266")
@@ -238,17 +238,19 @@ function MenuScene:update()
     elseif self.optionsTextOn then
         -- Only allow A/B for options after text is gone
         if pd.buttonJustPressed(pd.kButtonB) then
-            cards_slow2:play(1)
+            Sound.playABut()
+            Sound.playSFX("cards_slow2")
             SCENE_MANAGER:switchScene(SettingsScene)
         end
         if pd.buttonJustPressed(pd.kButtonA) then
             self:loadGameAnimation()
             self.dinahSprite:changeState("transition")
             self:removeAButton()
-            cards_fast2:play(1)
+            Sound.playSFX("cards_fast2")
         end
         if pd.buttonJustPressed(pd.kButtonUp) then
-            cards_slow2:play(1)
+            Sound.playABut()
+            Sound.playSFX("cards_slow2")
             SCENE_MANAGER:switchScene(DiaryScene)
         end
     end

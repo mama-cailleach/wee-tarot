@@ -6,6 +6,7 @@ local DATASTORE_PATH <const> = "data/save/playerProfile"
 local DEFAULT_NAME <const> = "???"
 local MAX_NAME_LENGTH <const> = 16
 local DEFAULT_DATE_DISPLAY_REVERSED <const> = false
+local DEFAULT_SOUND_MODE <const> = 1
 
 local function readProfile()
     local stored = pd.datastore.read(DATASTORE_PATH)
@@ -41,6 +42,20 @@ local function sanitizeDateDisplayReversed(value)
     return value == true
 end
 
+local function sanitizeSoundMode(value)
+    local numeric = tonumber(value)
+    if not numeric then
+        return DEFAULT_SOUND_MODE
+    end
+
+    numeric = math.floor(numeric)
+    if numeric < 1 or numeric > 3 then
+        return DEFAULT_SOUND_MODE
+    end
+
+    return numeric
+end
+
 function PlayerProfileStore.getName()
     local profile = readProfile()
     return sanitizeName(profile.name)
@@ -71,6 +86,20 @@ function PlayerProfileStore.setDateDisplayReversed(value)
     profile.dateDisplayReversed = sanitizeDateDisplayReversed(value)
     writeProfile(profile)
     return profile.dateDisplayReversed
+end
+
+function PlayerProfileStore.getSoundMode()
+    local profile = readProfile()
+    return sanitizeSoundMode(profile.soundMode)
+end
+
+function PlayerProfileStore.setSoundMode(value)
+    local profile = readProfile()
+    profile.name = sanitizeName(profile.name)
+    profile.dateDisplayReversed = sanitizeDateDisplayReversed(profile.dateDisplayReversed)
+    profile.soundMode = sanitizeSoundMode(value)
+    writeProfile(profile)
+    return profile.soundMode
 end
 
 function PlayerProfileStore.formatDiaryDate(date)

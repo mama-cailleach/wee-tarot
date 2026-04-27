@@ -280,7 +280,7 @@ function GameScene:update()
             local function advanceFrame()
                 local currentFrame = self.shuffleAnimSprite._currentFrame
                 if currentFrame < finishFrame then
-                    cards2_fast2:play(1)
+                    Sound.playSFX("cards2_fast2")
                     self.shuffleAnimSprite:setFrame(currentFrame + 1)
                 else
                     if self.shuffleFinishTimer then 
@@ -288,14 +288,14 @@ function GameScene:update()
                         self.shuffleFinishTimer = nil 
                     end
                     self.shuffleAnimSprite:changeState("idle")
-                    cards2_fast2:stop()
+                    Sound.stopSFX("cards2_fast2")
                     pd.timer.performAfterDelay(100, function()
                         self.shuffleAnimSprite:remove()
                         self.shuffleAnimSprite = nil
                         self:setupCardExplodeAnimation()
-                        cards2_slow:play(1)
+                        Sound.playSFX("cards2_slow")
                         pd.timer.performAfterDelay(2500, function()
-                            cards_fast3:play(1)
+                            Sound.playSFX("cards_fast3")
                             pd.timer.performAfterDelay(300, function()
                                 self:scaleAnimation(200, 110)
                             end)
@@ -310,7 +310,7 @@ function GameScene:update()
         
         if self.state == "fortune" then
             if self.playerCard and self.isInverted ~= nil then
-                cards_fast2:play(1)
+                Sound.playSFX("cards_fast2")
                 SCENE_MANAGER:switchScene(PostScene, self.playerCard, self.playerCardNumber, self.playerCardSuit, self.isInverted)
             else
                 print("Error: Card not drawn yet or inverted state missing for PostScene transition.")
@@ -322,7 +322,7 @@ function GameScene:update()
         self.revealedTimersStarted = true
         pd.timer.performAfterDelay(1150, function()
             self:drawCardLogic()
-            tuin:play(1)
+            Sound.playSFX("tuin")
             self.state = "fortune"
         end)                   
     end
@@ -340,7 +340,7 @@ function GameScene:update()
             
             -- Start crank sound if not already playing
             if not self.crankSoundPlaying then
-                crank5:play(0) -- 0 = loop infinitely
+                Sound.startCrankLoop()
                 self.crankSoundPlaying = true
             end
             
@@ -354,8 +354,8 @@ function GameScene:update()
             local scene = self  -- Capture self reference
             self.crankInactivityTimer = pd.timer.performAfterDelay(100, function()
                 -- Stop crank sound after delay (with safety checks)
-                if scene.crankSoundPlaying and crank5 then
-                    crank5:stop()
+                if scene.crankSoundPlaying then
+                    Sound.stopCrankLoop()
                     scene.crankSoundPlaying = false
                 end
                 if scene.crankInactivityTimer then
@@ -445,7 +445,7 @@ function GameScene:deinit()
     if self.shuffleFinishTimer then self.shuffleFinishTimer:remove() self.shuffleFinishTimer = nil end
         -- Clean up crank sound
     if self.crankSoundPlaying then
-        crank5:stop()
+        Sound.stopCrankLoop()
         self.crankSoundPlaying = false
     end
     if self.crankInactivityTimer then 

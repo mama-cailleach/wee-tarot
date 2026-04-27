@@ -77,13 +77,13 @@ end
 function DiaryScene:update()
 
     if pd.buttonJustPressed(pd.kButtonA) then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         self.interactButton:remove()
         SCENE_MANAGER:switchScene(DiaryEntriesListScene)
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        cards_slow2:play(1)
+        Sound.playSFX("cards_slow2")
         self.interactButton:remove()
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end

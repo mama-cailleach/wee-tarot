@@ -4,7 +4,7 @@ local gfx <const> = pd.graphics
 class('CardViewScene').extends(gfx.sprite)
 
 function CardViewScene:init(cardName, cardNumber, cardSuit, isInverted)
-    cards_slow:play(1)
+    Sound.playSFX("cards_slow")
     self.card = cardName
     self.cardNumber = cardNumber
     self.cardSuit = cardSuit
@@ -56,7 +56,7 @@ end
 function CardViewScene:update()
     gfx.sprite.update()
     if pd.buttonJustPressed(pd.kButtonA) then
-        cards_slow2:play(1)
+        Sound.playSFX("cards_slow2")
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end
 

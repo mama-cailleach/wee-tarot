@@ -93,16 +93,18 @@ function AfterDialogueScene:update()
     if self.optionsTextOn then
         -- Only allow A/B for options after text is gone
         if pd.buttonJustPressed(pd.kButtonB) then
-            cards_slow2:play(1)
+            Sound.playABut()
+            Sound.playSFX("cards_slow2")
             SCENE_MANAGER:switchScene(SettingsScene)
         end
         if pd.buttonJustPressed(pd.kButtonA) then
             self:loadGameAnimation()
-            cards_fast2:play(1)
+            Sound.playSFX("cards_fast2")
             self.dinahSprite:changeState("transition")
         end
         if pd.buttonJustPressed(pd.kButtonUp) then
-            cards_slow2:play(1)
+            Sound.playABut()
+            Sound.playSFX("cards_slow2")
             SCENE_MANAGER:switchScene(DiaryScene)
         end
     end

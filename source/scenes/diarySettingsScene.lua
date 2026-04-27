@@ -184,7 +184,7 @@ function DiarySettingsScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonA) then
-        cards_fast2:play(1)
+        Sound.playSFX("cards_fast2")
         if self.selectedMenuIndex == 1 then
             self:startNameEdit()
         elseif self.selectedMenuIndex == 2 then
@@ -196,7 +196,7 @@ function DiarySettingsScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        cards_slow2:play(1)
+        Sound.playSFX("cards_slow2")
         SCENE_MANAGER:switchScene(SettingsScene)
     end
 

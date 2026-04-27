@@ -8,7 +8,7 @@ class('TitleScene').extends(gfx.sprite)
 
 function TitleScene:init()
     self:bgAnim2()
-    bgMusic:play(0)
+    Sound.playMusic(0, 22)
     
     gfx.setImageDrawMode(gfx.kDrawModeFillWhite) -- for white text
 
@@ -70,7 +70,7 @@ function TitleScene:update()
         self.BGSprite:changeState("anim")
         self.startText:remove()
         self:changeAnim()
-        cards_fast:play(1)
+        Sound.playSFX("cards_fast")
     end
 
 end
@@ -86,12 +86,12 @@ function TitleScene:soundTrigger()
     pd.timer.performAfterDelay(200, function()
     end)
     pd.timer.performAfterDelay(500, function()
-        ambience:play(0)
+        Sound.playAmbience()
     end)
     pd.timer.performAfterDelay(600, function()
-        ambience:setVolume(0.18)
+        Sound.setAmbienceVolume(0.18)
         pd.timer.performAfterDelay(200, function()
-            ambience:setVolume(0.25)
+            Sound.setAmbienceVolume(0.25)
         end)
     end)
 
@@ -101,7 +101,7 @@ end
 function TitleScene:loadMenuAnimation()
     self.BGSprite.states["idleEnd"].onAnimationEndEvent = function ()
         SCENE_MANAGER:switchScene(AfterDialogueScene) --MenuScene ********
-        bgMusic:setLoopRange(0)
+        Sound.playMusic(0)
         self:soundTrigger()
 
     end
