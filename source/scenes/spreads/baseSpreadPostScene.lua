@@ -231,6 +231,7 @@ function BaseSpreadPostScene:update()
     end
 
     if self.canButton and pd.buttonJustPressed(pd.kButtonA) then
+        Sound.playABut()
         if self.textIndex < #self.textLines then
             self.textIndex = self.textIndex + 1
             self:showCurrentLine()
@@ -240,6 +241,7 @@ function BaseSpreadPostScene:update()
     end
 
     if self.canButton and pd.buttonJustPressed(pd.kButtonB) then
+        Sound.playABut()
         self:goBackToSpreadView()
     end
 end

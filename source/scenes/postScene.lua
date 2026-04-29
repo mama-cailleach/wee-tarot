@@ -186,6 +186,7 @@ function PostScene:update()
 
     -- Advance text with A button
     if self.canButton and pd.buttonJustPressed(pd.kButtonA) then
+        Sound.playABut()
         self.aPress += 1
         if self.scrollOffset < self.maxScroll then
             self.scrollOffset = self.scrollOffset + 1
@@ -208,6 +209,7 @@ function PostScene:update()
     end
 
     if self.canButton and self.aPress >= 6 and pd.buttonJustPressed(pd.kButtonB) then
+        Sound.playABut()
         self.canButton = false
         self:removeAButton()
         if self.dinahScrollText then 

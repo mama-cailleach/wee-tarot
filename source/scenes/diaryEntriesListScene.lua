@@ -85,6 +85,9 @@ function DiaryEntriesListScene:init(restoreState)
     self.visibleEntryCount = math.max(1, math.floor((screenHeight - self.listTop) / self.rowHeight))
     self.selectorSprite = nil
 
+        self.crankSoundPlaying = false
+        self.crankInactivityTimer = nil
+
     local selectorImage = gfx.image.new("images/bg/icon_knot1_smol")
     if selectorImage then
         self.selectorSprite = gfx.sprite.new(selectorImage)
@@ -745,6 +748,25 @@ function DiaryEntriesListScene:update()
             self.previewScrollY = clampedScroll
             self:renderPreview(false)
         end
+
+            if not self.crankSoundPlaying then
+                Sound.startCrankLoop()
+                self.crankSoundPlaying = true
+            end
+
+            if self.crankInactivityTimer then
+                self.crankInactivityTimer:remove()
+                self.crankInactivityTimer = nil
+            end
+
+            local scene = self
+            self.crankInactivityTimer = pd.timer.performAfterDelay(100, function()
+                if scene.crankSoundPlaying then
+                    Sound.stopCrankLoop()
+                    scene.crankSoundPlaying = false
+                end
+                scene.crankInactivityTimer = nil
+            end)
     end
 
     if self.browserMode == "year" then
@@ -752,6 +774,7 @@ function DiaryEntriesListScene:update()
 
         if pd.buttonJustPressed(pd.kButtonDown) then
             if totalYears > 0 and self.selectedYearIndex < totalYears then
+                Sound.playABut()
                 self.selectedYearIndex = self.selectedYearIndex + 1
                 self:renderCurrentMode(true)
             end
@@ -759,6 +782,7 @@ function DiaryEntriesListScene:update()
 
         if pd.buttonJustPressed(pd.kButtonUp) then
             if totalYears > 0 and self.selectedYearIndex > 1 then
+                Sound.playABut()
                 self.selectedYearIndex = self.selectedYearIndex - 1
                 self:renderCurrentMode(true)
             end
@@ -766,13 +790,13 @@ function DiaryEntriesListScene:update()
 
         if pd.buttonJustPressed(pd.kButtonA) then
             if totalYears > 0 then
-                Sound.playSFX("cards_fast2")
+                Sound.playABut()
                 self:enterMonthDayMode()
             end
         end
 
         if pd.buttonJustPressed(pd.kButtonB) then
-            Sound.playSFX("cards_slow2")
+            Sound.playSFX("b_button")
             SCENE_MANAGER:switchScene(DiaryScene)
         end
         return
@@ -783,15 +807,18 @@ function DiaryEntriesListScene:update()
         local monthEntries = self:getCurrentMonthEntries()
 
         if pd.buttonJustPressed(pd.kButtonLeft) and yearBucket and #yearBucket.months > 0 then
+            Sound.playABut()
             self:cycleMonth(-1)
         end
 
         if pd.buttonJustPressed(pd.kButtonRight) and yearBucket and #yearBucket.months > 0 then
+            Sound.playABut()
             self:cycleMonth(1)
         end
 
         if pd.buttonJustPressed(pd.kButtonDown) and #monthEntries > 0 then
             if self.selectedDayIndex < #monthEntries then
+                Sound.playABut()
                 self.selectedDayIndex = self.selectedDayIndex + 1
                 self:renderCurrentMode(true)
             end
@@ -799,6 +826,7 @@ function DiaryEntriesListScene:update()
 
         if pd.buttonJustPressed(pd.kButtonUp) and #monthEntries > 0 then
             if self.selectedDayIndex > 1 then
+                Sound.playABut()
                 self.selectedDayIndex = self.selectedDayIndex - 1
                 self:renderCurrentMode(true)
             end
@@ -806,12 +834,13 @@ function DiaryEntriesListScene:update()
 
         if pd.buttonJustPressed(pd.kButtonA) then
             if #monthEntries > 0 then
+                Sound.playABut()
                 self:openCurrentEntry()
             end
         end
 
         if pd.buttonJustPressed(pd.kButtonB) then
-            Sound.playSFX("cards_slow2")
+            Sound.playSFX("b_button")
             self.browserMode = "year"
             self:renderCurrentMode(true)
         end
@@ -827,4 +856,10 @@ function DiaryEntriesListScene:deinit()
     if self.previewSprite then self.previewSprite:remove() self.previewSprite = nil end
 
     self:clearEntrySprites()
+
+        if self.crankInactivityTimer then self.crankInactivityTimer:remove() self.crankInactivityTimer = nil end
+        if self.crankSoundPlaying then
+            Sound.stopCrankLoop()
+            self.crankSoundPlaying = false
+        end
 end

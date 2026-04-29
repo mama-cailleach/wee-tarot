@@ -61,6 +61,9 @@ function DiaryEntryScene:init(entry, returnState)
 
     self:renderCardPlacement()
 
+        self.crankSoundPlaying = false
+        self.crankInactivityTimer = nil
+
     self:renderHeader()
     self:renderBody()
     self:renderSelectedCard()
@@ -311,9 +314,29 @@ function DiaryEntryScene:update()
             self.scrollY = clampedScroll
             self:renderBody()
         end
+
+            if not self.crankSoundPlaying then
+                Sound.startCrankLoop()
+                self.crankSoundPlaying = true
+            end
+
+            if self.crankInactivityTimer then
+                self.crankInactivityTimer:remove()
+                self.crankInactivityTimer = nil
+            end
+
+            local scene = self
+            self.crankInactivityTimer = pd.timer.performAfterDelay(100, function()
+                if scene.crankSoundPlaying then
+                    Sound.stopCrankLoop()
+                    scene.crankSoundPlaying = false
+                end
+                scene.crankInactivityTimer = nil
+            end)
     end
 
     if pd.buttonJustPressed(pd.kButtonLeft) then
+        Sound.playABut()
         local navigationCount = self:getNavigationCount()
         if navigationCount > 0 then
             self.selectedCardIndex = (self.selectedCardIndex - 1 + navigationCount) % navigationCount
@@ -323,6 +346,7 @@ function DiaryEntryScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonRight) then
+        Sound.playABut()
         local navigationCount = self:getNavigationCount()
         if navigationCount > 0 then
             self.selectedCardIndex = (self.selectedCardIndex + 1) % navigationCount
@@ -332,6 +356,7 @@ function DiaryEntryScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonUp) then
+        Sound.playABut()
         if self.currentCardScale ~= self.zoomScale then
             self.currentCardScale = self.zoomScale
             self:renderSelectedCard()
@@ -339,6 +364,7 @@ function DiaryEntryScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonDown) then
+        Sound.playABut()
         if self.currentCardScale ~= self.selectedScale then
             self.currentCardScale = self.selectedScale
             self:renderSelectedCard()
@@ -346,7 +372,7 @@ function DiaryEntryScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        Sound.playSFX("cards_slow2")
+        Sound.playSFX("b_button")
         SCENE_MANAGER:switchScene(DiaryEntriesListScene, self.returnState)
     end
 end
@@ -361,4 +387,10 @@ function DiaryEntryScene:deinit()
     if self.cardNameSprite then self.cardNameSprite:remove() self.cardNameSprite = nil end
     if self.arrowLeft then self.arrowLeft:remove() self.arrowLeft = nil end
     if self.arrowRight then self.arrowRight:remove() self.arrowRight = nil end
+
+        if self.crankInactivityTimer then self.crankInactivityTimer:remove() self.crankInactivityTimer = nil end
+        if self.crankSoundPlaying then
+            Sound.stopCrankLoop()
+            self.crankSoundPlaying = false
+        end
 end

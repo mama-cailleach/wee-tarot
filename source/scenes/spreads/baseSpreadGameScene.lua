@@ -232,6 +232,7 @@ function BaseSpreadGameScene:showFirstPrompt()
             self:showFirstPrompt()
         end
     end)
+    Sound.playSFX("witchpad")
 end
 
 function BaseSpreadGameScene:clearShufflePrompts()
@@ -249,6 +250,7 @@ function BaseSpreadGameScene:clearShufflePrompts()
         if timer then timer:remove() end
     end
     self.promptTypeTimers = {}
+    Sound.stopSFX("witchpad")
 end
 
 function BaseSpreadGameScene:setup16CardShuffleAnimation()
@@ -491,6 +493,7 @@ function BaseSpreadGameScene:drawCardsLogic()
     end
 
     self:revealCardsSequentially()
+    Sound.playSFX("pad_b")
 end
 
 function BaseSpreadGameScene:getCardPositionForSelection(index, isSelected)

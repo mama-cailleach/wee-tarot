@@ -7,6 +7,7 @@ class('DiaryScene').extends(gfx.sprite)
 
 function DiaryScene:init()
     DiaryScene.super.init(self)
+    Sound.playSFX("pad_a")
 
     self.bgImage = gfx.image.new("images/bg/journal6")
     self.bgSprite = gfx.sprite.new(self.bgImage)
@@ -77,13 +78,13 @@ end
 function DiaryScene:update()
 
     if pd.buttonJustPressed(pd.kButtonA) then
-        Sound.playSFX("cards_fast2")
+        Sound.playABut()
         self.interactButton:remove()
         SCENE_MANAGER:switchScene(DiaryEntriesListScene)
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        Sound.playSFX("cards_slow2")
+        Sound.playSFX("b_button")
         self.interactButton:remove()
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end

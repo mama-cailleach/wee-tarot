@@ -87,7 +87,7 @@ function CreditsScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        Sound.playSFX("cards_slow")
+        Sound.playSFX("b_button")
         SCENE_MANAGER:switchScene(SettingsScene)
     end
 

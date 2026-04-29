@@ -172,12 +172,14 @@ end
 
 function SpreadSelectionScene:update()
     if pd.buttonJustPressed(pd.kButtonDown) then
+        Sound.playABut()
         self.selectedRow = self.selectedRow + 1
         if self.selectedRow > #self.rowLabels then
             self.selectedRow = 1
         end
         self:updateSelectorPosition()
     elseif pd.buttonJustPressed(pd.kButtonUp) then
+        Sound.playABut()
         self.selectedRow = self.selectedRow - 1
         if self.selectedRow < 1 then
             self.selectedRow = #self.rowLabels
@@ -186,14 +188,13 @@ function SpreadSelectionScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonA) then
+        Sound.playABut()
         if self.selectedRow == 1 then
             self.spreadOptionIndex = self.spreadOptionIndex % #self.spreadOptions + 1
-            Sound.playSFX("cards_slow2")
             self:updateSpreadValueSprite()
         elseif self.selectedRow == 2 then
             self.deckOptionIndex = self.deckOptionIndex % #deckLabels + 1
             selectedDeck = deckKeys[self.deckOptionIndex]
-            Sound.playSFX("cards_slow2")
             self:updateDeckValueSprite()
         else
             self:confirmSelection()
@@ -201,7 +202,7 @@ function SpreadSelectionScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        Sound.playSFX("cards_slow")
+        Sound.playSFX("b_button")
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end
 end
