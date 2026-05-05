@@ -1,10 +1,10 @@
 local pd <const> = playdate
 local gfx <const> = playdate.graphics
 
-class('HowToMenuScene').extends(gfx.sprite)
+class('HowToSpreadsMenuScene').extends(gfx.sprite)
 
-function HowToMenuScene:init()
-    HowToMenuScene.super.init(self)
+function HowToSpreadsMenuScene:init()
+    HowToSpreadsMenuScene.super.init(self)
 
     gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
 
@@ -17,14 +17,16 @@ function HowToMenuScene:init()
     self.selectorSprite:moveTo(128, 86)
     self.selectorSprite:add()
 
-    self.titleText = gfx.sprite.spriteWithText("How To", 400, 200, nil, nil, nil, kTextAlignment.center)
+    self.titleText = gfx.sprite.spriteWithText("Spreads", 400, 200, nil, nil, nil, kTextAlignment.center)
     self.titleText:moveTo(210, 30)
     self.titleText:add()
 
     self.topicOptions = {
-        { label = "Table Manners", key = "table_manners" },
-        { label = "Bits & Bobs", key = "bits_and_bobs" },
-        { label = "Spreads", key = "spreads" },
+        { label = "1-bit Fortune", key = "one_card" },
+        { label = "Pentagram", key = "pentagram" },
+        { label = "Root-Trunk-Branch", key = "three_card" },
+        { label = "Celtic Cross", key = "celtic_cross" },
+        { label = "Horoscope", key = "horoscope" },
         { label = "Back", key = "back" }
     }
 
@@ -39,7 +41,7 @@ function HowToMenuScene:init()
     self:add()
 end
 
-function HowToMenuScene:createOptionSprites()
+function HowToSpreadsMenuScene:createOptionSprites()
     for _, sprite in ipairs(self.optionSprites) do
         sprite:remove()
     end
@@ -54,7 +56,7 @@ function HowToMenuScene:createOptionSprites()
     end
 end
 
-function HowToMenuScene:updateSelectorPosition()
+function HowToSpreadsMenuScene:updateSelectorPosition()
     local option = self.topicOptions[self.selectedIndex]
     local textWidth = gfx.getTextSize(option.label)
     local offset = 18
@@ -62,35 +64,47 @@ function HowToMenuScene:updateSelectorPosition()
     self.selectorSprite:moveTo(210 - textWidth / 2 - offset, y)
 end
 
-function HowToMenuScene:confirmSelection()
+function HowToSpreadsMenuScene:confirmSelection()
     local option = self.topicOptions[self.selectedIndex]
 
-    if option.key == "table_manners" then
+    if option.key == "one_card" then
         Sound.playSFX("cards_fast2")
-        SCENE_MANAGER:switchScene(HowToTableMannersScene)
+        SCENE_MANAGER:switchScene(HowToScene)
         return
     end
 
-    if option.key == "bits_and_bobs" then
+    if option.key == "three_card" then
         Sound.playSFX("cards_fast2")
-        SCENE_MANAGER:switchScene(HowToBitsAndBobsScene)
+        SCENE_MANAGER:switchScene(HowToThreeCardScene)
         return
     end
 
-    if option.key == "spreads" then
+    if option.key == "pentagram" then
         Sound.playSFX("cards_fast2")
-        SCENE_MANAGER:switchScene(HowToSpreadsMenuScene)
+        SCENE_MANAGER:switchScene(HowToPentagramScene)
+        return
+    end
+
+    if option.key == "celtic_cross" then
+        Sound.playSFX("cards_fast2")
+        SCENE_MANAGER:switchScene(HowToCelticCrossScene)
+        return
+    end
+
+    if option.key == "horoscope" then
+        Sound.playSFX("cards_fast2")
+        SCENE_MANAGER:switchScene(HowToHoroscopeScene)
         return
     end
 
     if option.key == "back" then
         Sound.playSFX("cards_fast2")
-        SCENE_MANAGER:switchScene(SettingsScene)
+        SCENE_MANAGER:switchScene(HowToMenuScene)
         return
     end
 end
 
-function HowToMenuScene:update()
+function HowToSpreadsMenuScene:update()
     if pd.buttonJustPressed(pd.kButtonDown) then
         self.selectedIndex = self.selectedIndex + 1
         if self.selectedIndex > #self.topicOptions then
@@ -111,11 +125,11 @@ function HowToMenuScene:update()
 
     if pd.buttonJustPressed(pd.kButtonB) then
         Sound.playSFX("cards_slow")
-        SCENE_MANAGER:switchScene(SettingsScene)
+        SCENE_MANAGER:switchScene(HowToMenuScene)
     end
 end
 
-function HowToMenuScene:deinit()
+function HowToSpreadsMenuScene:deinit()
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
     if self.bgSprite then self.bgSprite:remove() self.bgSprite = nil end
     if self.selectorSprite then self.selectorSprite:remove() self.selectorSprite = nil end

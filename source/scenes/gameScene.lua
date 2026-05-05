@@ -133,6 +133,8 @@ function GameScene:drawCardLogic()
         cardDrawed, cardNumber, cardSuit = self.deck:drawMinorArcana()
     elseif self.selectedDeck == "cups" or self.selectedDeck == "wands" or self.selectedDeck == "swords" or self.selectedDeck == "pentacles" then
         cardDrawed, cardNumber, cardSuit = self.deck:drawFromSuit(self.selectedDeck)
+    elseif self.selectedDeck == "alternate" then
+        cardDrawed, cardNumber, cardSuit = self.deck:drawAlternate()
     else
         cardDrawed, cardNumber, cardSuit = self.deck:drawFullDeck()
     end

@@ -17,6 +17,9 @@ import "scenes/diaryEntryScene"
 import "scenes/baseHowToScene"
 import "scenes/howToScene"
 import "scenes/howToMenuScene"
+import "scenes/howToTableMannersScene"
+import "scenes/howToBitsAndBobsScene"
+import "scenes/howToSpreadsMenuScene"
 
 -- Spread system (base classes first)
 import "scenes/spreads/baseSpreadGameScene"

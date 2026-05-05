@@ -20,7 +20,6 @@ function SettingsScene:init()
 
     -- Add selector button sprite (e.g., ">" or "●")
     self.selectorSprite = self.spritewands
-    --self:makeButtonSprite("A", 150, 70, 13)
     
     gfx.setImageDrawMode(gfx.kDrawModeNXOR) -- for text color
 
@@ -60,27 +59,6 @@ function SettingsScene:init()
  
     self:add()
 end
-
-
-function SettingsScene:makeButtonSprite(letter, x, y, radius)
-    local r = radius or 16
-    local img = gfx.image.new(r*2, r*2)
-    gfx.pushContext(img)
-        gfx.setColor(gfx.kColorWhite)
-        gfx.fillCircleAtPoint(r, r, r)
-        gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-        gfx.setLineWidth(2)
-        gfx.drawCircleAtPoint(r, r, r)
-        local font = gfx.getSystemFont()
-        local w, h = gfx.getTextSize(letter, font)
-        gfx.drawTextAligned(letter, r - w/2, r - h/2, kTextAlignment.left)
-    gfx.popContext()
-    local sprite = gfx.sprite.new(img)
-    sprite:moveTo(x, y)
-    sprite:add()
-    return sprite
-end
-
 
 
 function SettingsScene:update()
@@ -151,7 +129,7 @@ function SettingsScene:update()
     local currentOption = self.options[self.selectedIndex]
     local textWidth = gfx.getTextSize(currentOption.text, font)
     local offset = 18
-    self.selectorSprite:moveTo(200 - textWidth/2 - offset, currentOption.y)
+    self.selectorSprite:moveTo(206 - textWidth/2 - offset, currentOption.y)
 
     
 end

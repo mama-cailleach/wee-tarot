@@ -24,6 +24,11 @@ function Deck:init()
         self.pentaclesDeck,
         self.majorArcanaDeck
     }
+
+    -- Alternate deck mode state
+    self.alternateDeckMode = false
+    self.alternateAvailableSuits = {} -- Tracks which suits are available in current cycle
+    self.alternateUsedCount = 0 -- Tracks how many cards have been drawn from current cycle
 end
 
 function Deck:drawFromDeck(deck, suitIndex)
@@ -91,6 +96,58 @@ function Deck:drawRandomCard()
     return cardDrawed, cardNumber, cardSuit
 end
 
+function Deck:initAlternateMode()
+    self.alternateDeckMode = true
+    self.alternateAvailableSuits = {1, 2, 3, 4, 5} -- cups, wands, swords, pentacles, major
+    -- Shuffle the available suits so they're drawn in random order
+    for i = #self.alternateAvailableSuits, 2, -1 do
+        local j = math.random(i)
+        self.alternateAvailableSuits[i], self.alternateAvailableSuits[j] = self.alternateAvailableSuits[j], self.alternateAvailableSuits[i]
+    end
+    self.alternateUsedCount = 0
+end
+
+function Deck:drawAlternate()
+    if not self.alternateDeckMode then
+        self:initAlternateMode()
+    end
+
+    -- If we've used all 5 suits, reset the cycle
+    if self.alternateUsedCount >= 5 then
+        self:initAlternateMode()
+    end
+
+    -- Get the next suit in the cycle
+    self.alternateUsedCount = self.alternateUsedCount + 1
+    local suitIndex = self.alternateAvailableSuits[self.alternateUsedCount]
+    local selectedDeck = self.allDecks[suitIndex]
+
+    if not selectedDeck or #selectedDeck == 0 then return nil end
+    
+    local column = math.random(1, #selectedDeck)
+    local cardDrawed = selectedDeck[column]
+    local cardNumber = column
+    local cardSuit = suitIndex
+
+    return cardDrawed, cardNumber, cardSuit
+end
+
+function Deck:drawAlternateFromSpecificSuit(suitIndex)
+    if not self.alternateDeckMode then
+        self:initAlternateMode()
+    end
+
+    local selectedDeck = self.allDecks[suitIndex]
+    if not selectedDeck or #selectedDeck == 0 then return nil end
+    
+    local column = math.random(1, #selectedDeck)
+    local cardDrawed = selectedDeck[column]
+    local cardNumber = column
+    local cardSuit = suitIndex
+
+    return cardDrawed, cardNumber, cardSuit
+end
+
 function Deck:shuffle()
     -- Shuffle each deck in place
     for _, deck in ipairs(self.allDecks) do
@@ -105,6 +162,9 @@ function Deck:reset()
     -- Optionally re-populate and shuffle decks
     self:init()
     self:shuffle()
+    self.alternateDeckMode = false
+    self.alternateAvailableSuits = {}
+    self.alternateUsedCount = 0
 end
 
 function Deck:isEmpty()

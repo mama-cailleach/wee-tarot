@@ -3,8 +3,8 @@ local gfx <const> = playdate.graphics
 
 class('SpreadSelectionScene').extends(gfx.sprite)
 
-local deckKeys = {"full", "major", "minor", "cups", "pentacles", "swords", "wands"}
-local deckLabels = {"Full Deck", "Major Arcana", "Minor Arcana", "Cups", "Pentacles", "Swords", "Wands"}
+local deckKeys = {"full", "major", "minor", "cups", "pentacles", "swords", "wands", "alternate"}
+local deckLabels = {"Full Deck", "Major Arcana", "Minor Arcana", "Cups", "Pentacles", "Swords", "Wands", "Alternate"}
 
 function SpreadSelectionScene:init()
     SpreadSelectionScene.super.init(self)

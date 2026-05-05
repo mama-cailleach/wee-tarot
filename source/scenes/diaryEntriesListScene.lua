@@ -85,8 +85,8 @@ function DiaryEntriesListScene:init(restoreState)
     self.visibleEntryCount = math.max(1, math.floor((screenHeight - self.listTop) / self.rowHeight))
     self.selectorSprite = nil
 
-        self.crankSoundPlaying = false
-        self.crankInactivityTimer = nil
+    self.crankSoundPlaying = false
+    self.crankInactivityTimer = nil
 
     local selectorImage = gfx.image.new("images/bg/icon_knot1_smol")
     if selectorImage then
@@ -387,14 +387,14 @@ function DiaryEntriesListScene:buildEntrySummaryText(entry)
 
     local lines = {
         self:formatSpreadLabel(entry.spreadType),
-        "\n---------------------\n"
+        "\nºººººººº\n"
     }
 
     if type(entry.cards) == "table" and #entry.cards > 0 then
         for _, card in ipairs(entry.cards) do
             local cardName = card.name or "Unknown Card"
             table.insert(lines, cardName)
-            table.insert(lines, "\n---------------------\n")
+            table.insert(lines, "\nºººººººº\n")
         end
     else
         table.insert(lines, "No cards recorded")
@@ -460,15 +460,15 @@ function DiaryEntriesListScene:buildYearPreviewText()
 
     local lines = {
         tostring(yearBucket.year),
-        "\n---------------------\n",
+        "\nºººººººº\n",
         "Total Readings: ", tostring(totalReadings),
-        "\n---------------------\n",
+        "\nºººººººº\n",
         "Total Cards Pulled: ", tostring(totalCardsPulled),
-        "\n---------------------\n",
+        "\nºººººººº\n",
         "Card Most Seen: ", mostSeenCard,
-        "\n---------------------\n",
+        "\nºººººººº\n",
         "Favorite Spread: ", favoriteSpread,
-        "\n---------------------\n"
+        "\nºººººººº\n"
     }
 
     return table.concat(lines, "")
@@ -483,7 +483,7 @@ function DiaryEntriesListScene:buildMonthDayPreviewText()
 
     local lines = {
         self:formatPreviewDate(selectedItem.date),
-        "\n---------------------\n"
+        "\nºººººººº\n"
     }
 
     table.insert(lines, self:buildEntrySummaryText(selectedItem.entry))
@@ -857,9 +857,9 @@ function DiaryEntriesListScene:deinit()
 
     self:clearEntrySprites()
 
-        if self.crankInactivityTimer then self.crankInactivityTimer:remove() self.crankInactivityTimer = nil end
-        if self.crankSoundPlaying then
-            Sound.stopCrankLoop()
-            self.crankSoundPlaying = false
-        end
+    if self.crankInactivityTimer then self.crankInactivityTimer:remove() self.crankInactivityTimer = nil end
+    if self.crankSoundPlaying then
+        Sound.stopCrankLoop()
+        self.crankSoundPlaying = false
+    end
 end

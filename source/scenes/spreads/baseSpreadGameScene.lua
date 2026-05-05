@@ -333,6 +333,8 @@ function BaseSpreadGameScene:drawCardByDeckSelection()
         return self.deck:drawMinorArcana()
     elseif self.selectedDeck == "cups" or self.selectedDeck == "wands" or self.selectedDeck == "swords" or self.selectedDeck == "pentacles" then
         return self.deck:drawFromSuit(self.selectedDeck)
+    elseif self.selectedDeck == "alternate" then
+        return self.deck:drawAlternate()
     end
 
     return self.deck:drawFullDeck()
@@ -440,6 +442,49 @@ function BaseSpreadGameScene:buildDrawPoolForSelection()
         appendDeckCards(pool, self.deck.swordsDeck, 3)
     elseif self.selectedDeck == "pentacles" then
         appendDeckCards(pool, self.deck.pentaclesDeck, 4)
+    elseif self.selectedDeck == "alternate" then
+        -- For alternate mode, create a pool with random suits in order
+        -- We'll get all 5 suits, then repeat as needed
+        local suitSequence = {}
+        local cardCount = self.config.cardCount
+        local fullCycle = {1, 2, 3, 4, 5} -- cups, wands, swords, pentacles, major
+        
+        -- Shuffle the cycle
+        for i = #fullCycle, 2, -1 do
+            local j = math.random(i)
+            fullCycle[i], fullCycle[j] = fullCycle[j], fullCycle[i]
+        end
+        
+        -- Build sequence by repeating and shuffling the cycle for each full rotation
+        local currentCycle = 1
+        for i = 1, cardCount do
+            local cycleIndex = ((i - 1) % 5) + 1
+            
+            -- After every 5 cards, reshuffle the cycle
+            if cycleIndex == 1 and i > 1 then
+                for j = #fullCycle, 2, -1 do
+                    local k = math.random(j)
+                    fullCycle[j], fullCycle[k] = fullCycle[k], fullCycle[j]
+                end
+            end
+            
+            table.insert(suitSequence, fullCycle[cycleIndex])
+        end
+        
+        -- Now build the pool using the suit sequence
+        for _, suitIndex in ipairs(suitSequence) do
+            local selectedDeck = self.deck.allDecks[suitIndex]
+            if selectedDeck and #selectedDeck > 0 then
+                local cardNumber = math.random(1, #selectedDeck)
+                table.insert(pool, {
+                    name = selectedDeck[cardNumber],
+                    number = cardNumber,
+                    suit = suitIndex
+                })
+            end
+        end
+        
+        return pool
     else
         appendDeckCards(pool, self.deck.cupsDeck, 1)
         appendDeckCards(pool, self.deck.wandsDeck, 2)

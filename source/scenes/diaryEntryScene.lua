@@ -185,7 +185,7 @@ function DiaryEntryScene:getSelectedCard()
         return {
             isSpreadCard = true,
             name = self:getSpreadName(),
-            imagePath = "images/decknback/placementzone_diamond"
+            imagePath = "images/spreads/" .. (self.entry.spreadType)
         }
     end
 

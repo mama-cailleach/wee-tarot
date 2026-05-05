@@ -36,3 +36,35 @@ class('PentagramGameScene').extends(BaseSpreadGameScene)
 function PentagramGameScene:init(restoreState)
     PentagramGameScene.super.init(self, PENTAGRAM_CONFIG, restoreState)
 end
+
+function PentagramGameScene:buildDrawPoolForSelection()
+    self.selectedDeck = selectedDeck or "full"
+
+    -- For alternate mode in Pentagram, use specific element mappings
+    if self.selectedDeck == "alternate" then
+        -- Pentagram element mapping:
+        -- Position 1 (center/top): Major (Heart/Self)
+        -- Position 2 (left): Swords (Air)
+        -- Position 3 (bottom-left): Pentacles (Earth)
+        -- Position 4 (bottom-right): Cups (Water)
+        -- Position 5 (right): Wands (Fire)
+        local elementMapping = {5, 3, 4, 1, 2} -- suit indices for each position
+        
+        local pool = {}
+        for positionIndex, suitIndex in ipairs(elementMapping) do
+            local selectedDeck = self.deck.allDecks[suitIndex]
+            if selectedDeck and #selectedDeck > 0 then
+                local cardNumber = math.random(1, #selectedDeck)
+                table.insert(pool, {
+                    name = selectedDeck[cardNumber],
+                    number = cardNumber,
+                    suit = suitIndex
+                })
+            end
+        end
+        return pool
+    end
+
+    -- For non-alternate modes, use the base class implementation
+    return PentagramGameScene.super.buildDrawPoolForSelection(self)
+end
