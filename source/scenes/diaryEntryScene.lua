@@ -123,32 +123,119 @@ function DiaryEntryScene:buildHeaderText()
     return date .. " + " .. spread
 end
 
-function DiaryEntryScene:buildBodyText()
+function DiaryEntryScene:buildSpreadSummaryText()
     local lines = {}
 
     if type(self.entry.cards) == "table" then
+        table.insert(lines, "Cards Pulled")
+        table.insert(lines, "")
         for _, card in ipairs(self.entry.cards) do
             local position = card.position or 0
             local cardName = card.name or "Unknown Card"
             local orientation = card.inverted and " (reversed)" or ""
-            table.insert(lines, "[" .. tostring(position) .. "] " .. cardName .. orientation)
+            table.insert(lines, tostring(position) .. ". " .. cardName .. orientation)
         end
-    end
-
-    if type(self.entry.fortuneLines) == "table" and #self.entry.fortuneLines > 0 then
-        table.insert(lines, "")
-        for _, line in ipairs(self.entry.fortuneLines) do
-            table.insert(lines, line)
-        end
-    elseif type(self.entry.fortuneText) == "string" and #self.entry.fortuneText > 0 then
-        table.insert(lines, "")
-        table.insert(lines, self.entry.fortuneText)
-    else
-        table.insert(lines, "")
-        table.insert(lines, "No reading text available.")
     end
 
     return table.concat(lines, "\n")
+end
+
+function DiaryEntryScene:getCardDetails()
+    if type(self.entry.cardDetails) == "table" and #self.entry.cardDetails > 0 then
+        return self.entry.cardDetails
+    end
+
+    local details = {}
+    if type(self.entry.cards) ~= "table" then
+        return details
+    end
+
+    for _, card in ipairs(self.entry.cards) do
+        local position = tonumber(card.position) or (#details + 1)
+        local positionLabel = "Card " .. tostring(position)
+        local readingLines = {}
+        local fortuneLines = type(self.entry.fortuneLines) == "table" and self.entry.fortuneLines or nil
+        local line = fortuneLines and fortuneLines[position] or nil
+        if type(line) == "string" and #line > 0 then
+            table.insert(readingLines, line)
+        elseif type(self.entry.fortuneText) == "string" and #self.entry.fortuneText > 0 then
+            table.insert(readingLines, self.entry.fortuneText)
+        end
+
+        table.insert(details, {
+            position = position,
+            positionLabel = positionLabel,
+            cardName = card.name or "Unknown Card",
+            inverted = card.inverted == true,
+            themes = {},
+            readingLines = readingLines,
+            readingText = #readingLines > 0 and table.concat(readingLines, "\n") or nil
+        })
+    end
+
+    return details
+end
+
+function DiaryEntryScene:getSelectedCardDetail()
+    if self.selectedCardIndex == 0 then
+        return nil
+    end
+
+    local cardDetails = self:getCardDetails()
+    return cardDetails[self.selectedCardIndex]
+end
+
+function DiaryEntryScene:buildCardDetailText(detail)
+    if type(detail) ~= "table" then
+        return "No card selected."
+    end
+
+    local lines = {}
+    local cardName = detail.cardName or "Unknown Card"
+    local position = detail.position or 0
+    local orientation = detail.inverted and "Reversed" or "Upright"
+    local positionLabel = detail.positionLabel or ("Card " .. tostring(position))
+
+    table.insert(lines, cardName)
+    table.insert(lines, "")
+    table.insert(lines, "Position: " .. positionLabel)
+    table.insert(lines, "Orientation: " .. orientation)
+
+    if type(detail.themes) == "table" and #detail.themes > 0 then
+        table.insert(lines, "")
+        table.insert(lines, "Themes:")
+        table.insert(lines, table.concat(detail.themes, ", "))
+    end
+
+    local readingLines = type(detail.readingLines) == "table" and detail.readingLines or nil
+    if readingLines and #readingLines > 0 then
+        table.insert(lines, "")
+        table.insert(lines, "Reading:")
+        for _, line in ipairs(readingLines) do
+            table.insert(lines, line)
+        end
+    elseif type(detail.readingText) == "string" and #detail.readingText > 0 then
+        table.insert(lines, "")
+        table.insert(lines, "Reading:")
+        table.insert(lines, detail.readingText)
+    end
+
+    if #lines <= 4 then
+        table.insert(lines, "")
+        table.insert(lines, "No reading data available.")
+    end
+
+    return table.concat(lines, "\n")
+end
+
+function DiaryEntryScene:buildBodyText()
+    local selectedCard = self:getSelectedCard()
+
+    if selectedCard and selectedCard.isSpreadCard then
+        return self:buildSpreadSummaryText()
+    end
+
+    return self:buildCardDetailText(self:getSelectedCardDetail())
 end
 
 function DiaryEntryScene:renderHeader()
@@ -340,6 +427,8 @@ function DiaryEntryScene:update()
         local navigationCount = self:getNavigationCount()
         if navigationCount > 0 then
             self.selectedCardIndex = (self.selectedCardIndex - 1 + navigationCount) % navigationCount
+            self.scrollY = 0
+            self:renderBody()
             self:renderSelectedCard()
             self:animateArrowLeft()
         end
@@ -350,6 +439,8 @@ function DiaryEntryScene:update()
         local navigationCount = self:getNavigationCount()
         if navigationCount > 0 then
             self.selectedCardIndex = (self.selectedCardIndex + 1) % navigationCount
+            self.scrollY = 0
+            self:renderBody()
             self:renderSelectedCard()
             self:animateArrowRight()
         end

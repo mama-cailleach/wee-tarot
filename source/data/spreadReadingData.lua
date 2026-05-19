@@ -90,6 +90,44 @@ function SpreadReadingData.pickKeywords(cardName, inverted, keywordCount)
     return selectedKeywords
 end
 
+function SpreadReadingData.getPositionName(spreadKey, index)
+    local config = SPREAD_CONFIGS[spreadKey]
+    if not config then
+        return "Card " .. tostring(index)
+    end
+
+    return config.positionNames and config.positionNames[index] or ("Card " .. tostring(index))
+end
+
+function SpreadReadingData.buildCardDetails(spreadKey, cardNames, cardInverted)
+    local details = {}
+    local config = SPREAD_CONFIGS[spreadKey]
+    local count = math.max(#(cardNames or {}), #(cardInverted or {}))
+
+    for index = 1, count do
+        local cardName = cardNames and cardNames[index] or "Unknown Card"
+        local inverted = cardInverted and cardInverted[index] == true or false
+        local positionName = SpreadReadingData.getPositionName(spreadKey, index)
+        local themes = SpreadReadingData.pickKeywords(cardName, inverted, 3)
+        local readingLines = {
+            positionName .. ": " .. cardName .. (inverted and " (Reversed)" or ""),
+            "Themes: " .. table.concat(themes, ", ") .. "."
+        }
+
+        table.insert(details, {
+            position = index,
+            positionLabel = positionName,
+            cardName = cardName,
+            inverted = inverted,
+            themes = themes,
+            readingLines = readingLines,
+            readingText = table.concat(readingLines, "\n")
+        })
+    end
+
+    return details
+end
+
 function SpreadReadingData.buildPlaceholderReadingText(spreadKey, cardNames, cardInverted)
     local config = SPREAD_CONFIGS[spreadKey]
     if not config then

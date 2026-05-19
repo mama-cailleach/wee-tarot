@@ -42,10 +42,51 @@ local function sanitizeEntry(raw)
         fortuneText = table.concat(fortuneLines, "\n")
     end
 
+    local cardDetails = {}
+    if type(raw.cardDetails) == "table" then
+        for _, detail in ipairs(raw.cardDetails) do
+            if type(detail) == "table" then
+                local themes = {}
+                if type(detail.themes) == "table" then
+                    for _, theme in ipairs(detail.themes) do
+                        if type(theme) == "string" then
+                            table.insert(themes, theme)
+                        end
+                    end
+                end
+
+                local readingLines = {}
+                if type(detail.readingLines) == "table" then
+                    for _, line in ipairs(detail.readingLines) do
+                        if type(line) == "string" then
+                            table.insert(readingLines, line)
+                        end
+                    end
+                end
+
+                local readingText = detail.readingText
+                if type(readingText) ~= "string" and #readingLines > 0 then
+                    readingText = table.concat(readingLines, "\n")
+                end
+
+                table.insert(cardDetails, {
+                    position = detail.position,
+                    positionLabel = detail.positionLabel,
+                    cardName = detail.cardName,
+                    inverted = detail.inverted == true,
+                    themes = themes,
+                    readingLines = readingLines,
+                    readingText = readingText
+                })
+            end
+        end
+    end
+
     return {
         date = date,
         spreadType = spreadType,
         cards = cards,
+        cardDetails = cardDetails,
         fortuneLines = fortuneLines,
         fortuneText = fortuneText,
         createdAtEpoch = raw.createdAtEpoch

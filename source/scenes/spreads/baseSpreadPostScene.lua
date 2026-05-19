@@ -151,6 +151,7 @@ function BaseSpreadPostScene:buildDiaryEntry()
         })
     end
 
+    local cardDetails = SpreadReadingData.buildCardDetails(self.config.spreadKey, self.cardNames, self.cardInverted)
     local fortuneLines = self.textLines or {}
     local fortuneText = table.concat(fortuneLines, "\n")
 
@@ -158,6 +159,7 @@ function BaseSpreadPostScene:buildDiaryEntry()
         date = DiaryStore.formatDateFromSystem(),
         spreadType = self:getDiarySpreadType(),
         cards = cards,
+        cardDetails = cardDetails,
         fortuneLines = fortuneLines,
         fortuneText = fortuneText
     }

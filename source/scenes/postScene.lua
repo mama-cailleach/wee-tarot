@@ -227,6 +227,24 @@ end
 function PostScene:buildDiaryEntry()
     local fortuneLines = self.dinahTextLines or {}
     local fortuneText = self.dinahTextBlock or table.concat(fortuneLines, "\n")
+    local cardInfo = ALL_CARD_DATA[self.card] or {}
+    local themes = cardInfo.reversed_keywords
+    if self.invert ~= true or type(themes) ~= "table" or #themes == 0 then
+        themes = cardInfo.upright_keywords or {}
+    end
+
+    local cardDetails = {
+        {
+            position = 1,
+            positionLabel = "Card",
+            cardName = self.card,
+            inverted = self.invert == true,
+            themes = themes,
+            descriptionLines = cardInfo.correspondence or fortuneLines,
+            readingLines = fortuneLines,
+            readingText = fortuneText
+        }
+    }
 
     return {
         date = DiaryStore.formatDateFromSystem(),
@@ -240,6 +258,7 @@ function PostScene:buildDiaryEntry()
                 position = 1
             }
         },
+        cardDetails = cardDetails,
         fortuneLines = fortuneLines,
         fortuneText = fortuneText
     }
