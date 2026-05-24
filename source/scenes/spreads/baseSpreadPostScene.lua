@@ -38,6 +38,8 @@ function BaseSpreadPostScene:init(config, cardNames, cardNumbers, cardSuits, car
 
     self:dinahSpriteLoad()
 
+    self:persistDiaryEntry()
+
     self.scrollBoxAnimatorIn = gfx.animator.new(2600, 300, 170, pd.easingFunctions.outBack)
     self.scrollBoxSprite:moveTo(202, 300)
     self.scrollBoxSprite:add()

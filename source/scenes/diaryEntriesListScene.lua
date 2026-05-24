@@ -199,6 +199,26 @@ function DiaryEntriesListScene:buildBrowserData()
     self.browserData.years = years
 end
 
+function DiaryEntriesListScene:getYearListCount()
+    return #self.browserData.years + 1
+end
+
+function DiaryEntriesListScene:isLockAndLeaveSelected()
+    return self.selectedYearIndex == self:getYearListCount()
+end
+
+function DiaryEntriesListScene:getYearListItem(index)
+    local totalYears = #self.browserData.years
+    if index == totalYears + 1 then
+        return {
+            isLockAndLeave = true,
+            label = "Lock"
+        }
+    end
+
+    return self.browserData.years[index]
+end
+
 function DiaryEntriesListScene:applyRestoreState(restoreState)
     if type(restoreState) ~= "table" then
         if type(restoreState) == "number" then
@@ -291,11 +311,11 @@ end
 
 function DiaryEntriesListScene:clampSelectionForMode()
     local years = self.browserData.years
-    local totalYears = #years
+    local totalYears = self:getYearListCount()
 
     if totalYears == 0 then
         self.browserMode = "year"
-        self.selectedYearIndex = 0
+        self.selectedYearIndex = 1
         self.selectedMonthIndex = 0
         self.selectedDayIndex = 0
         self.yearListStartIndex = 1
@@ -404,6 +424,14 @@ function DiaryEntriesListScene:buildEntrySummaryText(entry)
 end
 
 function DiaryEntriesListScene:buildYearPreviewText()
+    if self:isLockAndLeaveSelected() then
+        return table.concat({
+            "Lock&Leave",
+            "\nºººººººº\n",
+            "Press A or B to leave the diary."
+        }, "")
+    end
+
     local yearBucket = self:getCurrentYearBucket()
     if not yearBucket then
         return "No diary entries yet."
@@ -549,7 +577,7 @@ function DiaryEntriesListScene:updateSelectorPosition()
     if self.browserMode == "year" then
         selectedIndex = self.selectedYearIndex
         listStartIndex = self.yearListStartIndex
-        total = #self.browserData.years
+        total = self:getYearListCount()
     else
         selectedIndex = self.selectedDayIndex
         listStartIndex = self.dayListStartIndex
@@ -660,9 +688,19 @@ function DiaryEntriesListScene:renderCurrentMode(resetScroll)
     self:renderModeTitle()
 
     if self.browserMode == "year" then
-        self.selectedYearIndex, self.yearListStartIndex = self:clampListState(self.selectedYearIndex, self.yearListStartIndex, #self.browserData.years)
+        local yearItems = {}
+        for index, yearBucket in ipairs(self.browserData.years) do
+            yearItems[index] = yearBucket
+        end
+        yearItems[#self.browserData.years + 1] = self:getYearListItem(#self.browserData.years + 1)
+
+        self.selectedYearIndex, self.yearListStartIndex = self:clampListState(self.selectedYearIndex, self.yearListStartIndex, #yearItems)
         self:renderPreview(resetScroll)
-        self:renderListRows(self.browserData.years, self.selectedYearIndex, self.yearListStartIndex, function(item)
+        self:renderListRows(yearItems, self.selectedYearIndex, self.yearListStartIndex, function(item)
+            if item.isLockAndLeave then
+                return item.label
+            end
+
             return tostring(item.year)
         end)
     else
@@ -727,6 +765,11 @@ function DiaryEntriesListScene:buildReturnState()
     }
 end
 
+function DiaryEntriesListScene:leaveDiary()
+    Sound.playSFX("b_button")
+    SCENE_MANAGER:switchScene(DiaryScene)
+end
+
 function DiaryEntriesListScene:openCurrentEntry()
     local monthEntries = self:getCurrentMonthEntries()
     local selectedItem = monthEntries[self.selectedDayIndex]
@@ -771,9 +814,10 @@ function DiaryEntriesListScene:update()
 
     if self.browserMode == "year" then
         local totalYears = #self.browserData.years
+        local yearListCount = self:getYearListCount()
 
         if pd.buttonJustPressed(pd.kButtonDown) then
-            if totalYears > 0 and self.selectedYearIndex < totalYears then
+            if yearListCount > 0 and self.selectedYearIndex < yearListCount then
                 Sound.playABut()
                 self.selectedYearIndex = self.selectedYearIndex + 1
                 self:renderCurrentMode(true)
@@ -781,7 +825,7 @@ function DiaryEntriesListScene:update()
         end
 
         if pd.buttonJustPressed(pd.kButtonUp) then
-            if totalYears > 0 and self.selectedYearIndex > 1 then
+            if yearListCount > 0 and self.selectedYearIndex > 1 then
                 Sound.playABut()
                 self.selectedYearIndex = self.selectedYearIndex - 1
                 self:renderCurrentMode(true)
@@ -789,15 +833,16 @@ function DiaryEntriesListScene:update()
         end
 
         if pd.buttonJustPressed(pd.kButtonA) then
-            if totalYears > 0 then
+            if self:isLockAndLeaveSelected() then
+                self:leaveDiary()
+            elseif totalYears > 0 then
                 Sound.playABut()
                 self:enterMonthDayMode()
             end
         end
 
         if pd.buttonJustPressed(pd.kButtonB) then
-            Sound.playSFX("b_button")
-            SCENE_MANAGER:switchScene(DiaryScene)
+            self:leaveDiary()
         end
         return
     end

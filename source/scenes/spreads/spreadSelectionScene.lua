@@ -114,6 +114,27 @@ function SpreadSelectionScene:updateDeckValueSprite()
     self.deckValueSprite:add()
 end
 
+function SpreadSelectionScene:cycleSpreadOption(direction)
+    local spreadCount = #self.spreadOptions
+    if spreadCount == 0 then
+        return
+    end
+
+    self.spreadOptionIndex = ((self.spreadOptionIndex - 1 + direction) % spreadCount) + 1
+    self:updateSpreadValueSprite()
+end
+
+function SpreadSelectionScene:cycleDeckOption(direction)
+    local deckCount = #deckLabels
+    if deckCount == 0 then
+        return
+    end
+
+    self.deckOptionIndex = ((self.deckOptionIndex - 1 + direction) % deckCount) + 1
+    selectedDeck = deckKeys[self.deckOptionIndex]
+    self:updateDeckValueSprite()
+end
+
 function SpreadSelectionScene:showNotice(text)
     if self.noticeSprite then
         self.noticeSprite:remove()
@@ -187,15 +208,30 @@ function SpreadSelectionScene:update()
         self:updateSelectorPosition()
     end
 
+    if self.selectedRow == 1 or self.selectedRow == 2 then
+        if pd.buttonJustPressed(pd.kButtonRight) then
+            Sound.playABut()
+            if self.selectedRow == 1 then
+                self:cycleSpreadOption(1)
+            else
+                self:cycleDeckOption(1)
+            end
+        elseif pd.buttonJustPressed(pd.kButtonLeft) then
+            Sound.playABut()
+            if self.selectedRow == 1 then
+                self:cycleSpreadOption(-1)
+            else
+                self:cycleDeckOption(-1)
+            end
+        end
+    end
+
     if pd.buttonJustPressed(pd.kButtonA) then
         Sound.playABut()
         if self.selectedRow == 1 then
-            self.spreadOptionIndex = self.spreadOptionIndex % #self.spreadOptions + 1
-            self:updateSpreadValueSprite()
+            self:cycleSpreadOption(1)
         elseif self.selectedRow == 2 then
-            self.deckOptionIndex = self.deckOptionIndex % #deckLabels + 1
-            selectedDeck = deckKeys[self.deckOptionIndex]
-            self:updateDeckValueSprite()
+            self:cycleDeckOption(1)
         else
             self:confirmSelection()
         end

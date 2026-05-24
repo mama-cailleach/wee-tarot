@@ -68,6 +68,7 @@ function PostScene:init(cardName, cardNumber, cardSuit, isInverted)
     self:addCardTextToDinah(self.card)
     self.scrollOffset = 0
     self.maxScroll = math.max(0, #self.dinahTextLines - 1)
+    self:persistDiaryEntry()
 
     -- Set up the scroll box animator, and crucially, its callback
     self.scrollBoxAnimatorIn = gfx.animator.new(3000, 300, 170, pd.easingFunctions.outBack)

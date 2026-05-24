@@ -27,6 +27,9 @@ function DiaryScene:init()
     self.diaryLine:add()
 
     --[[
+
+    -- A on the lock
+
     gfx.setImageDrawMode(gfx.kDrawModeXOR)
     self.startText = gfx.sprite.spriteWithText("A", 400, 40, nil, nil, nil, kTextAlignment.center)  
     self.startText:moveTo(365, 120)
@@ -41,9 +44,11 @@ function DiaryScene:init()
     self.blinkerTimer.repeats = true
     
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
-    ]]
+    
 
-    self.interactButton = self:makeButtonSprite("A", 297, 122, 24)
+    -- Circle A
+
+    self.interactButton = self:makeButtonSprite("A", 297, 122, 25)
         
     self.blinkTime = 800
     --blink text logic 
@@ -51,6 +56,7 @@ function DiaryScene:init()
         self.interactButton:setVisible(not self.interactButton:isVisible())
     end)
     self.blinkerTimer.repeats = true
+    ]]
 
     self:add()
 end
@@ -79,13 +85,13 @@ function DiaryScene:update()
 
     if pd.buttonJustPressed(pd.kButtonA) then
         Sound.playABut()
-        self.interactButton:remove()
+        --self.interactButton:remove()
         SCENE_MANAGER:switchScene(DiaryEntriesListScene)
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
         Sound.playSFX("b_button")
-        self.interactButton:remove()
+        --self.interactButton:remove()
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end
 
