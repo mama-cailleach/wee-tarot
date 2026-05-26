@@ -159,6 +159,7 @@ function BaseSpreadPostScene:buildDiaryEntry()
 
     return {
         date = DiaryStore.formatDateFromSystem(),
+        time = DiaryStore.formatTimeFromSystem(),
         spreadType = self:getDiarySpreadType(),
         cards = cards,
         cardDetails = cardDetails,

@@ -5,8 +5,11 @@ import "data/save/playerProfileStore"
 
 class('DiarySettingsScene').extends(gfx.sprite)
 
-function DiarySettingsScene:init()
+function DiarySettingsScene:init(source, returnState)
     DiarySettingsScene.super.init(self)
+
+    self.source = source or "settings"
+    self.returnState = returnState
 
     self.bgImage = gfx.image.new("images/bg/journal4")
     self.bgSprite = gfx.sprite.new(self.bgImage)
@@ -21,6 +24,7 @@ function DiarySettingsScene:init()
     self.maxNameLength = PlayerProfileStore.getMaxNameLength()
     self.name = PlayerProfileStore.getName()
     self.isEditingName = false
+    self.entriesListDescending = PlayerProfileStore.getEntriesListDescending()
 
     self.diaryLine = gfx.sprite.spriteWithText(self.name, 120, 120, nil, nil, nil, kTextAlignment.center)
     self.diaryLine:setCenter(0, 0)
@@ -35,11 +39,10 @@ function DiarySettingsScene:init()
         self.settingsLabel:add()
     end
 
-    self.menuOptions = { "Name", "Date", "Back" }
+    self.menuOptions = { "Name", "Order", "Back" }
     self.selectedMenuIndex = 1
     self.menuSprites = {}
-    self.dateValueSprite = nil
-    self.dateDisplayReversed = PlayerProfileStore.getDateDisplayReversed()
+    self.orderValueSprite = nil
     self.selectorSprite = nil
     self.menuRowYPositions = { 45, 95, 190 }
 
@@ -121,32 +124,24 @@ function DiarySettingsScene:renderMenu()
         end
     end
 
-    self:renderDateValue()
+    self:renderOrderValue()
 
     self:updateSelectorPosition()
 end
 
-function DiarySettingsScene:renderDateValue()
-    if self.dateValueSprite then
-        self.dateValueSprite:remove()
-        self.dateValueSprite = nil
+function DiarySettingsScene:renderOrderValue()
+    if self.orderValueSprite then
+        self.orderValueSprite:remove()
+        self.orderValueSprite = nil
     end
 
-    local now = pd.getTime and pd.getTime()
-    local day = now and now.day or nil
-    local month = now and now.month or nil
-    local year = now and now.year or nil
-    local dayPart = day and string.format("%02d", day) or "00"
-    local monthPart = month and string.format("%02d", month) or "00"
-    local yearPart = year and string.format("%04d", year) or "0000"
-    local dateText = PlayerProfileStore.formatDiaryDate(dayPart .. "-" .. monthPart .. "-" .. yearPart)
+    local orderText = self.entriesListDescending and "Descending" or "Ascending"
 
-
-    self.dateValueSprite = gfx.sprite.spriteWithText(dateText, 320, 40, nil, nil, nil, kTextAlignment.left)
-    if self.dateValueSprite then
-        self.dateValueSprite:setCenter(0, 0)
-        self.dateValueSprite:moveTo(245, self:getMenuRowY(2) + 28)
-        self.dateValueSprite:add()
+    self.orderValueSprite = gfx.sprite.spriteWithText(orderText, 320, 40, nil, nil, nil, kTextAlignment.left)
+    if self.orderValueSprite then
+        self.orderValueSprite:setCenter(0, 0)
+        self.orderValueSprite:moveTo(245, self:getMenuRowY(2) + 28)
+        self.orderValueSprite:add()
     end
 end
 
@@ -162,6 +157,16 @@ function DiarySettingsScene:updateSelectorPosition()
 
     local y = self:getMenuRowY(self.selectedMenuIndex)
     self.selectorSprite:moveTo(240, y + 18)
+end
+
+function DiarySettingsScene:goBack()
+    Sound.playSFX("cards_slow2")
+
+    if self.source == "diary" then
+        SCENE_MANAGER:switchScene(DiaryEntriesListScene, self.returnState)
+    else
+        SCENE_MANAGER:switchScene(SettingsScene)
+    end
 end
 
 function DiarySettingsScene:update()
@@ -188,16 +193,15 @@ function DiarySettingsScene:update()
         if self.selectedMenuIndex == 1 then
             self:startNameEdit()
         elseif self.selectedMenuIndex == 2 then
-            self.dateDisplayReversed = PlayerProfileStore.setDateDisplayReversed(not self.dateDisplayReversed)
-            self:renderDateValue()
+            self.entriesListDescending = PlayerProfileStore.setEntriesListDescending(not self.entriesListDescending)
+            self:renderOrderValue()
         elseif self.selectedMenuIndex == 3 then
-            SCENE_MANAGER:switchScene(SettingsScene)
+            self:goBack()
         end
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        Sound.playSFX("cards_slow2")
-        SCENE_MANAGER:switchScene(SettingsScene)
+        self:goBack()
     end
 
 end
@@ -212,7 +216,7 @@ function DiarySettingsScene:deinit()
     if self.bgSprite then self.bgSprite:remove() self.bgSprite = nil end
     if self.diaryLabel then self.diaryLabel:remove() self.diaryLabel = nil end
     if self.diaryLine then self.diaryLine:remove() self.diaryLine = nil end
-    if self.dateValueSprite then self.dateValueSprite:remove() self.dateValueSprite = nil end
+    if self.orderValueSprite then self.orderValueSprite:remove() self.orderValueSprite = nil end
     if self.settingsLabel then self.settingsLabel:remove() self.settingsLabel = nil end
     if self.selectorSprite then self.selectorSprite:remove() self.selectorSprite = nil end
 

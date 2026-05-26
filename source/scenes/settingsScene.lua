@@ -83,7 +83,7 @@ function SettingsScene:update()
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step then
         Sound.playABut()
         Sound.playSFX("cards_slow2")
-        SCENE_MANAGER:switchScene(DiarySettingsScene)
+        SCENE_MANAGER:switchScene(DiarySettingsScene, "settings")
     -- SOUND OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step*2 then
         -- Toggle soundTextIndex

@@ -54,6 +54,7 @@ function DiaryEntriesListScene:init(restoreState)
     self.bgSprite:add()
 
     self.entries = DiaryStore.getEntries()
+    self.entriesListDescending = PlayerProfileStore.getEntriesListDescending()
     self.browserData = {
         years = {}
     }
@@ -188,7 +189,22 @@ function DiaryEntriesListScene:buildBrowserData()
 
             table.sort(monthBucket.entries, function(left, right)
                 if left.day == right.day then
-                    return left.sortOrder < right.sortOrder
+                    local leftTime = self:formatPreviewTime(left.entry and left.entry.time)
+                    local rightTime = self:formatPreviewTime(right.entry and right.entry.time)
+
+                    if leftTime == rightTime then
+                        return left.sortOrder < right.sortOrder
+                    end
+
+                    if self.entriesListDescending then
+                        return leftTime > rightTime
+                    end
+
+                    return leftTime < rightTime
+                end
+
+                if self.entriesListDescending then
+                    return left.day > right.day
                 end
 
                 return left.day < right.day
@@ -200,7 +216,19 @@ function DiaryEntriesListScene:buildBrowserData()
 end
 
 function DiaryEntriesListScene:getYearListCount()
+    return #self.browserData.years + 2
+end
+
+function DiaryEntriesListScene:getYearBodyVisibleCount()
+    return math.max(1, self.visibleEntryCount - 3)
+end
+
+function DiaryEntriesListScene:getYearMendIndex()
     return #self.browserData.years + 1
+end
+
+function DiaryEntriesListScene:getYearCloseIndex()
+    return #self.browserData.years + 2
 end
 
 function DiaryEntriesListScene:isLockAndLeaveSelected()
@@ -211,8 +239,15 @@ function DiaryEntriesListScene:getYearListItem(index)
     local totalYears = #self.browserData.years
     if index == totalYears + 1 then
         return {
+            isMend = true,
+            label = "Mend"
+        }
+    end
+
+    if index == totalYears + 2 then
+        return {
             isLockAndLeave = true,
-            label = "Lock"
+            label = "Close"
         }
     end
 
@@ -281,6 +316,102 @@ function DiaryEntriesListScene:getCurrentMonthEntries()
     return monthBucket.entries or {}
 end
 
+function DiaryEntriesListScene:buildMonthDayRows()
+    local rows = {}
+    local monthEntries = self:getCurrentMonthEntries()
+    local currentDay = nil
+
+    for _, item in ipairs(monthEntries) do
+        if currentDay ~= item.day then
+            currentDay = item.day
+            table.insert(rows, {
+                type = "divider",
+                day = item.day,
+                date = item.date
+            })
+        end
+
+        table.insert(rows, {
+            type = "entry",
+            day = item.day,
+            date = item.date,
+            entry = item.entry,
+            time = self:formatPreviewTime(item.entry and item.entry.time)
+        })
+    end
+
+    return rows
+end
+
+function DiaryEntriesListScene:findNextEntryRow(rows, startIndex, step)
+    local index = startIndex
+    while true do
+        index = index + step
+        if index < 1 or index > #rows then
+            return nil
+        end
+
+        if rows[index] and rows[index].type == "entry" then
+            return index
+        end
+    end
+end
+
+function DiaryEntriesListScene:moveMonthDaySelection(step)
+    local rows = self:buildMonthDayRows()
+    if #rows == 0 then
+        return false
+    end
+
+    local nextIndex = self:findNextEntryRow(rows, self.selectedDayIndex, step)
+    if not nextIndex then
+        return false
+    end
+
+    self.selectedDayIndex = nextIndex
+
+    if step < 0 and rows[nextIndex - 1] and rows[nextIndex - 1].type == "divider" then
+        self.dayListStartIndex = math.max(1, nextIndex - 1)
+    end
+
+    return true
+end
+
+function DiaryEntriesListScene:clampMonthDaySelection(rows)
+    if #rows == 0 then
+        self.selectedDayIndex = 0
+        self.dayListStartIndex = 1
+        return
+    end
+
+    self.selectedDayIndex, self.dayListStartIndex = self:clampListState(self.selectedDayIndex, self.dayListStartIndex, #rows)
+
+    local selectedRow = rows[self.selectedDayIndex]
+    if not (selectedRow and selectedRow.type == "entry") then
+        local downIndex = self:findNextEntryRow(rows, self.selectedDayIndex, 1)
+        if downIndex then
+            self.selectedDayIndex = downIndex
+        else
+            local upIndex = self:findNextEntryRow(rows, self.selectedDayIndex, -1)
+            if upIndex then
+                self.selectedDayIndex = upIndex
+            else
+                self.selectedDayIndex = 0
+            end
+        end
+    end
+
+    if self.selectedDayIndex > 0 then
+        self.selectedDayIndex, self.dayListStartIndex = self:clampListState(self.selectedDayIndex, self.dayListStartIndex, #rows)
+    end
+
+    -- Keep the day divider visible when the selected entry is the first visible row.
+    local dividerIndex = self.selectedDayIndex - 1
+    if dividerIndex >= 1 and rows[dividerIndex] and rows[dividerIndex].type == "divider" then
+        self.dayListStartIndex = math.min(self.dayListStartIndex, dividerIndex)
+    end
+end
+
 function DiaryEntriesListScene:clampListState(selectedIndex, listStartIndex, total)
     if total == 0 then
         return 0, 1
@@ -311,9 +442,11 @@ end
 
 function DiaryEntriesListScene:clampSelectionForMode()
     local years = self.browserData.years
-    local totalYears = self:getYearListCount()
+    local totalYears = #years
+    local bodyVisibleCount = self:getYearBodyVisibleCount()
+    local totalYearEntries = self:getYearListCount()
 
-    if totalYears == 0 then
+    if totalYearEntries == 0 then
         self.browserMode = "year"
         self.selectedYearIndex = 1
         self.selectedMonthIndex = 0
@@ -323,7 +456,11 @@ function DiaryEntriesListScene:clampSelectionForMode()
         return
     end
 
-    self.selectedYearIndex, self.yearListStartIndex = self:clampListState(self.selectedYearIndex, self.yearListStartIndex, totalYears)
+    if self.selectedYearIndex <= totalYears then
+        self.selectedYearIndex, self.yearListStartIndex = self:clampListState(self.selectedYearIndex, self.yearListStartIndex, totalYears)
+    else
+        self.yearListStartIndex = math.max(1, (totalYears - bodyVisibleCount) + 1)
+    end
 
     local yearBucket = self:getCurrentYearBucket()
     if not yearBucket or #yearBucket.months == 0 then
@@ -346,7 +483,8 @@ function DiaryEntriesListScene:clampSelectionForMode()
         return
     end
 
-    self.selectedDayIndex, self.dayListStartIndex = self:clampListState(self.selectedDayIndex, self.dayListStartIndex, #monthEntries)
+    local monthRows = self:buildMonthDayRows()
+    self:clampMonthDaySelection(monthRows)
 end
 
 function DiaryEntriesListScene:toOrdinal(day)
@@ -380,6 +518,20 @@ function DiaryEntriesListScene:formatPreviewDate(date)
     return dateString
 end
 
+function DiaryEntriesListScene:formatPreviewTime(timeText)
+    if type(timeText) ~= "string" then
+        return "00.00"
+    end
+
+    timeText = string.gsub(timeText, ":", ".")
+
+    if not string.match(timeText, "^%d%d%.%d%d$") then
+        return "00.00"
+    end
+
+    return timeText
+end
+
 function DiaryEntriesListScene:formatSpreadLabel(spreadType)
     local spread = spreadType or "unknown"
     local lowered = string.lower(spread)
@@ -405,36 +557,52 @@ function DiaryEntriesListScene:buildEntrySummaryText(entry)
         return "No diary entries yet."
     end
 
-    local lines = {
+    local lines = {"SPREAD\n",
         self:formatSpreadLabel(entry.spreadType),
         "\nºººººººº\n"
     }
 
     if type(entry.cards) == "table" and #entry.cards > 0 then
+        table.insert(lines, "CARDS\n")
+        --table.insert(lines, "\nºººººººº\n")
         for _, card in ipairs(entry.cards) do
             local cardName = card.name or "Unknown Card"
+            table.insert(lines, "--\n")
             table.insert(lines, cardName)
-            table.insert(lines, "\nºººººººº\n")
+            table.insert(lines, "\n")
+            --table.insert(lines, "\nºººººººº\n")
         end
     else
         table.insert(lines, "No cards recorded")
     end
+    table.insert(lines, "ºººººººº\n")
 
     return table.concat(lines, "")
 end
 
 function DiaryEntriesListScene:buildYearPreviewText()
+    if self.selectedYearIndex == self:getYearMendIndex() then
+        return table.concat({
+            "Diary Mending",
+            "\nºººººººº\n",
+            "Customise the the fabric of your diary.",
+            "\nºººººººº\n",
+            "Name:\n", PlayerProfileStore.getName(),
+            "\n--\nOrdering:\n", PlayerProfileStore.getEntriesListDescending() and "Newest to Oldest" or "Oldest to Newest"
+        }, "")
+    end
+
     if self:isLockAndLeaveSelected() then
         return table.concat({
-            "Lock&Leave",
+            "Close",
             "\nºººººººº\n",
-            "Press A or B to leave the diary."
+            "Close and lock your diary.\n\nProtect your readings from unwanted eyes and keep your secrets safe."
         }, "")
     end
 
     local yearBucket = self:getCurrentYearBucket()
     if not yearBucket then
-        return "No diary entries yet."
+        return "No entries for this year."
     end
 
     local totalReadings = 0
@@ -489,28 +657,62 @@ function DiaryEntriesListScene:buildYearPreviewText()
     local lines = {
         tostring(yearBucket.year),
         "\nºººººººº\n",
-        "Total Readings: ", tostring(totalReadings),
+        "Total Readings:\n", tostring(totalReadings),
         "\nºººººººº\n",
-        "Total Cards Pulled: ", tostring(totalCardsPulled),
+        "Total Cards Pulled:\n", tostring(totalCardsPulled),
         "\nºººººººº\n",
-        "Card Most Seen: ", mostSeenCard,
+        "Card Most Seen:\n", mostSeenCard,
         "\nºººººººº\n",
-        "Favorite Spread: ", favoriteSpread,
+        "Favorite Spread:\n", favoriteSpread,
         "\nºººººººº\n"
     }
 
     return table.concat(lines, "")
 end
 
+function DiaryEntriesListScene:renderYearFooter()
+    self.yearFooterSeparatorY = 144
+    self.yearFooterMendY = 173
+    self.yearFooterCloseY = 202
+
+    local separatorSprite = self:createTextSprite("ºººººººº", 160, 40, kTextAlignment.center)
+    if separatorSprite then
+        separatorSprite:setCenter(0.5, 0)
+        separatorSprite:moveTo(self.listLeft + 48, self.yearFooterSeparatorY)
+        separatorSprite:add()
+        table.insert(self.entrySprites, separatorSprite)
+    end
+
+    local mendSprite = self:createTextSprite("Mend", 150, 40, kTextAlignment.left)
+    if mendSprite then
+        mendSprite:setCenter(0, 0)
+        mendSprite:moveTo(self.listLeft + self.listLeftOffset, self.yearFooterMendY)
+        mendSprite:add()
+        table.insert(self.entrySprites, mendSprite)
+    end
+
+    local closeSprite = self:createTextSprite("Close", 150, 40, kTextAlignment.left)
+    if closeSprite then
+        closeSprite:setCenter(0, 0)
+        closeSprite:moveTo(self.listLeft + self.listLeftOffset, self.yearFooterCloseY)
+        closeSprite:add()
+        table.insert(self.entrySprites, closeSprite)
+    end
+end
+
 function DiaryEntriesListScene:buildMonthDayPreviewText()
-    local monthEntries = self:getCurrentMonthEntries()
-    local selectedItem = monthEntries[self.selectedDayIndex]
-    if not selectedItem then
+    local monthRows = self:buildMonthDayRows()
+    local selectedItem = monthRows[self.selectedDayIndex]
+    if not selectedItem or selectedItem.type ~= "entry" then
         return "No diary entries yet."
     end
 
+    local timeText = selectedItem.time or self:formatPreviewTime(selectedItem.entry and selectedItem.entry.time)
+
     local lines = {
         self:formatPreviewDate(selectedItem.date),
+        "\n",
+        timeText,
         "\nºººººººº\n"
     }
 
@@ -579,9 +781,10 @@ function DiaryEntriesListScene:updateSelectorPosition()
         listStartIndex = self.yearListStartIndex
         total = self:getYearListCount()
     else
+        local monthRows = self:buildMonthDayRows()
         selectedIndex = self.selectedDayIndex
         listStartIndex = self.dayListStartIndex
-        total = #self:getCurrentMonthEntries()
+        total = #monthRows
     end
 
     if total == 0 or selectedIndex == 0 then
@@ -590,9 +793,28 @@ function DiaryEntriesListScene:updateSelectorPosition()
     end
 
     self.selectorSprite:setVisible(true)
-    local row = selectedIndex - listStartIndex + 1
-    local y = self.listTop + ((row - 1) * self.rowHeight) + 12
-    self.selectorSprite:moveTo(self.listLeft - 18, y + 6)
+
+    local selectorX = self.listLeft - 4
+    local y = self.listTop + 12
+
+    if self.browserMode == "year" then
+        if selectedIndex == self:getYearMendIndex() then
+            selectorX = self.listLeft - 4
+            y = (self.yearFooterMendY or 178) + 12
+        elseif selectedIndex == self:getYearCloseIndex() then
+            selectorX = self.listLeft - 4
+            y = (self.yearFooterCloseY or 212) + 12
+        else
+            local row = selectedIndex - listStartIndex + 1
+            y = self.listTop + ((row - 1) * self.rowHeight) + 12
+        end
+    elseif self.browserMode == "monthDay" then
+        local row = selectedIndex - listStartIndex + 1
+        y = self.listTop + ((row - 1) * self.rowHeight) + 12
+        selectorX = self.listLeft + 25
+    end
+
+    self.selectorSprite:moveTo(selectorX, y + 6)
 end
 
 function DiaryEntriesListScene:renderModeTitle()
@@ -656,7 +878,12 @@ function DiaryEntriesListScene:animateMonthArrowRight()
 end
 
 function DiaryEntriesListScene:renderListRows(items, selectedIndex, listStartIndex, itemFormatter)
-    for row = 1, self.visibleEntryCount do
+    local rowLimit = self.visibleEntryCount
+    if self.browserMode == "year" then
+        rowLimit = self:getYearBodyVisibleCount()
+    end
+
+    for row = 1, rowLimit do
         local index = listStartIndex + row - 1
         local item = items[index]
         if not item then
@@ -667,7 +894,13 @@ function DiaryEntriesListScene:renderListRows(items, selectedIndex, listStartInd
         local sprite = self:createTextSprite(text, 150, 40, kTextAlignment.left)
         if sprite then
             sprite:setCenter(0, 0)
-            sprite:moveTo(self.listLeft + self.listLeftOffset, self.listTop + ((row - 1) * self.rowHeight))
+
+            local textX = self.listLeft + self.listLeftOffset
+            if self.browserMode == "monthDay" and item.type == "divider" then
+                textX = self.listLeft - 20
+            end
+
+            sprite:moveTo(textX, self.listTop + ((row - 1) * self.rowHeight))
             sprite:add()
             table.insert(self.entrySprites, sprite)
         end
@@ -679,7 +912,14 @@ function DiaryEntriesListScene:renderListRows(items, selectedIndex, listStartInd
         self.selectorSprite:setVisible(true)
         local row = selectedIndex - listStartIndex + 1
         local y = self.listTop + ((row - 1) * self.rowHeight) + 12
-        self.selectorSprite:moveTo(self.listLeft - 4, y + 6)
+
+        local selectorX = self.listLeft - 4
+        local selectedItem = items[selectedIndex]
+        if self.browserMode == "monthDay" and selectedItem and selectedItem.type == "entry" then
+            selectorX = self.listLeft + 25
+        end
+
+        self.selectorSprite:moveTo(selectorX, y + 6)
     end
 end
 
@@ -692,24 +932,34 @@ function DiaryEntriesListScene:renderCurrentMode(resetScroll)
         for index, yearBucket in ipairs(self.browserData.years) do
             yearItems[index] = yearBucket
         end
-        yearItems[#self.browserData.years + 1] = self:getYearListItem(#self.browserData.years + 1)
 
-        self.selectedYearIndex, self.yearListStartIndex = self:clampListState(self.selectedYearIndex, self.yearListStartIndex, #yearItems)
+        local yearCount = #self.browserData.years
+        local bodyVisibleCount = self:getYearBodyVisibleCount()
+
+        if self.selectedYearIndex <= yearCount then
+            self.selectedYearIndex, self.yearListStartIndex = self:clampListState(self.selectedYearIndex, self.yearListStartIndex, yearCount)
+        else
+            self.yearListStartIndex = math.max(1, (yearCount - bodyVisibleCount) + 1)
+        end
+
         self:renderPreview(resetScroll)
         self:renderListRows(yearItems, self.selectedYearIndex, self.yearListStartIndex, function(item)
-            if item.isLockAndLeave then
-                return item.label
-            end
-
             return tostring(item.year)
         end)
+        self:renderYearFooter()
+        self:updateSelectorPosition()
     else
-        local monthEntries = self:getCurrentMonthEntries()
-        self.selectedDayIndex, self.dayListStartIndex = self:clampListState(self.selectedDayIndex, self.dayListStartIndex, #monthEntries)
+        local monthRows = self:buildMonthDayRows()
+        self:clampMonthDaySelection(monthRows)
         self:renderPreview(resetScroll)
-        self:renderListRows(monthEntries, self.selectedDayIndex, self.dayListStartIndex, function(item)
-            return self:toOrdinal(item.day)
+        self:renderListRows(monthRows, self.selectedDayIndex, self.dayListStartIndex, function(item)
+            if item.type == "divider" then
+                return self:toOrdinal(item.day)
+            end
+
+            return "  " .. (item.time or self:formatPreviewTime(item.entry and item.entry.time))
         end)
+        self:updateSelectorPosition()
     end
 end
 
@@ -721,8 +971,9 @@ function DiaryEntriesListScene:enterMonthDayMode()
 
     self.browserMode = "monthDay"
     self.selectedMonthIndex = math.max(1, math.min(self.selectedMonthIndex, #yearBucket.months))
-    self.selectedDayIndex = 1
+    self.selectedDayIndex = 0
     self.dayListStartIndex = 1
+    self:moveMonthDaySelection(1)
     self:renderCurrentMode(true)
 end
 
@@ -742,8 +993,9 @@ function DiaryEntriesListScene:cycleMonth(step)
 
     if nextIndex ~= self.selectedMonthIndex then
         self.selectedMonthIndex = nextIndex
-        self.selectedDayIndex = 1
+        self.selectedDayIndex = 0
         self.dayListStartIndex = 1
+        self:moveMonthDaySelection(1)
         self:renderCurrentMode(true)
 
         if step < 0 then
@@ -771,9 +1023,9 @@ function DiaryEntriesListScene:leaveDiary()
 end
 
 function DiaryEntriesListScene:openCurrentEntry()
-    local monthEntries = self:getCurrentMonthEntries()
-    local selectedItem = monthEntries[self.selectedDayIndex]
-    if not selectedItem or not selectedItem.entry then
+    local monthRows = self:buildMonthDayRows()
+    local selectedItem = monthRows[self.selectedDayIndex]
+    if not selectedItem or selectedItem.type ~= "entry" or not selectedItem.entry then
         return
     end
 
@@ -833,7 +1085,10 @@ function DiaryEntriesListScene:update()
         end
 
         if pd.buttonJustPressed(pd.kButtonA) then
-            if self:isLockAndLeaveSelected() then
+            if self.selectedYearIndex == #self.browserData.years + 1 then
+                Sound.playABut()
+                SCENE_MANAGER:switchScene(DiarySettingsScene, "diary", self:buildReturnState())
+            elseif self:isLockAndLeaveSelected() then
                 self:leaveDiary()
             elseif totalYears > 0 then
                 Sound.playABut()
@@ -849,7 +1104,7 @@ function DiaryEntriesListScene:update()
 
     if self.browserMode == "monthDay" then
         local yearBucket = self:getCurrentYearBucket()
-        local monthEntries = self:getCurrentMonthEntries()
+        local monthRows = self:buildMonthDayRows()
 
         if pd.buttonJustPressed(pd.kButtonLeft) and yearBucket and #yearBucket.months > 0 then
             Sound.playABut()
@@ -861,24 +1116,22 @@ function DiaryEntriesListScene:update()
             self:cycleMonth(1)
         end
 
-        if pd.buttonJustPressed(pd.kButtonDown) and #monthEntries > 0 then
-            if self.selectedDayIndex < #monthEntries then
+        if pd.buttonJustPressed(pd.kButtonDown) and #monthRows > 0 then
+            if self:moveMonthDaySelection(1) then
                 Sound.playABut()
-                self.selectedDayIndex = self.selectedDayIndex + 1
                 self:renderCurrentMode(true)
             end
         end
 
-        if pd.buttonJustPressed(pd.kButtonUp) and #monthEntries > 0 then
-            if self.selectedDayIndex > 1 then
+        if pd.buttonJustPressed(pd.kButtonUp) and #monthRows > 0 then
+            if self:moveMonthDaySelection(-1) then
                 Sound.playABut()
-                self.selectedDayIndex = self.selectedDayIndex - 1
                 self:renderCurrentMode(true)
             end
         end
 
         if pd.buttonJustPressed(pd.kButtonA) then
-            if #monthEntries > 0 then
+            if #monthRows > 0 then
                 Sound.playABut()
                 self:openCurrentEntry()
             end

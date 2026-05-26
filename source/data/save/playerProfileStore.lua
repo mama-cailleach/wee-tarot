@@ -6,6 +6,7 @@ local DATASTORE_PATH <const> = "data/save/playerProfile"
 local DEFAULT_NAME <const> = "???"
 local MAX_NAME_LENGTH <const> = 16
 local DEFAULT_DATE_DISPLAY_REVERSED <const> = false
+local DEFAULT_ENTRIES_LIST_DESCENDING <const> = false
 local DEFAULT_SOUND_MODE <const> = 1
 
 local function readProfile()
@@ -42,6 +43,10 @@ local function sanitizeDateDisplayReversed(value)
     return value == true
 end
 
+local function sanitizeEntriesListDescending(value)
+    return value == true
+end
+
 local function sanitizeSoundMode(value)
     local numeric = tonumber(value)
     if not numeric then
@@ -66,6 +71,7 @@ function PlayerProfileStore.setName(name)
     local sanitized = sanitizeName(name)
     profile.name = sanitized
     profile.dateDisplayReversed = sanitizeDateDisplayReversed(profile.dateDisplayReversed)
+    profile.entriesListDescending = sanitizeEntriesListDescending(profile.entriesListDescending)
     writeProfile(profile)
     return sanitized
 end
@@ -84,8 +90,28 @@ function PlayerProfileStore.setDateDisplayReversed(value)
     local profile = readProfile()
     profile.name = sanitizeName(profile.name)
     profile.dateDisplayReversed = sanitizeDateDisplayReversed(value)
+    profile.entriesListDescending = sanitizeEntriesListDescending(profile.entriesListDescending)
     writeProfile(profile)
     return profile.dateDisplayReversed
+end
+
+function PlayerProfileStore.getEntriesListDescending()
+    local profile = readProfile()
+    local value = profile.entriesListDescending
+    if value == nil then
+        return DEFAULT_ENTRIES_LIST_DESCENDING
+    end
+
+    return sanitizeEntriesListDescending(value)
+end
+
+function PlayerProfileStore.setEntriesListDescending(value)
+    local profile = readProfile()
+    profile.name = sanitizeName(profile.name)
+    profile.dateDisplayReversed = sanitizeDateDisplayReversed(profile.dateDisplayReversed)
+    profile.entriesListDescending = sanitizeEntriesListDescending(value)
+    writeProfile(profile)
+    return profile.entriesListDescending
 end
 
 function PlayerProfileStore.getSoundMode()
@@ -97,6 +123,7 @@ function PlayerProfileStore.setSoundMode(value)
     local profile = readProfile()
     profile.name = sanitizeName(profile.name)
     profile.dateDisplayReversed = sanitizeDateDisplayReversed(profile.dateDisplayReversed)
+    profile.entriesListDescending = sanitizeEntriesListDescending(profile.entriesListDescending)
     profile.soundMode = sanitizeSoundMode(value)
     writeProfile(profile)
     return profile.soundMode

@@ -11,7 +11,17 @@ local function sanitizeEntry(raw)
     end
 
     local date = raw.date or "00-00-0000"
+    local time = raw.time or "00.00"
     local spreadType = raw.spreadType or "unknown"
+
+    if type(time) == "string" then
+        -- Backward compatibility for entries saved as HH:MM.
+        time = string.gsub(time, ":", ".")
+    end
+
+    if type(time) ~= "string" or not string.match(time, "^%d%d%.%d%d$") then
+        time = "00.00"
+    end
 
     local cards = {}
     if type(raw.cards) == "table" then
@@ -84,6 +94,7 @@ local function sanitizeEntry(raw)
 
     return {
         date = date,
+        time = time,
         spreadType = spreadType,
         cards = cards,
         cardDetails = cardDetails,
@@ -139,6 +150,15 @@ function DiaryStore.formatDateFromSystem()
     end
 
     return string.format("%02d-%02d-%04d", now.day, now.month, now.year)
+end
+
+function DiaryStore.formatTimeFromSystem()
+    local now = pd.getTime and pd.getTime()
+    if not now or now.hour == nil or now.minute == nil then
+        return "00.00"
+    end
+
+    return string.format("%02d.%02d", now.hour, now.minute)
 end
 
 function DiaryStore.appendEntry(entry)
