@@ -76,9 +76,9 @@ function AfterDialogueScene:optionsText()
         80        -- delayPerChar
     )
     
-    self.settingsButton = self:makeButtonSprite("B", 16, 223, 14)
+    self.settingsButton = self:makeButtonSprite(" ª", 16, 223, 13)
     self.interactButton = self:makeButtonSprite("A", 384, 223, 14)
-    self.diaryButton = self:makeButtonSprite("®", 163, 223, 14)
+    self.diaryButton = self:makeButtonSprite("B", 163, 223, 14)
 
 end
 
@@ -92,7 +92,7 @@ function AfterDialogueScene:update()
 
     if self.optionsTextOn then
         -- Only allow A/B for options after text is gone
-        if pd.buttonJustPressed(pd.kButtonB) then
+        if pd.buttonJustPressed(pd.kButtonUp) then
             Sound.playABut()
             Sound.playSFX("cards_slow2")
             SCENE_MANAGER:switchScene(SettingsScene)
@@ -102,7 +102,7 @@ function AfterDialogueScene:update()
             Sound.playSFX("cards_fast2")
             self.dinahSprite:changeState("transition")
         end
-        if pd.buttonJustPressed(pd.kButtonUp) then
+        if pd.buttonJustPressed(pd.kButtonB) then
             Sound.playABut()
             Sound.playSFX("cards_slow2")
             SCENE_MANAGER:switchScene(DiaryScene)
