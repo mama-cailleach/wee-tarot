@@ -327,14 +327,11 @@ function DiaryEntryScene:renderSelectedCard()
     end
 
     local cardImage = nil
+    local zoomed = self.currentCardScale == self.zoomScale
     if card.isSpreadCard then
-        cardImage = gfx.image.new(card.imagePath)
+        cardImage = Card.loadImageWithZoomFallback(card.imagePath, zoomed)
     else
-        local suitFolder = self.suitFolders[card.suit]
-        local cardNumber = card.number
-        if suitFolder and cardNumber then
-            cardImage = gfx.image.new("images/" .. suitFolder .. "/" .. tostring(cardNumber))
-        end
+        cardImage = Card.loadImageWithZoomFallback(Card.getImagePath(card.number, card.suit, false), zoomed)
     end
 
     if not cardImage then
@@ -352,7 +349,6 @@ function DiaryEntryScene:renderSelectedCard()
     if self.cardSprite then
         self.cardSprite:setCenter(0.5, 0.5)
         self.cardSprite:moveTo(self.cardCenterX, cardY)
-        self.cardSprite:setScale(self.currentCardScale)
         self.cardSprite:setRotation(card.inverted and 180 or 0)
         self.cardSprite:add()
     end

@@ -62,13 +62,13 @@ function CardViewScene:update()
 
     if pd.buttonJustPressed(pd.kButtonUp) then
         if self.drawnCardVisual then
-            self.drawnCardVisual:setScale(1.725)
+            self.drawnCardVisual:setZoomed(true)
         end
     end
 
     if pd.buttonJustPressed(pd.kButtonDown) then
         if self.drawnCardVisual then
-            self.drawnCardVisual:setScale(1)
+            self.drawnCardVisual:setZoomed(false)
         end
     end
 

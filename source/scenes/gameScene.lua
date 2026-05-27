@@ -166,10 +166,10 @@ end
 function GameScene:zoomInOutCard()
     if self.drawnCardVisual then
         if pd.buttonJustPressed(pd.kButtonUp) then
-            self.drawnCardVisual:setScale(1.725)
+            self.drawnCardVisual:setZoomed(true)
         end
         if pd.buttonJustPressed(pd.kButtonDown) then
-            self.drawnCardVisual:setScale(1)
+            self.drawnCardVisual:setZoomed(false)
         end
     end
 end

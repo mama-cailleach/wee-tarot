@@ -376,10 +376,15 @@ function BaseSpreadGameScene:cacheCardImageForVisual(index, visual)
     local originalImage = visual:getImage()
     if not originalImage then return end
 
+    local zoomImage = visual.getZoomImage and visual:getZoomImage() or nil
+
     self.cardImageCache[index] = {
         original = originalImage,
         dimmed = self:createDimmedImage(originalImage, self.nonSelectedDimAlpha),
-        selected = self:createDimmedImage(originalImage, self.selectedDimAlpha)
+        selected = self:createDimmedImage(originalImage, self.selectedDimAlpha),
+        zoomOriginal = zoomImage,
+        zoomDimmed = zoomImage and self:createDimmedImage(zoomImage, self.nonSelectedDimAlpha) or nil,
+        zoomSelected = zoomImage and self:createDimmedImage(zoomImage, self.selectedDimAlpha) or nil
     }
 end
 
@@ -394,6 +399,9 @@ function BaseSpreadGameScene:getCardImageForState(index, isSelected)
     if not cache then return nil end
 
     if isSelected then
+        if self.selectedCardZoomed then
+            return cache.zoomSelected or cache.zoomOriginal or cache.selected or cache.original
+        end
         return cache.selected or cache.original
     end
 
@@ -577,7 +585,7 @@ function BaseSpreadGameScene:selectCard(index)
         local targetScale = self.config.defaultScale
         local targetZ = baseZ + i
         if isSelected then
-            targetScale = self.selectedCardZoomed and self.config.zoomScale or self.selectedScale
+            targetScale = self.selectedScale
             targetZ = self.selectedCardZoomed and zoomedSelectedZ or selectedZ
         end
 
