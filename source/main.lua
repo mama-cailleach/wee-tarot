@@ -27,6 +27,7 @@ import "scripts/decks/allDecks"
 
 -- Debugs
 --import "cardManipulationDebug"
+--import "shuffleAnimationTestScene"
 
 
 local pd <const> = playdate
@@ -57,7 +58,7 @@ local function startGame()
     loadingSprite:moveTo(200, 120) -- center on screen
     loadingSprite:add()
     SCENE_MANAGER:switchScene(TitleScene)
-    --SCENE_MANAGER:switchScene(CardManipulationDebug)
+    --SCENE_MANAGER:switchScene(ShuffleAnimationTestScene)
     
 end
 

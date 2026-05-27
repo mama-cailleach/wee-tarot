@@ -13,6 +13,7 @@ import "libraries/AnimatedSprite"
 
 -- Scenes
 import "scenes/allScenes"
+import "scenes/sceneManager"
 
 
 --card scripts
@@ -22,9 +23,10 @@ import "scripts/card"
 --Decks
 import "scripts/decks/allDecks"
 
--- DEBUG SCENES
+--[[DEBUG SCENES
 import "testing/PostSceneDebug"
-import "testing/gameSceneDebug"
+import "testing/gameSceneDebug" ]]
+import "shuffleAnimationTestScene"
 
 
 
@@ -34,10 +36,10 @@ local gfx <const> = pd.graphics
 --GLOBALS
 
 SCENE_MANAGER = SceneManager()
-
+--[[
 bgMusic = pd.sound.fileplayer.new("sound/bgMusic2")
 bgMusic:setLoopRange(0,22) -- Title Loop no beats
-
+]]
 
 
 -- font tarotheque (https://www.dafont.com/gschaftlhuber.d11133?text=Hello+%E9+%E3+%E7)
@@ -53,8 +55,7 @@ gfx.setFont(myFont)
 
 -- call first scene (do I need this as a function?)
 local function startGame()
-    --SCENE_MANAGER:switchScene(PostSceneDebug) DEBUG
-    SCENE_MANAGER:switchScene(PostSceneDebug)
+    SCENE_MANAGER:switchScene(ShuffleAnimationTestScene)
     
 end
 
