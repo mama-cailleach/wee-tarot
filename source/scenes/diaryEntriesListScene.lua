@@ -48,10 +48,21 @@ end
 function DiaryEntriesListScene:init(restoreState)
     DiaryEntriesListScene.super.init(self)
 
+
+    --[[
     self.bgImage = gfx.image.new("images/bg/journal1")
     self.bgSprite = gfx.sprite.new(self.bgImage)
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
+    ]]
+
+    self.imagetable = gfx.imagetable.new("images/bg/diary_anim-table-400-273")
+    self.bgSprite = AnimatedSprite.new(self.imagetable)
+    self.bgSprite:addState("anim", 1, 7, {tickStep = 5, yoyo = true})
+    self.bgSprite:moveTo(200,120)
+    self.bgSprite:add()
+    self.bgSprite:playAnimation()
+    
 
     self.entries = DiaryStore.getEntries()
     self.entriesListDescending = PlayerProfileStore.getEntriesListDescending()
