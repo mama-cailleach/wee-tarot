@@ -11,6 +11,8 @@ local explodeImagetable = gfx.imagetable.new("images/shuffleAnimation/explode_fi
 local scaleTable = gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
 local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/1_card_shuffle-table-400-240")
 local cardSpinSlideImagetable = gfx.imagetable.new("images/shuffleAnimation/card_spin_slide-table-400-240")
+local deckLayingImagetable = gfx.imagetable.new("images/shuffleAnimation/deck_laying_full_lower-table-400-240")
+local explodeDeckImagetable = gfx.imagetable.new("images/shuffleAnimation/exploding_deck1-table-400-240")
 
 function GameScene:init()
     self.deck = Deck()
@@ -22,7 +24,6 @@ function GameScene:init()
 
     gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
 
-    self.state = "shuffle"
     self.selectedDeck = selectedDeck or "full"
 
     self.fortunePromptSprite = gfx.sprite.new()
@@ -37,17 +38,11 @@ function GameScene:init()
     self.spinSlideTriggered = false
     self.spinSlideTriggerSpinCount = math.random(5, 8)
 
-
-    self:setup16CardShuffleAnimation()
-    self.shuffleFrame = 1
-    self.shuffleFrameCount = self.shuffleAnimSprite.imagetable:getLength()
-
     self.ticksPerRevolution = 360 -- Adjust for smoother crank interaction
 
     self.drawnCardVisual = nil
     self.playerCard = nil
     self.isInverted = false
-    self:showFirstPrompt()
 
     self.crankEnabled = true
 
@@ -56,10 +51,20 @@ function GameScene:init()
     self.crankInactivityTimer = nil
     self.lastCrankTime = 0
 
+    self.state = "intro"
+    self.deckLayingIntroTimer = pd.timer.performAfterDelay(1000, function()
+        self.deckLayingIntroTimer = nil
+        local coinFlip = math.random(1, 2)
+        if coinFlip == 1 then
+            self:startDeckLayingIntro()
+        else
+            self:setupCardExplodeIntro()
+        end
+    end)
+
+
     self:add()
 end
-
-
 
 
 -- --- UI Methods ---
@@ -185,6 +190,61 @@ function GameScene:zoomInOutCard()
 end
 
 -- --- Shuffle Animation Setup (if needed) ---
+
+
+function GameScene:startDeckLayingIntro()
+    if self.deckLayingSprite then
+        self.deckLayingSprite:remove()
+        self.deckLayingSprite = nil
+    end
+
+    self.deckLayingSprite = AnimatedSprite.new(deckLayingImagetable)
+    self.deckLayingSprite:addState("laying", 1, 125, {
+        tickStep = 1,
+        loop = false,
+        onAnimationEndEvent = function()
+            if self.deckLayingSprite then
+                self.deckLayingSprite:remove()
+                self.deckLayingSprite = nil
+            end
+
+            self.state = "shuffle"
+            self:showFirstPrompt()
+            self:setup16CardShuffleAnimation()
+            self.shuffleFrame = 1
+            self.shuffleFrameCount = self.shuffleAnimSprite.imagetable:getLength()
+        end
+    }, true)
+    self.deckLayingSprite:moveTo(205, 120)
+    self.deckLayingSprite:add()
+    self.deckLayingSprite:playAnimation()
+end
+
+function GameScene:setupCardExplodeIntro()
+    if self.explodeDeckAnimSprite then self.explodeDeckAnimSprite:remove() self.explodeDeckAnimSprite = nil end
+    self.explodeDeckAnimSprite = AnimatedSprite.new(explodeDeckImagetable)
+    self.explodeDeckAnimSprite:addState("explode", 1, 72, {
+        reverse = true,
+        tickStep = 1,
+        loop = false,
+        onAnimationEndEvent = function()
+            if self.explodeDeckAnimSprite then
+                self.explodeDeckAnimSprite:remove()
+                self.explodeDeckAnimSprite = nil
+            end
+
+            self.state = "shuffle"
+            self:showFirstPrompt()
+            self:setup16CardShuffleAnimation()
+            self.shuffleFrame = 1
+            self.shuffleFrameCount = self.shuffleAnimSprite.imagetable:getLength()
+        end
+    }, true)
+    self.explodeDeckAnimSprite:moveTo(207, 132)
+    self.explodeDeckAnimSprite:add()
+    self.explodeDeckAnimSprite:playAnimation()
+end
+
 
 --OG 16card
 function GameScene:setup16CardShuffleAnimation()
