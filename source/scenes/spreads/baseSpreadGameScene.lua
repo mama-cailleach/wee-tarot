@@ -5,7 +5,8 @@ local gfx <const> = pd.graphics
 
 class('BaseSpreadGameScene').extends(gfx.sprite)
 
-local explodeImagetable = gfx.imagetable.new("images/shuffleAnimation/explode_finale-table-400-240")
+local deckLayingImagetable = gfx.imagetable.new("images/shuffleAnimation/deck_laying_full_lower-table-400-240")
+local explodeImagetable = gfx.imagetable.new("images/shuffleAnimation/exploding_deck1-table-400-240")
 local scaleTable = gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
 local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/1_card_shuffle-table-400-240")
 
@@ -42,6 +43,8 @@ function BaseSpreadGameScene:init(config, restoreState)
     self.shuffleFinishTimer = nil
     self.shuffleFrame = 1
     self.shuffleFrameCount = 1
+    self.deckLayingSprite = nil
+    self.deckLayingIntroTimer = nil
 
     self.playerCards = {}
     self.playerCardNumbers = {}
@@ -95,8 +98,16 @@ function BaseSpreadGameScene:init(config, restoreState)
         self.state = "fortune"
         self:restoreSpreadState(restoreState)
     else
-        self:showFirstPrompt()
-        self:setup16CardShuffleAnimation()
+        self.state = "intro"
+        self.deckLayingIntroTimer = pd.timer.performAfterDelay(1000, function()
+            self.deckLayingIntroTimer = nil
+            local coinFlip = math.random(1, 2)
+            if coinFlip == 1 then
+                self:startDeckLayingIntro()
+            else
+                self:setupCardExplodeIntro()
+            end
+        end)
     end
 
     self:add()
@@ -235,6 +246,55 @@ function BaseSpreadGameScene:showFirstPrompt()
     Sound.playSFX("witchpad")
 end
 
+function BaseSpreadGameScene:startDeckLayingIntro()
+    if self.deckLayingSprite then
+        self.deckLayingSprite:remove()
+        self.deckLayingSprite = nil
+    end
+
+    self.deckLayingSprite = AnimatedSprite.new(deckLayingImagetable)
+    self.deckLayingSprite:addState("laying", 1, 125, {
+        tickStep = 1,
+        loop = false,
+        onAnimationEndEvent = function()
+            if self.deckLayingSprite then
+                self.deckLayingSprite:remove()
+                self.deckLayingSprite = nil
+            end
+
+            self.state = "shuffle"
+            self:showFirstPrompt()
+            self:setup16CardShuffleAnimation()
+        end
+    }, true)
+    self.deckLayingSprite:moveTo(205, 120)
+    self.deckLayingSprite:add()
+    self.deckLayingSprite:playAnimation()
+end
+
+function BaseSpreadGameScene:setupCardExplodeIntro()
+    if self.explodeAnimSprite then self.explodeAnimSprite:remove() self.explodeAnimSprite = nil end
+    self.explodeAnimSprite = AnimatedSprite.new(explodeImagetable)
+    self.explodeAnimSprite:addState("explode", 1, 72, {
+        reverse = true,
+        tickStep = 1,
+        loop = false,
+        onAnimationEndEvent = function()
+            if self.explodeAnimSprite then
+                self.explodeAnimSprite:remove()
+                self.explodeAnimSprite = nil
+            end
+
+            self.state = "shuffle"
+            self:showFirstPrompt()
+            self:setup16CardShuffleAnimation()
+        end
+    }, true)
+    self.explodeAnimSprite:moveTo(207, 132)
+    self.explodeAnimSprite:add()
+    self.explodeAnimSprite:playAnimation()
+end
+
 function BaseSpreadGameScene:clearShufflePrompts()
     if self.firstPromptSprite then
         self.firstPromptSprite:remove()
@@ -267,7 +327,7 @@ end
 function BaseSpreadGameScene:setupCardExplodeAnimation()
     if self.explodeAnimSprite then self.explodeAnimSprite:remove() self.explodeAnimSprite = nil end
     self.explodeAnimSprite = AnimatedSprite.new(explodeImagetable)
-    self.explodeAnimSprite:addState("explode", 1, 100, {
+    self.explodeAnimSprite:addState("explode", 1, 72, {
         tickStep = 1,
         loop = false,
         onAnimationEndEvent = function()
@@ -277,16 +337,39 @@ function BaseSpreadGameScene:setupCardExplodeAnimation()
             end
         end
     }, true)
-    self.explodeAnimSprite:moveTo(208, 125)
+    self.explodeAnimSprite:moveTo(207, 132)
     self.explodeAnimSprite:add()
     self.explodeAnimSprite:playAnimation()
+end
+
+function BaseSpreadGameScene:startDeckLayingEnding()
+    if self.deckLayingSprite then
+        self.deckLayingSprite:remove()
+        self.deckLayingSprite = nil
+    end
+
+    self.deckLayingSprite = AnimatedSprite.new(deckLayingImagetable)
+    self.deckLayingSprite:addState("laying", 1, 126, {
+        reverse=true,
+        tickStep = 1,
+        loop = false,
+        onAnimationEndEvent = function()
+            if self.deckLayingSprite then
+                self.deckLayingSprite:remove()
+                self.deckLayingSprite = nil
+            end
+        end
+    }, true)
+    self.deckLayingSprite:moveTo(205, 120)
+    self.deckLayingSprite:add()
+    self.deckLayingSprite:playAnimation()
 end
 
 function BaseSpreadGameScene:scaleAnimation(x, y)
     if self.scaleSprite then self.scaleSprite:remove() self.scaleSprite = nil end
     self.scaleSprite = AnimatedSprite.new(scaleTable)
     self.scaleSprite:addState("scale", 1, 60, {
-        tickStep = 1,
+        tickStep = 0.5,
         loop = false,
         onAnimationEndEvent = function()
             if self.scaleSprite then
@@ -696,7 +779,12 @@ function BaseSpreadGameScene:update()
                             self.shuffleAnimSprite:remove()
                             self.shuffleAnimSprite = nil
                         end
-                        self:setupCardExplodeAnimation()
+                        local coinFlip = math.random(1, 2)
+                        if coinFlip == 1 then
+                            self:setupCardExplodeAnimation()
+                        else
+                            self:startDeckLayingEnding()
+                        end
                         Sound.playSFX("cards2_slow")
                         pd.timer.performAfterDelay(2500, function()
                             Sound.playSFX("cards_fast3")
@@ -759,6 +847,8 @@ end
 
 function BaseSpreadGameScene:deinit()
     if self.bgSprite then self.bgSprite:remove() self.bgSprite = nil end
+    if self.deckLayingIntroTimer then self.deckLayingIntroTimer:remove() self.deckLayingIntroTimer = nil end
+    if self.deckLayingSprite then self.deckLayingSprite:remove() self.deckLayingSprite = nil end
     if self.cardPlacementSprite then self.cardPlacementSprite:remove() self.cardPlacementSprite = nil end
     if self.shuffleAnimSprite then self.shuffleAnimSprite:remove() self.shuffleAnimSprite = nil end
     if self.explodeAnimSprite then self.explodeAnimSprite:remove() self.explodeAnimSprite = nil end

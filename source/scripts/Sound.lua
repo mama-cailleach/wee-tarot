@@ -22,7 +22,13 @@ local DEFAULTS = {
         a_but1 = 0.5,
         a_but2 = 0.5,
         a_but3 = 0.5,
-        a_but4 = 0.5
+        a_but4 = 0.5,
+        a_but5 = 0.5,
+        a_but6 = 0.5,
+        a_but7 = 0.5,
+        a_but8 = 0.5,
+        a_but9 = 0.5,
+        a_but10 = 0.5
     }
 }
 
@@ -118,6 +124,18 @@ function Sound.init(initialSoundMode)
 
     sfx.a_but4 = pd.sound.sampleplayer.new("sound/a_but4")
 
+    sfx.a_but5 = pd.sound.sampleplayer.new("sound/a_but5")
+
+    sfx.a_but6 = pd.sound.sampleplayer.new("sound/a_but6")
+
+    sfx.a_but7 = pd.sound.sampleplayer.new("sound/a_but7")
+
+    sfx.a_but8 = pd.sound.sampleplayer.new("sound/a_but8")
+
+    sfx.a_but9 = pd.sound.sampleplayer.new("sound/a_but9")
+
+    sfx.a_but10 = pd.sound.sampleplayer.new("sound/a_but10")
+
     sfx.pad_a = pd.sound.sampleplayer.new("sound/pad_a")
 
     sfx.pad_b = pd.sound.sampleplayer.new("sound/pad_b")
@@ -149,7 +167,7 @@ function Sound.stopSFX(name)
 end
 
 function Sound.playABut()
-    local variant = math.random(1, 4)
+    local variant = math.random(1, 10)
     local player = sfx["a_but" .. variant]
 
     if not player then
