@@ -13,6 +13,7 @@ import "libraries/utils"
 import "libraries/AnimatedSprite"
 import "data/save/playerProfileStore"
 import "scripts/Sound"
+import "scripts/screenShake"
 
 -- Scenes
 import "scenes/allScenes"
@@ -57,7 +58,7 @@ local function startGame()
     local loadingSprite = gfx.sprite.new(loading)
     loadingSprite:moveTo(200, 120) -- center on screen
     loadingSprite:add()
-    SCENE_MANAGER:switchScene(TitleScene)
+    SCENE_MANAGER:switchScene(GameScene)
     --SCENE_MANAGER:switchScene(ShuffleAnimationTestScene)
     
 end

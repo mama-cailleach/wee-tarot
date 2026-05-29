@@ -10,6 +10,7 @@ class('GameScene').extends(gfx.sprite)
 local explodeImagetable = gfx.imagetable.new("images/shuffleAnimation/explode_finale-table-400-240")
 local scaleTable = gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
 local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/1_card_shuffle-table-400-240")
+local cardSpinSlideImagetable = gfx.imagetable.new("images/shuffleAnimation/card_spin_slide-table-400-240")
 
 function GameScene:init()
     self.deck = Deck()
@@ -30,7 +31,11 @@ function GameScene:init()
 
     self.invertedTextSprite = nil
     self.shuffleAnimSprite = nil
+    self.spinSlideAnimSprite = nil
     self.shuffleFinishTimer = nil
+    self.shuffleSpinCount = 0
+    self.spinSlideTriggered = false
+    self.spinSlideTriggerSpinCount = math.random(5, 8)
 
 
     self:setup16CardShuffleAnimation()
@@ -124,6 +129,11 @@ end
 -- --- Card Drawing Logic ---
 
 function GameScene:drawCardLogic()
+    if self.spinSlideAnimSprite then
+        self.spinSlideAnimSprite:remove()
+        self.spinSlideAnimSprite = nil
+    end
+
     local cardDrawed, cardNumber, cardSuit
     self.selectedDeck = selectedDeck or "full"
 
@@ -187,6 +197,145 @@ function GameScene:setup16CardShuffleAnimation()
     self.shuffleAnimSprite:playAnimation()
 end
 
+function GameScene:triggerSpinSlideAnimation()
+    if self.spinSlideTriggered then return end
+    if self.state ~= "shuffle" then return end
+
+    self.spinSlideTriggered = true
+    self.state = "revealing"
+
+    if self.firstPromptSprite then
+        self.firstPromptSprite:remove()
+        self.firstPromptSprite = nil
+    end
+    if self.firstPromptTimer then
+        self.firstPromptTimer:remove()
+        self.firstPromptTimer = nil
+    end
+    if self.shuffleFinishTimer then
+        self.shuffleFinishTimer:remove()
+        self.shuffleFinishTimer = nil
+    end
+    if self.crankInactivityTimer then
+        self.crankInactivityTimer:remove()
+        self.crankInactivityTimer = nil
+    end
+    if self.crankSoundPlaying then
+        Sound.stopCrankLoop()
+        self.crankSoundPlaying = false
+    end
+
+    if self.shuffleAnimSprite then
+        self.shuffleAnimSprite:remove()
+        self.shuffleAnimSprite = nil
+    end
+
+    if self.spinSlideAnimSprite then
+        self.spinSlideAnimSprite:remove()
+        self.spinSlideAnimSprite = nil
+    end
+
+    self.spinSlideAnimSprite = AnimatedSprite.new(cardSpinSlideImagetable)
+    self.spinSlideAnimSprite:addState("slide", 1, 60, {
+        tickStep = 1,
+        loop = false,
+        onAnimationEndEvent = function()
+            if self.spinSlideAnimSprite then
+                self.spinSlideAnimSprite:remove()
+                self.spinSlideAnimSprite = nil
+            end
+            self:showPlacementSprite()
+        end
+    }, true)
+    self.spinSlideAnimSprite:moveTo(205, 150)
+    self.spinSlideAnimSprite:add()
+    self.spinSlideAnimSprite:playAnimation()
+    ScreenShake.screenShake(400, 4)
+    pd.timer.performAfterDelay(1850, function()
+        ScreenShake.screenShake(100, 2)
+        self:plimplimAnimation(330, 205)
+    end)
+end
+
+function GameScene:startOldShuffleFinishSequence()
+    if self.spinSlideTriggered then return end
+    if self.state ~= "shuffle" or not self.shuffleAnimSprite or self.shuffleFinishTimer then return end
+
+    if self.firstPromptSprite then
+        self.firstPromptSprite:remove()
+        self.firstPromptSprite = nil
+    end
+    if self.firstPromptTimer then
+        self.firstPromptTimer:remove()
+        self.firstPromptTimer = nil
+    end
+
+    local finishFrame = self.shuffleAnimSprite.frameCount or self.shuffleFrameCount or 90
+    local function advanceFrame()
+        local currentFrame = self.shuffleAnimSprite and self.shuffleAnimSprite._currentFrame
+        if not currentFrame then return end
+
+        if currentFrame < finishFrame then
+            Sound.playSFX("cards2_fast2")
+            self.shuffleAnimSprite:setFrame(currentFrame + 1)
+        else
+            if self.shuffleFinishTimer then
+                self.shuffleFinishTimer:remove()
+                self.shuffleFinishTimer = nil
+            end
+            if self.shuffleAnimSprite then
+                self.shuffleAnimSprite:changeState("idle")
+            end
+            Sound.stopSFX("cards2_fast2")
+            pd.timer.performAfterDelay(100, function()
+                if self.shuffleAnimSprite then
+                    self.shuffleAnimSprite:remove()
+                    self.shuffleAnimSprite = nil
+                end
+                self:setupCardExplodeAnimation()
+                Sound.playSFX("cards2_slow")
+                pd.timer.performAfterDelay(2500, function()
+                    Sound.playSFX("cards_fast3")
+                    pd.timer.performAfterDelay(300, function()
+                        self:scaleAnimation(200, 110)
+                    end)
+                end)
+            end)
+        end
+    end
+
+    self.shuffleFinishTimer = pd.timer.keyRepeatTimerWithDelay(1000 / 500, 1000 / 500, advanceFrame)
+end
+
+function GameScene:advanceShuffleFrames(frameAdvance)
+    if not self.shuffleAnimSprite or self.spinSlideTriggered then return end
+
+    local frameCount = self.shuffleFrameCount or 60
+    local steps = math.abs(frameAdvance)
+    if steps == 0 then return end
+
+    local direction = frameAdvance > 0 and 1 or -1
+
+    for _ = 1, steps do
+        local nextFrame = self.shuffleFrame + direction
+
+        if nextFrame > frameCount then
+            nextFrame = 1
+            self.shuffleSpinCount += 1
+        elseif nextFrame < 1 then
+            nextFrame = frameCount
+        end
+
+        self.shuffleFrame = nextFrame
+        self.shuffleAnimSprite:setFrame(self.shuffleFrame)
+
+        if direction > 0 and self.shuffleSpinCount >= self.spinSlideTriggerSpinCount and self.shuffleFrame == 1 then
+            self:triggerSpinSlideAnimation()
+            return
+        end
+    end
+end
+
 function GameScene:setupCardExplodeAnimation()
     if self.explodeAnimSprite then self.explodeAnimSprite:remove() self.explodeAnimSprite = nil end
     self.explodeAnimSprite = AnimatedSprite.new(explodeImagetable)
@@ -236,6 +385,9 @@ function GameScene:revealAnimation(x, y)
                     self.revealSprite:remove()
                     self.revealSprite = nil
                 end
+                if self.state == "revealing" then
+                    self.state = "revealed"
+                end
             end
         },
         true
@@ -245,6 +397,33 @@ function GameScene:revealAnimation(x, y)
     self.revealSprite:add()
     self.revealSprite:changeState("animate", true)
     self.revealSprite:playAnimation()
+end
+
+function GameScene:plimplimAnimation(x, y)
+    if self.plimplimSprite then self.plimplimSprite:remove() self.plimplimSprite = nil end
+    local revealTable = gfx.imagetable.new("images/shuffleAnimation/reveal-table-236-342")
+    self.plimplimSprite = AnimatedSprite.new(revealTable)
+    self.plimplimSprite:addState(
+        "animate", 3, 6,
+        {
+            tickStep = 1,
+            loop = false,
+            xScale = 0.6,
+            yScale = 0.6,
+            onAnimationEndEvent = function()
+                if self.plimplimSprite then
+                    self.plimplimSprite:remove()
+                    self.plimplimSprite = nil
+                end
+            end
+        },
+        true
+    )
+    self.plimplimSprite:addState("reveal", 1, 6, {tickStep = 1}, false)
+    self.plimplimSprite:moveTo(x or 200, y or 120)
+    self.plimplimSprite:add()
+    self.plimplimSprite:changeState("animate", true)
+    self.plimplimSprite:playAnimation()
 end
 
 function GameScene:scaleAnimation(x, y)
@@ -268,45 +447,7 @@ function GameScene:update()
 
     if pd.buttonJustPressed(pd.kButtonA) then
         if self.state == "shuffle" and self.shuffleAnimSprite and not self.shuffleFinishTimer then
-            if self.firstPromptSprite then 
-                self.firstPromptSprite:remove() 
-                self.firstPromptSprite = nil 
-            end
-            if self.firstPromptTimer then
-            self.firstPromptTimer:remove()
-            self.firstPromptTimer = nil
-            end
-
-            -- Play forward from current frame to last frame at normal speed
-            local finishFrame = self.shuffleAnimSprite.frameCount or self.shuffleFrameCount or 90
-            local function advanceFrame()
-                local currentFrame = self.shuffleAnimSprite._currentFrame
-                if currentFrame < finishFrame then
-                    Sound.playSFX("cards2_fast2")
-                    self.shuffleAnimSprite:setFrame(currentFrame + 1)
-                else
-                    if self.shuffleFinishTimer then 
-                        self.shuffleFinishTimer:remove() 
-                        self.shuffleFinishTimer = nil 
-                    end
-                    self.shuffleAnimSprite:changeState("idle")
-                    Sound.stopSFX("cards2_fast2")
-                    pd.timer.performAfterDelay(100, function()
-                        self.shuffleAnimSprite:remove()
-                        self.shuffleAnimSprite = nil
-                        self:setupCardExplodeAnimation()
-                        Sound.playSFX("cards2_slow")
-                        pd.timer.performAfterDelay(2500, function()
-                            Sound.playSFX("cards_fast3")
-                            pd.timer.performAfterDelay(300, function()
-                                self:scaleAnimation(200, 110)
-                            end)
-                        end)
-                    end)
-                end
-            end
-
-            self.shuffleFinishTimer = pd.timer.keyRepeatTimerWithDelay(1000/500, 1000/500, advanceFrame)
+            self:startOldShuffleFinishSequence()
         end  
         
         
@@ -331,11 +472,16 @@ function GameScene:update()
 
     -- --- Crank Shuffle Logic ---
     if self.state == "shuffle" and self.shuffleAnimSprite and not self.shuffleFinishTimer then
-        local crankChange, acceleratedChange = pd.getCrankChange()
+        local crankChange = pd.getCrankChange()
         if crankChange ~= 0 then           
-            -- Loop the frame index in both directions / it takes 4 crank units to advance 1 frame.
-            self.shuffleFrame = ((self.shuffleFrame - 1 + math.floor(crankChange / 7)) % self.shuffleFrameCount) + 1
-            self.shuffleAnimSprite:setFrame(self.shuffleFrame)
+            local frameAdvance = math.floor(crankChange / 7)
+            if frameAdvance ~= 0 then
+                Sound.playSFX("cards2_fast2")
+                self:advanceShuffleFrames(frameAdvance)
+                if self.state ~= "shuffle" then
+                    return
+                end
+            end
             
             -- CRANK SOUND LOGIC
             self.lastCrankTime = pd.getElapsedTime()
@@ -442,6 +588,7 @@ function GameScene:deinit()
     if self.drawnCardVisual then self.drawnCardVisual:remove() self.drawnCardVisual = nil end
     if self.invertedTextSprite then self.invertedTextSprite:remove() self.invertedTextSprite = nil end
     if self.shuffleAnimSprite then self.shuffleAnimSprite:remove() self.shuffleAnimSprite = nil end
+    if self.spinSlideAnimSprite then self.spinSlideAnimSprite:remove() self.spinSlideAnimSprite = nil end
     if self.firstPromptSprite then self.firstPromptSprite:remove() self.firstPromptSprite = nil end
     if self.firstPromptTimer then self.firstPromptTimer:remove() self.firstPromptTimer = nil end
     if self.shuffleFinishTimer then self.shuffleFinishTimer:remove() self.shuffleFinishTimer = nil end
