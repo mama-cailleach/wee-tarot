@@ -5,10 +5,10 @@ local gfx <const> = pd.graphics
 
 class('BaseSpreadGameScene').extends(gfx.sprite)
 
-local deckLayingImagetable = gfx.imagetable.new("images/shuffleAnimation/deck_laying_full_lower-table-400-240")
-local explodeImagetable = gfx.imagetable.new("images/shuffleAnimation/exploding_deck1-table-400-240")
-local scaleTable = gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
-local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/1_card_shuffle-table-400-240")
+local deckLayingImagetable = nil
+local explodeImagetable = nil
+local scaleTable = nil
+local imagetableShuffle = nil
 
 local DEFAULT_FIRST_PROMPTS = {
     "Set your intentions, let the cards\nhear your silent whispers.",
@@ -29,6 +29,11 @@ end
 
 function BaseSpreadGameScene:init(config, restoreState)
     BaseSpreadGameScene.super.init(self)
+
+    deckLayingImagetable = deckLayingImagetable or gfx.imagetable.new("images/shuffleAnimation/deck_laying_full_lower-table-400-240")
+    explodeImagetable = explodeImagetable or gfx.imagetable.new("images/shuffleAnimation/exploding_deck1-table-400-240")
+    scaleTable = scaleTable or gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
+    imagetableShuffle = imagetableShuffle or gfx.imagetable.new("images/shuffleAnimation/1_card_shuffle-table-400-240")
 
     self.config = config
     self.deck = Deck()
@@ -866,6 +871,11 @@ function BaseSpreadGameScene:deinit()
         Sound.stopCrankLoop()
         self.crankSoundPlaying = false
     end
+
+    deckLayingImagetable = nil
+    explodeImagetable = nil
+    scaleTable = nil
+    imagetableShuffle = nil
 
     self:clearShufflePrompts()
 

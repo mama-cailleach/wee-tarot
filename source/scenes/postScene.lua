@@ -168,8 +168,11 @@ function PostScene:update()
         self:buttonABlink()
     end
 
-    local elapsed = pd.getElapsedTime()
-    local oscillationOffset = self.textAmplitude * math.sin((elapsed - (self.oscillationStartTime or 0)) * self.textSpeed)
+    local oscillationOffset = 0
+    if self.oscillationStartTime then
+        local elapsed = pd.getElapsedTime()
+        oscillationOffset = self.textAmplitude * math.sin((elapsed - self.oscillationStartTime) * self.textSpeed)
+    end
     local textNewY = self.textBaseY + oscillationOffset + 0.2
     local scrollNewY = 170 + oscillationOffset + 0.2
     local abuttonNewY = self.aButtonY + oscillationOffset + 0.2
@@ -387,6 +390,11 @@ function PostScene:deinit()
     if self.scrollBoxAnimatorIn then self.scrollBoxAnimatorIn = nil end
     if self.scrollBoxTimer then self.scrollBoxTimer:remove() self.scrollBoxTimer = nil end
     if self.crankSprite then self.crankSprite:remove() self.crankSprite = nil end
+    self.imagetable = nil
+    self.scrollBoxImg = nil
+    self.dinahText = nil
+    self.dinahTextLines = nil
+    self.dinahTextBlock = nil
     if PostScene.super and PostScene.super.deinit then
         PostScene.super.deinit(self)
     end

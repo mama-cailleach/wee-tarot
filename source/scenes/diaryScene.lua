@@ -145,6 +145,10 @@ function DiaryScene:deinit()
     if self.bgFrameSprite then self.bgFrameSprite:remove() self.bgFrameSprite = nil end
     if self.bgKeySprite then self.bgKeySprite:remove() self.bgKeySprite = nil end
     if self.lockSprite then self.lockSprite:remove() self.lockSprite = nil end
+    self.bgFrameImage = nil
+    self.keyImagetable = nil
+    self.imagetable = nil
+    self.lockSpriteSheet = nil
     self.buttonUppress = false
 
 end

@@ -3,15 +3,24 @@ local gfx <const> = pd.graphics
 
 -- Precompute faded black images for the fade transition
 local fadedRects = {}
-for i = 0, 1, 0.01 do
-    local fadedImage = gfx.image.new(400, 240)
-    gfx.pushContext(fadedImage)
-        local filledRect = gfx.image.new(400, 240, gfx.kColorBlack)
-        filledRect:drawFaded(0, 0, i, gfx.image.kDitherTypeBayer8x8)
-    gfx.popContext()
-    fadedRects[math.floor(i * 100)] = fadedImage
+local fadedRectsInitialized = false
+
+local function initFadedRects()
+    if fadedRectsInitialized then
+        return
+    end
+
+    for i = 0, 1, 0.01 do
+        local fadedImage = gfx.image.new(400, 240)
+        gfx.pushContext(fadedImage)
+            local filledRect = gfx.image.new(400, 240, gfx.kColorBlack)
+            filledRect:drawFaded(0, 0, i, gfx.image.kDitherTypeBayer8x8)
+        gfx.popContext()
+        fadedRects[math.floor(i * 100)] = fadedImage
+    end
+    fadedRects[100] = gfx.image.new(400, 240, gfx.kColorBlack)
+    fadedRectsInitialized = true
 end
-fadedRects[100] = gfx.image.new(400, 240, gfx.kColorBlack)
 
 
 class('SceneManager').extends()
@@ -87,6 +96,10 @@ end
 end
 
 function SceneManager:getFadedImage(alpha)
+    if not fadedRectsInitialized then
+        initFadedRects()
+    end
+
     return fadedRects[math.floor(alpha * 100)]
 end
 

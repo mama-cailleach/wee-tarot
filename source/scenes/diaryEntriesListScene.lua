@@ -56,12 +56,10 @@ function DiaryEntriesListScene:init(restoreState)
     self.bgSprite:add()
     ]]
 
-    self.imagetable = gfx.imagetable.new("images/bg/diary_anim-table-400-273")
-    self.bgSprite = AnimatedSprite.new(self.imagetable)
-    self.bgSprite:addState("anim", 1, 7, {tickStep = 5, yoyo = true})
+    self.bgImage = gfx.image.new("images/bg/journal1")
+    self.bgSprite = gfx.sprite.new(self.bgImage)
     self.bgSprite:moveTo(200,120)
     self.bgSprite:add()
-    self.bgSprite:playAnimation()
     
 
     self.entries = DiaryStore.getEntries()
@@ -99,6 +97,10 @@ function DiaryEntriesListScene:init(restoreState)
 
     self.crankSoundPlaying = false
     self.crankInactivityTimer = nil
+    self.lastCrankTime = 0
+    self.previewImage = nil
+    self.lastPreviewRenderTime = 0
+    self.previewNeedsRender = false
 
     local selectorImage = gfx.image.new("images/bg/icon_knot1_smol")
     if selectorImage then
@@ -740,9 +742,9 @@ function DiaryEntriesListScene:buildPreviewText()
 end
 
 function DiaryEntriesListScene:renderPreview(resetScroll)
-    if self.previewSprite then
-        self.previewSprite:remove()
-        self.previewSprite = nil
+    -- Reuse preview image/sprite to avoid allocations
+    if not self.previewImage then
+        self.previewImage = gfx.image.new(self.previewWidth, self.previewHeight)
     end
 
     if resetScroll then
@@ -755,27 +757,25 @@ function DiaryEntriesListScene:renderPreview(resetScroll)
     self.previewMaxScroll = math.max(0, fullHeight - self.previewHeight)
     self.previewScrollY = math.max(0, math.min(self.previewScrollY, self.previewMaxScroll))
 
-    local previewImage = gfx.image.new(self.previewWidth, self.previewHeight)
-    if not previewImage then
-        return
-    end
-
-    gfx.pushContext(previewImage)
+    gfx.pushContext(self.previewImage)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        if self.browserMode == "monthDay" then
-            gfx.drawTextInRect(previewText, 0, -self.previewScrollY, self.previewWidth, fullHeight, nil, nil, kTextAlignment.center)
-        else
-            gfx.drawTextInRect(previewText, 0, -self.previewScrollY, self.previewWidth, fullHeight, nil, nil, kTextAlignment.center)
-        end
+        gfx.fillRect(0, 0, self.previewWidth, self.previewHeight)
+        gfx.drawTextInRect(previewText, 0, -self.previewScrollY, self.previewWidth, fullHeight, nil, nil, kTextAlignment.center)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
     gfx.popContext()
 
-    self.previewSprite = gfx.sprite.new(previewImage)
-    if self.previewSprite then
+    if not self.previewSprite then
+        self.previewSprite = gfx.sprite.new(self.previewImage)
         self.previewSprite:setCenter(0, 0)
         self.previewSprite:moveTo(self.previewLeft, self.previewTop)
         self.previewSprite:add()
+    else
+        self.previewSprite:setImage(self.previewImage)
+        self.previewSprite:markDirty()
     end
+
+    self.lastPreviewRenderTime = pd.getElapsedTime()
+    self.previewNeedsRender = false
 end
 
 function DiaryEntriesListScene:updateSelectorPosition()
@@ -1055,24 +1055,17 @@ function DiaryEntriesListScene:update()
             self:renderPreview(false)
         end
 
-            if not self.crankSoundPlaying then
-                Sound.startCrankLoop()
-                self.crankSoundPlaying = true
-            end
+        self.lastCrankTime = pd.getElapsedTime()
 
-            if self.crankInactivityTimer then
-                self.crankInactivityTimer:remove()
-                self.crankInactivityTimer = nil
-            end
+        if not self.crankSoundPlaying then
+            Sound.startCrankLoop()
+            self.crankSoundPlaying = true
+        end
+    end
 
-            local scene = self
-            self.crankInactivityTimer = pd.timer.performAfterDelay(100, function()
-                if scene.crankSoundPlaying then
-                    Sound.stopCrankLoop()
-                    scene.crankSoundPlaying = false
-                end
-                scene.crankInactivityTimer = nil
-            end)
+    if self.crankSoundPlaying and pd.getElapsedTime() - self.lastCrankTime > 0.1 then
+        Sound.stopCrankLoop()
+        self.crankSoundPlaying = false
     end
 
     if self.browserMode == "year" then
@@ -1166,9 +1159,11 @@ function DiaryEntriesListScene:deinit()
 
     self:clearEntrySprites()
 
-    if self.crankInactivityTimer then self.crankInactivityTimer:remove() self.crankInactivityTimer = nil end
     if self.crankSoundPlaying then
         Sound.stopCrankLoop()
         self.crankSoundPlaying = false
     end
+    self.imagetable = nil
+    self.bgImage = nil
+    self.previewImage = nil
 end

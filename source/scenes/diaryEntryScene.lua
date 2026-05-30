@@ -2,6 +2,9 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 import "data/save/playerProfileStore"
+local ImageCache = import "libraries/imageCache"
+local DebugStats = import "libraries/debugStats"
+ImageCache.setup({ maxEntries = 2, maxBytes = 131072 })
 
 class('DiaryEntryScene').extends(gfx.sprite)
 
@@ -33,12 +36,10 @@ function DiaryEntryScene:init(entry, returnState)
     self.bgSprite:add()
     ]]
 
-    self.imagetable = gfx.imagetable.new("images/bg/diary_anim-table-400-273")
-    self.bgSprite = AnimatedSprite.new(self.imagetable)
-    self.bgSprite:addState("anim", 1, 7, {tickStep = 5, yoyo = true})
+    self.bgImage = gfx.image.new("images/bg/journal1")
+    self.bgSprite = gfx.sprite.new(self.bgImage)
     self.bgSprite:moveTo(200,120)
     self.bgSprite:add()
-    self.bgSprite:playAnimation()
 
     self.headerSprite = nil
     self.bodySprite = nil
@@ -72,6 +73,13 @@ function DiaryEntryScene:init(entry, returnState)
 
         self.crankSoundPlaying = false
         self.crankInactivityTimer = nil
+        self.lastCrankTime = 0
+        self.bodyImage = nil
+        self.lastBodyRenderTime = 0
+        self.bodyNeedsRender = false
+        self.fullBodyImage = nil
+        self.fullBodySprite = nil
+        self.fullBodyRenderThreshold = 800
 
     self:renderHeader()
     self:renderBody()
@@ -100,14 +108,21 @@ function DiaryEntryScene:getSpreadName()
 end
 
 function DiaryEntryScene:buildArrows()
-    self.arrowRight = gfx.sprite.spriteWithText("®", 40, 40, nil, nil, nil, kTextAlignment.center)
-    self.arrowRight:setRotation(90)
-    self.arrowRight:moveTo(self.cardCenterX + 70, self.cardCenterY)
-    self.arrowRight:add()
-    self.arrowLeft = gfx.sprite.spriteWithText("®", 40, 40, nil, nil, nil, kTextAlignment.center)
-    self.arrowLeft:setRotation(270)
-    self.arrowLeft:moveTo(self.cardCenterX - 70, self.cardCenterY)
-    self.arrowLeft:add()
+    if not self.arrowRight then
+        self.arrowRight = gfx.sprite.spriteWithText("®", 40, 40, nil, nil, nil, kTextAlignment.center)
+        self.arrowRight:setRotation(90)
+        self.arrowRight:moveTo(self.cardCenterX + 70, self.cardCenterY)
+        self.arrowRight:setZIndex(310)
+        self.arrowRight:add()
+    end
+
+    if not self.arrowLeft then
+        self.arrowLeft = gfx.sprite.spriteWithText("®", 40, 40, nil, nil, nil, kTextAlignment.center)
+        self.arrowLeft:setRotation(270)
+        self.arrowLeft:moveTo(self.cardCenterX - 70, self.cardCenterY)
+        self.arrowLeft:setZIndex(310)
+        self.arrowLeft:add()
+    end
 end
 
 function DiaryEntryScene:animateArrowLeft()
@@ -241,6 +256,14 @@ function DiaryEntryScene:buildBodyText()
     local selectedCard = self:getSelectedCard()
 
     if selectedCard and selectedCard.isSpreadCard then
+        if type(self.entry.fortuneText) == "string" and #self.entry.fortuneText > 0 then
+            return self.entry.fortuneText
+        end
+
+        if type(self.entry.fortuneLines) == "table" and #self.entry.fortuneLines > 0 then
+            return table.concat(self.entry.fortuneLines, "\n")
+        end
+
         return self:buildSpreadSummaryText()
     end
 
@@ -258,6 +281,7 @@ function DiaryEntryScene:renderHeader()
     if self.headerSprite then
         self.headerSprite:setCenter(0, 0)
         self.headerSprite:moveTo(self.viewX, 6)
+        self.headerSprite:setZIndex(300)
         self.headerSprite:add()
     end
 end
@@ -364,35 +388,105 @@ function DiaryEntryScene:renderSelectedCard()
 end
 
 function DiaryEntryScene:renderBody()
-    if self.bodySprite then
-        self.bodySprite:remove()
-        self.bodySprite = nil
-    end
-
+    -- Reuse body image and sprite to avoid frequent allocations
     local bodyText = self:buildBodyText()
     local _, textHeight = gfx.getTextSizeForMaxWidth(bodyText, self.viewWidth)
     local fullHeight = math.max(self.viewHeight, textHeight + 12)
     self.maxScroll = math.max(0, fullHeight - self.viewHeight)
 
-    local bodyImage = gfx.image.new(self.viewWidth, self.viewHeight)
-    if not bodyImage then
-        return
-    end
+    -- Cache key for this entry + selected card so cached full-body matches current selection
+    local entryIdPart = tostring(self.entry.id or self.entry.date or tostring(self.entry))
+    local cacheKey = "diary_full_" .. entryIdPart .. "_sel_" .. tostring(self.selectedCardIndex or 0)
 
-    gfx.pushContext(bodyImage)
-        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        gfx.drawTextInRect(bodyText, 0, -self.scrollY, self.viewWidth, fullHeight, nil, nil, kTextAlignment.left)
-        gfx.setImageDrawMode(gfx.kDrawModeCopy)
-    gfx.popContext()
+    -- If the full rendered text fits under threshold, pre-render the whole text (using cache)
+    if fullHeight <= (self.fullBodyRenderThreshold or 800) then
+        local img = ImageCache.getOrCreate(cacheKey, function()
+            local created = gfx.image.new(self.viewWidth, fullHeight)
+            if created then
+                gfx.pushContext(created)
+                    gfx.drawTextInRect(bodyText, 0, 0, self.viewWidth, fullHeight, nil, nil, kTextAlignment.left)
+                gfx.popContext()
+                DebugStats.inc('fullImageCreates')
+            end
+            return created
+        end, { width = self.viewWidth, height = fullHeight })
 
-    self.bodySprite = gfx.sprite.new(bodyImage)
-    if self.bodySprite then
-        self.bodySprite:setCenter(0, 0)
-        self.bodySprite:moveTo(self.viewX, self.viewY + 14)
-        self.bodySprite:add()
+        self.fullBodyImage = img
+
+        if self.fullBodyImage then
+            if not self.fullBodySprite then
+                if self.bodySprite then self.bodySprite:remove() self.bodySprite = nil end
+                self.fullBodySprite = gfx.sprite.new(self.fullBodyImage)
+                self.fullBodySprite:setCenter(0, 0)
+                self.fullBodySprite:moveTo(self.viewX, self.viewY + 14 - self.scrollY)
+                self.fullBodySprite:setZIndex(100)
+                self.fullBodySprite:add()
+            else
+                -- ensure sprite shows current image (in case cache returned a new image for a different selection)
+                self.fullBodySprite:setImage(self.fullBodyImage)
+                self.fullBodySprite:moveTo(self.viewX, self.viewY + 14 - self.scrollY)
+                self.fullBodySprite:markDirty()
+            end
+        end
+    else
+        -- Tiled rendering for long entries: render only visible tiles and compose viewport
+        local tileHeight = self.tileHeight or 256
+        local startTile = math.floor(self.scrollY / tileHeight)
+        local endTile = math.floor((self.scrollY + self.viewHeight - 1) / tileHeight)
+
+        -- remove any full-body sprite so viewport is visible
+        if self.fullBodySprite then
+            self.fullBodySprite:remove()
+            self.fullBodySprite = nil
+        end
+
+        if not self.bodyImage then
+            self.bodyImage = gfx.image.new(self.viewWidth, self.viewHeight)
+            if not self.bodyImage then return end
+        end
+
+        gfx.pushContext(self.bodyImage)
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            gfx.fillRect(0, 0, self.viewWidth, self.viewHeight)
+            -- draw visible tiles
+            for ti = startTile, endTile do
+                local tileKey = cacheKey .. "_tile_" .. tostring(ti)
+                local tileImg = ImageCache.getOrCreate(tileKey, function()
+                    local timg = gfx.image.new(self.viewWidth, tileHeight)
+                    if timg then
+                        gfx.pushContext(timg)
+                            -- draw the portion of text at vertical offset for this tile
+                            gfx.drawTextInRect(bodyText, 0, - (ti * tileHeight), self.viewWidth, fullHeight, nil, nil, kTextAlignment.left)
+                        gfx.popContext()
+                        DebugStats.inc('tileCreates')
+                    end
+                    return timg
+                end, { width = self.viewWidth, height = tileHeight })
+
+                if tileImg then
+                    local drawY = (ti * tileHeight) - self.scrollY
+                    tileImg:draw(0, drawY)
+                end
+            end
+            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        gfx.popContext()
+
+        if not self.bodySprite then
+            self.bodySprite = gfx.sprite.new(self.bodyImage)
+            self.bodySprite:setCenter(0, 0)
+            self.bodySprite:moveTo(self.viewX, self.viewY + 14)
+            self.bodySprite:setZIndex(100)
+            self.bodySprite:add()
+        else
+            self.bodySprite:setImage(self.bodyImage)
+            self.bodySprite:markDirty()
+        end
+        DebugStats.inc('viewportRenders')
     end
 
     self:buildArrows()
+    self.lastBodyRenderTime = pd.getElapsedTime()
+    self.bodyNeedsRender = false
 end
 
 
@@ -404,27 +498,26 @@ function DiaryEntryScene:update()
         local clampedScroll = math.max(0, math.min(nextScroll, self.maxScroll))
         if clampedScroll ~= self.scrollY then
             self.scrollY = clampedScroll
-            self:renderBody()
+            -- mark for re-render; throttle actual render to reduce churn
+            self.bodyNeedsRender = true
         end
 
-            if not self.crankSoundPlaying then
-                Sound.startCrankLoop()
-                self.crankSoundPlaying = true
-            end
+        self.lastCrankTime = pd.getElapsedTime()
 
-            if self.crankInactivityTimer then
-                self.crankInactivityTimer:remove()
-                self.crankInactivityTimer = nil
-            end
+        if not self.crankSoundPlaying then
+            Sound.startCrankLoop()
+            self.crankSoundPlaying = true
+        end
+    end
 
-            local scene = self
-            self.crankInactivityTimer = pd.timer.performAfterDelay(100, function()
-                if scene.crankSoundPlaying then
-                    Sound.stopCrankLoop()
-                    scene.crankSoundPlaying = false
-                end
-                scene.crankInactivityTimer = nil
-            end)
+    -- Throttle body render: only redraw if enough time passed
+    if self.bodyNeedsRender and (pd.getElapsedTime() - (self.lastBodyRenderTime or 0) > 0.04) then
+        self:renderBody()
+    end
+
+    if self.crankSoundPlaying and pd.getElapsedTime() - self.lastCrankTime > 0.1 then
+        Sound.stopCrankLoop()
+        self.crankSoundPlaying = false
     end
 
     if pd.buttonJustPressed(pd.kButtonLeft) then
@@ -449,6 +542,11 @@ function DiaryEntryScene:update()
             self:renderSelectedCard()
             self:animateArrowRight()
         end
+    end
+
+    -- Debug: press A while holding B to dump render stats
+    if pd.buttonJustPressed(pd.kButtonA) and pd.buttonIsPressed(pd.kButtonB) then
+        DebugStats.log()
     end
 
     if pd.buttonJustPressed(pd.kButtonUp) then
@@ -484,9 +582,13 @@ function DiaryEntryScene:deinit()
     if self.arrowLeft then self.arrowLeft:remove() self.arrowLeft = nil end
     if self.arrowRight then self.arrowRight:remove() self.arrowRight = nil end
 
-        if self.crankInactivityTimer then self.crankInactivityTimer:remove() self.crankInactivityTimer = nil end
         if self.crankSoundPlaying then
             Sound.stopCrankLoop()
             self.crankSoundPlaying = false
         end
+    self.imagetable = nil
+        self.bgImage = nil
+        self.bodyImage = nil
+        if self.fullBodySprite then self.fullBodySprite:remove() self.fullBodySprite = nil end
+        self.fullBodyImage = nil
 end

@@ -7,15 +7,22 @@ class('GameScene').extends(gfx.sprite)
 
 
 -- pre lodaing imagetable
-local explodeImagetable = gfx.imagetable.new("images/shuffleAnimation/explode_finale-table-400-240")
-local scaleTable = gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
-local imagetableShuffle = gfx.imagetable.new("images/shuffleAnimation/1_card_shuffle-table-400-240")
-local cardSpinSlideImagetable = gfx.imagetable.new("images/shuffleAnimation/card_spin_slide-table-400-240")
-local deckLayingImagetable = gfx.imagetable.new("images/shuffleAnimation/deck_laying_full_lower-table-400-240")
-local explodeDeckImagetable = gfx.imagetable.new("images/shuffleAnimation/exploding_deck1-table-400-240")
+local explodeImagetable = nil
+local scaleTable = nil
+local imagetableShuffle = nil
+local cardSpinSlideImagetable = nil
+local deckLayingImagetable = nil
+local explodeDeckImagetable = nil
 
 function GameScene:init()
     self.deck = Deck()
+
+    explodeImagetable = explodeImagetable or gfx.imagetable.new("images/shuffleAnimation/explode_finale-table-400-240")
+    scaleTable = scaleTable or gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
+    imagetableShuffle = imagetableShuffle or gfx.imagetable.new("images/shuffleAnimation/1_card_shuffle-table-400-240")
+    cardSpinSlideImagetable = cardSpinSlideImagetable or gfx.imagetable.new("images/shuffleAnimation/card_spin_slide-table-400-240")
+    deckLayingImagetable = deckLayingImagetable or gfx.imagetable.new("images/shuffleAnimation/deck_laying_full_lower-table-400-240")
+    explodeDeckImagetable = explodeDeckImagetable or gfx.imagetable.new("images/shuffleAnimation/exploding_deck1-table-400-240")
 
 
     self.bgSprite = gfx.sprite.new(gfx.image.new("images/bg/tarot_playspace"))
@@ -551,26 +558,12 @@ function GameScene:update()
                 Sound.startCrankLoop()
                 self.crankSoundPlaying = true
             end
-            
-            -- Reset/remove inactivity timer since we're cranking
-            if self.crankInactivityTimer then
-                self.crankInactivityTimer:remove()
-                self.crankInactivityTimer = nil
-            end
-            
-            -- CREATE NEW TIMER EACH TIME WE CRANK (MOVED HERE)
-            local scene = self  -- Capture self reference
-            self.crankInactivityTimer = pd.timer.performAfterDelay(100, function()
-                -- Stop crank sound after delay (with safety checks)
-                if scene.crankSoundPlaying then
-                    Sound.stopCrankLoop()
-                    scene.crankSoundPlaying = false
-                end
-                if scene.crankInactivityTimer then
-                    scene.crankInactivityTimer = nil
-                end
-            end)
         end
+    end
+
+    if self.crankSoundPlaying and pd.getElapsedTime() - self.lastCrankTime > 0.1 then
+        Sound.stopCrankLoop()
+        self.crankSoundPlaying = false
     end
 
     if self.state == "fortune" then
@@ -657,10 +650,13 @@ function GameScene:deinit()
         Sound.stopCrankLoop()
         self.crankSoundPlaying = false
     end
-    if self.crankInactivityTimer then 
-        self.crankInactivityTimer:remove() 
-        self.crankInactivityTimer = nil 
-    end
+
+    explodeImagetable = nil
+    scaleTable = nil
+    imagetableShuffle = nil
+    cardSpinSlideImagetable = nil
+    deckLayingImagetable = nil
+    explodeDeckImagetable = nil
     
     -- Remove any other timers or sprites you create
     --GameScene.super.deinit(self)

@@ -222,8 +222,11 @@ function BaseSpreadPostScene:update()
         self:buttonABlink()
     end
 
-    local elapsed = pd.getElapsedTime()
-    local offset = self.textAmplitude * math.sin((elapsed - (self.oscillationStartTime or 0)) * self.textSpeed)
+    local offset = 0
+    if self.oscillationStartTime then
+        local elapsed = pd.getElapsedTime()
+        offset = self.textAmplitude * math.sin((elapsed - self.oscillationStartTime) * self.textSpeed)
+    end
 
     if self.textSprite then
         self.textSprite:moveTo(self.textSprite.x, self.textBaseY + offset)
@@ -263,4 +266,7 @@ function BaseSpreadPostScene:deinit()
         cardSprite:remove()
     end
     self.cardSprites = nil
+    self.imagetable = nil
+    self.scrollBoxImg = nil
+    self.textLines = nil
 end
