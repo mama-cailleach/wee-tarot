@@ -2,19 +2,12 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 import "data/save/playerProfileStore"
+import "data/spreadReadingData"
 local ImageCache = import "libraries/imageCache"
 local DebugStats = import "libraries/debugStats"
 ImageCache.setup({ maxEntries = 2, maxBytes = 131072 })
 
 class('DiaryEntryScene').extends(gfx.sprite)
-
-local SPREAD_LABELS = {
-    one_card = "1-bit Fortune",
-    three_card = "Root-Trunk- Branch",
-    pentagram = "Pentagram",
-    celtic_cross = "Celtic Cross",
-    horoscope = "Horoscope"
-}
 
 function DiaryEntryScene:init(entry, returnState)
     DiaryEntryScene.super.init(self)
@@ -101,10 +94,7 @@ function DiaryEntryScene:getNavigationCount()
 end
 
 function DiaryEntryScene:getSpreadName()
-    local spreadKey = self.entry.spreadType or "unknown"
-    local loweredKey = string.lower(spreadKey)
-    local normalizedKey = string.gsub(loweredKey, "%-", "_")
-    return SPREAD_LABELS[loweredKey] or SPREAD_LABELS[normalizedKey] or spreadKey
+    return SpreadReadingData.getSpreadDisplayName(self.entry.spreadType or "unknown")
 end
 
 function DiaryEntryScene:buildArrows()
@@ -149,6 +139,8 @@ end
 
 function DiaryEntryScene:buildSpreadSummaryText()
     local lines = {}
+    local spreadType = self.entry.spreadType or "unknown"
+    local config = SpreadReadingData.getConfig(spreadType)
 
     if type(self.entry.cards) == "table" then
         table.insert(lines, "Cards Pulled")
@@ -157,7 +149,8 @@ function DiaryEntryScene:buildSpreadSummaryText()
             local position = card.position or 0
             local cardName = card.name or "Unknown Card"
             local orientation = card.inverted and " (reversed)" or ""
-            table.insert(lines, tostring(position) .. ". " .. cardName .. orientation)
+            local positionLabel = config and position > 0 and SpreadReadingData.getPositionName(spreadType, position) or tostring(position)
+            table.insert(lines, positionLabel .. ". " .. cardName .. orientation)
         end
     end
 
@@ -176,7 +169,7 @@ function DiaryEntryScene:getCardDetails()
 
     for _, card in ipairs(self.entry.cards) do
         local position = tonumber(card.position) or (#details + 1)
-        local positionLabel = "Card " .. tostring(position)
+        local positionLabel = SpreadReadingData.getConfig(self.entry.spreadType or "unknown") and position > 0 and SpreadReadingData.getPositionName(self.entry.spreadType or "unknown", position) or ("Card " .. tostring(position))
         local readingLines = {}
         local fortuneLines = type(self.entry.fortuneLines) == "table" and self.entry.fortuneLines or nil
         local line = fortuneLines and fortuneLines[position] or nil

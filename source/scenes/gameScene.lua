@@ -318,10 +318,6 @@ function GameScene:triggerSpinSlideAnimation()
     self.spinSlideAnimSprite:add()
     self.spinSlideAnimSprite:playAnimation()
     ScreenShake.screenShake(400, 4)
-    pd.timer.performAfterDelay(1850, function()
-        ScreenShake.screenShake(100, 2)
-        self:plimplimAnimation(330, 205)
-    end)
 end
 
 function GameScene:startOldShuffleFinishSequence()
@@ -464,33 +460,6 @@ function GameScene:revealAnimation(x, y)
     self.revealSprite:add()
     self.revealSprite:changeState("animate", true)
     self.revealSprite:playAnimation()
-end
-
-function GameScene:plimplimAnimation(x, y)
-    if self.plimplimSprite then self.plimplimSprite:remove() self.plimplimSprite = nil end
-    local revealTable = gfx.imagetable.new("images/shuffleAnimation/reveal-table-236-342")
-    self.plimplimSprite = AnimatedSprite.new(revealTable)
-    self.plimplimSprite:addState(
-        "animate", 3, 6,
-        {
-            tickStep = 1,
-            loop = false,
-            xScale = 0.6,
-            yScale = 0.6,
-            onAnimationEndEvent = function()
-                if self.plimplimSprite then
-                    self.plimplimSprite:remove()
-                    self.plimplimSprite = nil
-                end
-            end
-        },
-        true
-    )
-    self.plimplimSprite:addState("reveal", 1, 6, {tickStep = 1}, false)
-    self.plimplimSprite:moveTo(x or 200, y or 120)
-    self.plimplimSprite:add()
-    self.plimplimSprite:changeState("animate", true)
-    self.plimplimSprite:playAnimation()
 end
 
 function GameScene:scaleAnimation(x, y)

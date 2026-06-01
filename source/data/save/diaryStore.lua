@@ -1,5 +1,7 @@
 local pd <const> = playdate
 
+import "data/spreadReadingData"
+
 DiaryStore = {}
 
 local DATASTORE_PATH <const> = "data/save/diaryEntries"
@@ -56,6 +58,13 @@ local function sanitizeEntry(raw)
     if type(raw.cardDetails) == "table" then
         for _, detail in ipairs(raw.cardDetails) do
             if type(detail) == "table" then
+                local position = tonumber(detail.position)
+                local positionLabel = detail.positionLabel
+                local config = SpreadReadingData.getConfig(spreadType)
+                if config and position and position > 0 then
+                    positionLabel = SpreadReadingData.getPositionName(spreadType, position)
+                end
+
                 local themes = {}
                 if type(detail.themes) == "table" then
                     for _, theme in ipairs(detail.themes) do
@@ -80,8 +89,8 @@ local function sanitizeEntry(raw)
                 end
 
                 table.insert(cardDetails, {
-                    position = detail.position,
-                    positionLabel = detail.positionLabel,
+                    position = position or detail.position,
+                    positionLabel = positionLabel,
                     cardName = detail.cardName,
                     inverted = detail.inverted == true,
                     themes = themes,

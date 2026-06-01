@@ -3,6 +3,7 @@ local gfx <const> = pd.graphics
 
 import "data/save/diaryStore"
 import "data/save/playerProfileStore"
+import "data/spreadReadingData"
 
 class('DiaryEntriesListScene').extends(gfx.sprite)
 
@@ -14,14 +15,6 @@ local MONTH_NAMES = {
 local MONTH_NAMES_FULL = {
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
-}
-
-local SPREAD_LABELS = {
-    one_card = "1-bit Fortune",
-    three_card = "Root-Trunk- Branch",
-    pentagram = "Pentagram",
-    celtic_cross = "Celtic Cross",
-    horoscope = "Horoscope"
 }
 
 local function parseDiaryDate(dateText)
@@ -546,23 +539,7 @@ function DiaryEntriesListScene:formatPreviewTime(timeText)
 end
 
 function DiaryEntriesListScene:formatSpreadLabel(spreadType)
-    local spread = spreadType or "unknown"
-    local lowered = string.lower(spread)
-    local normalized = string.gsub(lowered, "%-", "_")
-
-    if SPREAD_LABELS[lowered] then
-        return SPREAD_LABELS[lowered]
-    end
-
-    if SPREAD_LABELS[normalized] then
-        return SPREAD_LABELS[normalized]
-    end
-
-    spread = string.gsub(spread, "[_%-]", " ")
-    spread = string.gsub(spread, "(%a)([%w_']*)", function(first, rest)
-        return string.upper(first) .. string.lower(rest)
-    end)
-    return spread
+    return SpreadReadingData.getSpreadDisplayName(spreadType or "unknown")
 end
 
 function DiaryEntriesListScene:buildEntrySummaryText(entry)

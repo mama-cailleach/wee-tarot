@@ -2,22 +2,30 @@ import "data/cardDescriptions"
 
 local FALLBACK_KEYWORDS = { "mystery", "uncertain path", "hidden lesson" }
 
+local SPREAD_DISPLAY_NAMES = {
+    one_card = "1-bit Fortune",
+    three_card = "Root-Trunk-Branch",
+    pentagram = "Pentagram",
+    celtic_cross = "Celtic Cross",
+    horoscope = "Horoscope"
+}
+
 local SPREAD_CONFIGS = {
     three_card = {
         openingLines = {
-            "Three cards... Past, Present, and Future.",
-            "Let us see what your path is trying to reveal."
+            "Three cards... Root, Trunk, Branch.",
+            "Let us see what your tree is trying to reveal."
         },
-        positionNames = { "Past", "Present", "Future" },
-        closingLine = "Press A to continue, or B to choose another spread."
+        positionNames = { "Root", "Trunk", "Branch" },
+        closingLine = "Press A to continue, or B for one last glimpse."
     },
     pentagram = {
         openingLines = {
             "Five cards now stand in your spread.",
             "Let us read each position one by one."
         },
-        positionNames = { "Air", "Fire", "Water", "Earth", "Soul" },
-        closingLine = "Press A to continue, or B to choose another spread."
+        positionNames = { "Soul", "Air", "Earth", "Fire", "Water" },
+        closingLine = "Press A to continue, or B for one last glimpse."
     },
     celtic_cross = {
         openingLines = {
@@ -28,18 +36,18 @@ local SPREAD_CONFIGS = {
             "Present Situation", "Problem", "Past", "Future", "Conscious",
             "Unconscious", "Your Influence", "External Influence", "Hopes and Fears", "Outcome"
         },
-        closingLine = "Press A to continue, or B to choose another spread."
+        closingLine = "Press A to continue, or B for one last glimpse."
     },
     horoscope = {
         openingLines = {
-            "Twelve cards circle the horoscope spread.",
+            "Twelve cards for 12 houses that circle the horoscope zodiac.",
             "Let each sign speak in turn."
         },
         positionNames = {
             "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
             "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
         },
-        closingLine = "Press A to continue, or B to choose another spread."
+        closingLine = "Press A to continue, or B for one last glimpse."
     }
 }
 
@@ -59,6 +67,17 @@ SpreadReadingData = {}
 
 function SpreadReadingData.getConfig(spreadKey)
     return SPREAD_CONFIGS[spreadKey]
+end
+
+function SpreadReadingData.getSpreadDisplayName(spreadKey)
+    if type(spreadKey) ~= "string" then
+        return "Unknown Spread"
+    end
+
+    local lowered = string.lower(spreadKey)
+    local normalized = string.gsub(lowered, "%-", "_")
+
+    return SPREAD_DISPLAY_NAMES[lowered] or SPREAD_DISPLAY_NAMES[normalized] or spreadKey
 end
 
 function SpreadReadingData.pickKeywords(cardName, inverted, keywordCount)
