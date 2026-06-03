@@ -3,6 +3,7 @@ local gfx <const> = pd.graphics
 
 import "data/save/playerProfileStore"
 import "data/spreadReadingData"
+local Utilities = import "libraries/utils"
 local ImageCache = import "libraries/imageCache"
 local DebugStats = import "libraries/debugStats"
 ImageCache.setup({ maxEntries = 2, maxBytes = 131072 })
@@ -247,20 +248,22 @@ end
 
 function DiaryEntryScene:buildBodyText()
     local selectedCard = self:getSelectedCard()
+    local bodyText
 
     if selectedCard and selectedCard.isSpreadCard then
         if type(self.entry.fortuneText) == "string" and #self.entry.fortuneText > 0 then
-            return self.entry.fortuneText
+            bodyText = self.entry.fortuneText
+        elseif type(self.entry.fortuneLines) == "table" and #self.entry.fortuneLines > 0 then
+            bodyText = table.concat(self.entry.fortuneLines, "\n")
+        else
+            bodyText = self:buildSpreadSummaryText()
         end
-
-        if type(self.entry.fortuneLines) == "table" and #self.entry.fortuneLines > 0 then
-            return table.concat(self.entry.fortuneLines, "\n")
-        end
-
-        return self:buildSpreadSummaryText()
+    else
+        bodyText = self:buildCardDetailText(self:getSelectedCardDetail())
     end
 
-    return self:buildCardDetailText(self:getSelectedCardDetail())
+    local wrappedLines = Utilities.wrapTextToLines(bodyText or "", self.viewWidth, gfx.getSystemFont())
+    return table.concat(wrappedLines, "\n")
 end
 
 function DiaryEntryScene:renderHeader()

@@ -3,12 +3,12 @@
 ## Root-Trunk-Branch
 
 ### Intro Line
-- "Let the cards settle. Like ash after a hearth fire… Let's see."
+- "Let the cards settle. Like ash after a hearth fire... Let the reading commence."
 - "One for the dirt, one for the wood, one for the sky. Hold your breath."
-- "The Cailleach herself couldn't untangle this in a day… but let us try."
+- "The Cailleach herself couldn't untangle this in a day... but let us try."
 - "Ah, the old canopy. Let's see which way the wind is blowing your leaves."
 - "(runs a weathered thumb over the top card) Three parts to a life. Three weights to carry."
-- "The roots always speak first. Silence now, let them grow."
+- "Every ring in the wood is a year of weather. Let’s find the year that bent you."
 - "Don't look at me like that. The timber doesn't lie, it just complains. Let's see what we have."
 - "(stares into the middle distance) A tree doesn't grow overnight, and neither does a reckoning. Look here."
 
@@ -17,19 +17,19 @@
 #### Root
 Focus on the heavy, dark, damp earth, hidden histories, and things buried but still alive.
 
-- "The roots go deep, down where the light is forgotten and the ancient things sleep."
 - "What feeds you now was buried long ago under the moss and stone."
 - "The root position, the foundation laid in silence, growing further down than up."
 - "A shadow in the peat. You cannot know the height of the tree without knowing the dark that holds it."
 - "The old ground. It remembers every winter you thought would never end."
 - "Where it all began, choked in the cold soil, holding fast against the wind."
 - "Roots, bloody roots. I believe in your fate. We don't need to fake"
+- "The roots always speak first. Silence now, let them grow."
 
 #### Trunk
 Focus on weather-beaten endurance, the weight of the moment, the thick bark, and holding steady.
 
 - "The trunk bears the scar of every storm. It stands because it must."
-- "The present hour—thick-skinned and weary, carrying the weight of the sky."
+- "The present hour: thick-skinned and weary, carrying the weight of the sky."
 - "Here is the marrow of the thing. The steady, quiet struggle to remain."
 - "Mottled with lichen and hardened by the gales. This is where you stand today."
 - "The wood is heavy, ringed with years of survival. It does not bend easily."
@@ -101,14 +101,14 @@ Focus on practicalities, survival, the physical body, coin, and the stubborn rea
 - "A bit of solid ground in a shifting world. Hard to dig, but hard to break."
 - "The practical toll. Like trying to pull your boots out of a deep peat bog."
 - "Where the roots meet the rock. It’s not a soft bed, but it holds the walls up."
-- "The material world—the bread on the table and the draft through the stones. Let’s see what’s weighing you down."
+- "The material world, the bread on the table and the draft through the stones. Let’s see what’s weighing you down."
 
 #### Fire
 Focus on drive, passion, anger, the impulse to act, and the heat that either warms or destroys.
 
 - "The fire position. A bright spark in a cold climate. Careful it doesn't burn the house down."
 - "The heat in the blood. The old grudges and the new ambitions that keep you awake at night."
-- "Like dry heather in a summer drought—one bad word and the whole hillside goes up."
+- "Like dry heather in a summer drought... One bad word and the whole hillside goes up."
 - "The hearth fire. It keeps the frost away from your bones, but it demands constant feeding."
 - "The impulse that drives you forward when common sense tells you to stay by the fire."
 - "A flickering flame in a gale. It takes a lot of stubbornness to keep a light like that burning."
@@ -120,7 +120,7 @@ Focus on feelings, intuition, tears, hidden depths, and the emotional currents y
 - "The emotional tide. It pulls at your ankles, trying to drag you out into the grey sea."
 - "The heavy rain that soaks into the bones. Some days you just have to let yourself get wet."
 - "The undercurrent. What the heart knows but the tongue is too stubborn to say aloud."
-- "Like a freshwater spring hidden in the hills—sometimes it’s pure, sometimes it’s just mud and grief."
+- "Like a freshwater spring hidden in the hills. Sometimes it’s pure, sometimes it’s just mud and grief."
 - "The tears and the tides. They come and go whether you give them permission or not."
 
 ### Last Line
@@ -163,7 +163,7 @@ Focus on the current moment, the immediate reality, the state of mind, and where
 Focus on friction, the immediate challenge, what is blocking the path, and what must be resolved.
 
 - "The card that crosses you. The loose stone on the ridge that’s trying to break your ankle."
-- "The problem position—the knot in the wood that stops the blade from cutting clean."
+- "The problem position: the knot in the wood that stops the blade from cutting clean."
 - "What’s tripping you up. It’s sitting right across your chest, making it hard to breathe."
 - "The immediate wall. You won't get an inch further up the glen until you deal with this."
 - "The friction. The thing that’s currently making a mess of your best-laid plans."
@@ -193,7 +193,7 @@ Focus on short-term momentum, the immediate horizon, and what is currently drift
 Focus on goals, assumptions, what is visible, and what the mind is stubborn about.
 
 - "The conscious position. What you tell yourself when you’re trying to fall asleep at night."
-- "The front of the mind—the little lantern you’re holding up to the dark, hoping it’s enough."
+- "The front of the mind. The little lantern you’re holding up to the dark, hoping it’s enough."
 - "What you think you’re looking for. The loud thoughts that drown out the quiet truths."
 - "The high ground of the mind. Where you stand when you’re pretending to have a plan."
 - "The story you’re currently spinning about yourself. Let’s see how true it actually is."
@@ -240,7 +240,7 @@ Focus on hidden desires, self-sabotage, anxiety, and the strange way we long for
 - "The hopes and the fears, because humans are foolish enough to pray for the storm just to end the drought."
 - "What keeps you shivering by the fire. The thing you secretly crave, and the thing that keeps you awake at 3 AM."
 - "The paradox. Sometimes the thing we’re most terrified of is the very thing we need to open the door."
-- "A nervous look at the horizon. You’re scanning the hills for a savior, or a monster—and you aren't sure which is worse."
+- "A nervous look at the horizon. You’re scanning the hills for a savior, or a monster. And you aren't sure which is worse."
 - "The secret wish and the silent dread, tangled up together like old briars in a ditch."
 - "The position where the heart cheats. You want to win, but a part of you just wants to lie down in the heather and give up."
 
@@ -250,7 +250,7 @@ Focus on the inevitable destination of current momentum, the final resolution, a
 - "The outcome position. The place where all these muddy tracks finally converge at the top of the hill."
 - "The final sum. Given the fire, the stone, and the rain... this is the crop you’re likely to harvest."
 - "The end of the staff. The quiet room at the end of a very long, loud day. Let’s see what’s waiting."
-- "The ultimate resolution—the shape the clay takes when the wheel finally stops spinning."
+- "The ultimate resolution, the shape the clay takes when the wheel finally stops spinning."
 - "Where the road drops you. It might not be where you wanted to go, but it’s where your feet are heading."
 - "The bottom line. The grand total of all your plans, your secrets, and your stumbles. Look close."
 
@@ -262,7 +262,7 @@ Focus on the inevitable destination of current momentum, the final resolution, a
 - "The pattern is full. Press *B* to weigh the cross and the problem again, or *A* to walk out the door with what you know."
 - "A rare bit of digging, that. Press *B* to stare down into the trench once more, or *A* to put the spade down and shut the book."
 - "The ten points are settled. Press *B* to watch the shadows shift on the table, or *A* to blow out the light. Your call."
-- "You’ve got your map of the glen—hazards and all. Press *B* to check the route again, or *A* to step back into the world."
+- "You’ve got your map of the glen hazards and all. Press *B* to check the route again, or *A* to step back into the world."
 
 
 ## Horoscope
@@ -271,7 +271,7 @@ Focus on the inevitable destination of current momentum, the final resolution, a
 - "Twelve cards. The whole bloody sky smashed down onto my little cloth. Sit back, this is going to take a while."
 - "(chuckles dryly, shuffling the full deck). Mapping the entire wheel, are we? Fine. Let’s see which stars are doing the heavy lifting today."
 - "A full astrological excavation. Twelve houses, twelve locks to pick. Let's see what’s rattling inside them."
-- "Twelve positions from Aries to the deep sea of Pisces. Don't look so nervous, darling—it's only the cosmos."
+- "Twelve positions from Aries to the deep sea of Pisces. Don't look so nervous, darling, it's only the cosmos."
 - "The grand carousel. Twelve mirrors arranged in a circle to catch you from every single angle. Nowhere to hide now."
 - "(lays out the cards in a wide, sweeping circle). The great wheel turns, and here you are, stuck right in the middle of the machinery. Let's look."
 - "Twelve weights to balance. It’s a heavy sky you’re carrying on your shoulders today. Let's see where the pressure is."
@@ -300,7 +300,7 @@ Associations: Fire, Wands, Leo, the Sun
 6th House– is Work & Service. This is your health (& habits), your responsibilities, the mundane work that you do & those who do work for you.
 Associations: Earth, Pentacles, Virgo, Mercury
 
-7th House– is Relationships. This is where you interact with others- and how. Committed romantic or business partnerships…& openly declared enemies are represented here.
+7th House– is Relationships. This is where you interact with others- and how. Committed romantic or business partnerships...& openly declared enemies are represented here.
 Associations: Air, Swords, Libra, Venus
 
 8th House– is Tough Stuff. This house represents the things we don’t want to talk about- death, taxes, inheritances. It’s also joint resources, other peoples money, sex & transformation.
@@ -326,7 +326,7 @@ Focus on the core personality, physicality, outward ego, and the immediate impre
 - "The first house. Aries. This is the raw bone of who you are when you look in the mirror before anyone else wakes up."
 - "The house of the self. Your immediate skin, your temper, and the face you put on when you’re walking head-first into a gale."
 - "Aries’ corner. The ego, the spark, and the specific way you stomp into a room when you want to be noticed."
-- "The first gate. Your identity—not the polite version you tell your mother, but the actual beast driving the cart."
+- "The first gate. Your identity. Not the polite version you tell your mother, but the actual beast driving the cart."
 - "The self position. It’s your physical frame, your immediate defenses, and the sheer stubbornness that keeps you standing."
 - "Aries rules the head. This is your initial footprint in the mud, your baseline, and the weapon you use to cut through the noise."
 
@@ -336,7 +336,7 @@ Focus on possessions, material wealth, how you earn your bread, and what you tru
 
 - "The second house. Taurus. This is your pocket, your pantry, and whether you’ve got enough coin to pay the ferryman."
 - "The house of substance. What you actually own, what you cling to, and what you’re willing to sweat for."
-- "Taurus’ corner. Your resources and your self-worth—because it’s hard to feel like a king when your boots are letting in water."
+- "Taurus’ corner. Your resources and your self-worth. Because it’s hard to feel like a king when your boots are letting in water."
 - "The second gate. Your relationship with gold, greed, and the simple comfort of having a solid floor beneath your feet."
 - "The material world. This card shows what you hold in your fists, and whether you’re hoarding it out of fear or using it to build."
 - "Taurus rules the throat and the purse. It’s how you feed yourself, how you earn your keep, and what you think you’re actually worth."
@@ -358,7 +358,7 @@ Focus on domestic life, family history, emotional security, and the private spac
 
 - "The fourth house. Cancer. The hearth, the history, and the old foundations under the floorboards of your house."
 - "The house of roots. The people who made you, the blood in your veins, and the things you left behind in your childhood bedroom."
-- "Cancer’s corner. Your domestic life and your emotional safety—or the lack of it when the storm hits the roof."
+- "Cancer’s corner. Your domestic life and your emotional safety, or the lack of it when the storm hits the roof."
 - "The fourth gate. Where you go when you’re bleeding and need to hide from the world for a wee while."
 - "The private sanctuary. This card shows the shape of your nest, and whether it’s a place of comfort or a cage of old habits."
 - "The Moon’s domain. It’s your attachments, your family secrets, and the heavy emotional anchors that stop you from drifting away."
@@ -369,7 +369,7 @@ Focus on self-expression, creative projects, romance, recreation, and the joy of
 
 - "The fifth house. Leo. This is your playground, your stage, and the specific way you make a fool of yourself when you fall in love."
 - "The house of the spark. The things you give birth to, the art you create, and the risks you take just to feel alive."
-- "Leo’s corner. Pure romance and recreation—where you put down your heavy packages and just play for a wee while."
+- "Leo’s corner. Pure romance and recreation, where you put down your heavy packages and just play for a wee while."
 - "The fifth gate. Your inner theatre. It’s how you shine, how you spend your luck, and what you do when the spotlight hits you."
 - "The creative urge. This card shows the things you build out of nothing, and whether you’re doing it for the joy or just for the applause."
 - "The Sun's domain. Your inner child, your grand passions, and the reckless gambles of the heart that keep life from getting dull."
@@ -380,7 +380,7 @@ Focus on daily routines, mundane work, physical well-being, habits, and serving 
 
 - "The sixth house. Virgo. The daily grind, the dirty dishes, and the small, boring habits that keep your body from falling apart."
 - "The house of service. The mundane work you do to pay the rent, and the specific way you handle your daily chores."
-- "Virgo’s corner. Your health and your responsibilities—the heavy maintenance required to keep the machine running."
+- "Virgo’s corner. Your health and your responsibilities, the heavy maintenance required to keep the machine running."
 - "The sixth gate. Your daily routine. It’s not the glamorous stuff; it’s the quiet, repetitive labor that keeps the roof over your head."
 - "The workshop of the soul. This card shows how you handle the details, the micro-problems, and the folk who rely on your labor."
 - "Mercury’s practical side. Your physical well-being, your nervous system, and whether you’re driving yourself to an early grave with worry."
@@ -389,7 +389,7 @@ Focus on daily routines, mundane work, physical well-being, habits, and serving 
 
 Focus on committed relationships, marriages, business contracts, legal bonds, and those who openly oppose you.
 
-- "The seventh house. Libra. The person sitting right across the table from you—whether they’re holding your hand or a knife."
+- "The seventh house. Libra. The person sitting right across the table from you. Whether they’re holding your hand or a knife."
 - "The house of the mirror. The commitments you make to other folk, and the specific way you compromise your own ground to keep them."
 - "Libra’s corner. Partnerships and open enemies. Because sometimes, the person you argue with the most is the one you’re locked in with."
 - "The seventh gate. The legal contracts, the marriages, and the public rivalries that define how you play with others."
@@ -400,11 +400,11 @@ Focus on committed relationships, marriages, business contracts, legal bonds, an
 
 Focus on joint resources, secrets, transformation, sex, mortality, and the heavy prices paid behind closed doors.
 
-- "The eighth house. Scorpio. The things we don’t talk about in polite company—death, taxes, other people's money, and raw desire."
+- "The eighth house. Scorpio. The things we don’t talk about in polite company: death, money, revolution, and raw desire."
 - "The house of the deep current. What happens behind locked doors when the masks are off and the real bargaining begins."
 - "Scorpio’s own corner. The transformation house. It’s about crisis, inheritance, and the specific way you burn your own house down just to rebuild it."
 - "The eighth gate. Joint resources and shared debts. It shows what you owe to the dark, and what the dark owes to you."
-- "The crucible. This card looks at the stuff that scares you—the power struggles, the secrets you guard, and the price of real intimacy."
+- "The crucible. This card looks at the stuff that scares you; the power struggles, the secrets you guard, and the price of real intimacy."
 - "Pluto’s domain. It’s the compost pile of the soul. The heavy, messy things that have to rot down before anything new can grow."
 
 #### Sagittarius (The Long Road & Deep Wisdom)
@@ -412,7 +412,7 @@ Focus on joint resources, secrets, transformation, sex, mortality, and the heavy
 Focus on higher education, long-distance travel, personal philosophy, law, and expanding your mental boundaries.
 
 - "The ninth house. Sagittarius. The long road, the big sky, and the miles you travel just to escape your own mind."
-- "The house of the horizon. Your personal philosophy—the things you believe in when the world gets dark and cynical."
+- "The house of the horizon. Your personal philosophy. The things you believe in when the world gets dark and cynical."
 - "Sagittarius’s corner. Higher learning, deep books, and the laws you live by when nobody else is looking."
 - "The ninth gate. Adventure and expansion. It’s about packing a heavy bag, crossing the border, and seeking something bigger than yourself."
 - "The grand map. This card shows your appetite for the truth, and whether you’re chasing wisdom or just running away from the facts."
@@ -424,7 +424,7 @@ Focus on public status, professional life, your legacy, social responsibilities,
 
 - "The tenth house. Capricorn. The peak of the sky. This is your public face, your career, and the reputation you leave trailing behind you like a shadow."
 - "The house of the climb. How you stand in the world, the authorities you clash with, and the legacy you're sweating to build."
-- "Capricorn’s corner. Your social responsibilities—the heavy coat you have to wear when the public is watching your every move."
+- "Capricorn’s corner. Your social responsibilities, the heavy coat you have to wear when the public is watching your every move."
 - "The tenth gate. Your calling. Not just the job that pays the rent, but the actual mark you want to leave on the stones before you go."
 - "The public eye. This card shows how the village views you, your successes, and whether you’re climbing the mountain for yourself or just to prove them wrong."
 - "Saturn’s domain. Structure, status, and the cold hard discipline required to make something of yourself when the wind is blowing against you."

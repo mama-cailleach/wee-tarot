@@ -24,6 +24,174 @@ function createTextWithBackground(text, textColor, backgroundColor, paddingX, pa
     return image
 end
 
+local function splitTextIntoParagraphs(text)
+    local paragraphs = {}
+    if type(text) ~= "string" or #text == 0 then
+        return paragraphs
+    end
+
+    local startIndex = 1
+    while true do
+        local breakIndex = string.find(text, "\n", startIndex, true)
+        if not breakIndex then
+            table.insert(paragraphs, string.sub(text, startIndex))
+            break
+        end
+
+        table.insert(paragraphs, string.sub(text, startIndex, breakIndex - 1))
+        startIndex = breakIndex + 1
+    end
+
+    return paragraphs
+end
+
+local function wrapParagraphToWidth(paragraph, maxWidth, font)
+    local wrappedLines = {}
+
+    if paragraph == nil then
+        return wrappedLines
+    end
+
+    if paragraph == "" then
+        table.insert(wrappedLines, "")
+        return wrappedLines
+    end
+
+    local currentLine = ""
+
+    local function pushCurrentLine()
+        if currentLine ~= "" then
+            table.insert(wrappedLines, currentLine)
+            currentLine = ""
+        end
+    end
+
+    local function breakLongWord(word)
+        local chunk = ""
+        for index = 1, #word do
+            local candidate = chunk .. word:sub(index, index)
+            if gfx.getTextSize(candidate, font) <= maxWidth or chunk == "" then
+                chunk = candidate
+            else
+                table.insert(wrappedLines, chunk)
+                chunk = word:sub(index, index)
+            end
+        end
+
+        if #chunk > 0 then
+            if currentLine == "" then
+                currentLine = chunk
+            else
+                local combined = currentLine .. " " .. chunk
+                if gfx.getTextSize(combined, font) <= maxWidth then
+                    currentLine = combined
+                else
+                    pushCurrentLine()
+                    currentLine = chunk
+                end
+            end
+        end
+    end
+
+    for word in string.gmatch(paragraph, "%S+") do
+        if currentLine == "" then
+            if gfx.getTextSize(word, font) <= maxWidth then
+                currentLine = word
+            else
+                breakLongWord(word)
+            end
+        else
+            local candidate = currentLine .. " " .. word
+            if gfx.getTextSize(candidate, font) <= maxWidth then
+                currentLine = candidate
+            else
+                pushCurrentLine()
+                if gfx.getTextSize(word, font) <= maxWidth then
+                    currentLine = word
+                else
+                    breakLongWord(word)
+                end
+            end
+        end
+    end
+
+    pushCurrentLine()
+    return wrappedLines
+end
+
+function utils.wrapTextToLines(text, maxWidth, font)
+    local lines = {}
+    for _, paragraph in ipairs(splitTextIntoParagraphs(text)) do
+        local wrappedParagraph = wrapParagraphToWidth(paragraph, maxWidth, font)
+        for _, line in ipairs(wrappedParagraph) do
+            table.insert(lines, line)
+        end
+    end
+
+    return lines
+end
+
+function utils.wrapTextIntoPages(text, maxWidth, maxRows, font)
+    local lines = utils.wrapTextToLines(text, maxWidth, font)
+    local pages = {}
+    local currentPage = {}
+
+    for _, line in ipairs(lines) do
+        table.insert(currentPage, line)
+        if #currentPage >= (maxRows or 3) then
+            table.insert(pages, currentPage)
+            currentPage = {}
+        end
+    end
+
+    if #currentPage > 0 or #pages == 0 then
+        table.insert(pages, currentPage)
+    end
+
+    return pages
+end
+
+function utils.wrapSectionsIntoPages(sections, maxWidth, maxRows, font)
+    -- sections: array of { type=string, index=?, lines={...} }
+    local pages = {}
+    maxRows = maxRows or 3
+
+    for _, section in ipairs(sections or {}) do
+        local wrappedLines = {}
+        for _, line in ipairs(section.lines or {}) do
+            local linesForParagraph = utils.wrapTextToLines(line, maxWidth, font)
+            for _, wl in ipairs(linesForParagraph) do
+                table.insert(wrappedLines, wl)
+            end
+        end
+
+        -- If section has no content, keep an empty page to preserve spacing
+        if #wrappedLines == 0 then
+            table.insert(pages, { "" })
+        else
+            local i = 1
+            while i <= #wrappedLines do
+                local page = {}
+                for r = 1, maxRows do
+                    if wrappedLines[i] then
+                        table.insert(page, wrappedLines[i])
+                        i = i + 1
+                    else
+                        break
+                    end
+                end
+                table.insert(pages, page)
+            end
+        end
+    end
+
+    if #pages == 0 then
+        table.insert(pages, { "" })
+    end
+
+    return pages
+end
+
 
 -- max string lenght for big scroll
 -- "hello hello dear friends this is"

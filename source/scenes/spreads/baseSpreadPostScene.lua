@@ -1,5 +1,6 @@
 import "../../data/spreadReadingData"
 import "../../data/save/diaryStore"
+import "../../libraries/utils"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -22,8 +23,14 @@ function BaseSpreadPostScene:init(config, cardNames, cardNumbers, cardSuits, car
     self.scrollBoxImg = gfx.image.new("images/textScroll/scroll1b")
     self.scrollBoxSprite = gfx.sprite.new(self.scrollBoxImg)
 
+    -- Build section-aware text for pagination, and keep a flattened copy for diary persistence
+    self.textSections = SpreadReadingData.buildPlaceholderReadingSections(self.config.spreadKey, self.cardNames, self.cardInverted)
     self.textLines = SpreadReadingData.buildPlaceholderReadingText(self.config.spreadKey, self.cardNames, self.cardInverted)
-    self.textIndex = 1
+    self.textBoxWidth = 310
+    self.textMaxRows = 3
+    self.textFont = gfx.getSystemFont()
+    self.textPages = self:buildTextPages()
+    self.pageIndex = 1
     self.textSprite = nil
     self.aButton = nil
     self.aButtonBlinkTimer = nil
@@ -49,6 +56,10 @@ function BaseSpreadPostScene:init(config, cardNames, cardNumbers, cardSuits, car
     end)
 
     self:add()
+end
+
+function BaseSpreadPostScene:buildTextPages()
+    return utils.wrapSectionsIntoPages(self.textSections or {}, self.textBoxWidth, self.textMaxRows, self.textFont)
 end
 
 function BaseSpreadPostScene:dinahSpriteLoad()
@@ -107,8 +118,9 @@ function BaseSpreadPostScene:showCurrentLine()
         self.textSprite = nil
     end
 
-    local line = self.textLines[self.textIndex] or ""
-    self.textSprite = gfx.sprite.spriteWithText(line, 310, 200, nil, nil, nil, kTextAlignment.center)
+    local pageLines = self.textPages[self.pageIndex] or {}
+    local pageText = table.concat(pageLines, "\n")
+    self.textSprite = gfx.sprite.spriteWithText(pageText, self.textBoxWidth, 200, nil, nil, nil, kTextAlignment.center)
     self.textSprite:moveTo(190, self.textBaseY)
     self.textSprite:add()
 end
@@ -128,7 +140,9 @@ end
 
 function BaseSpreadPostScene:getDiarySpreadType()
     local spreadKey = self.config.spreadKey
-    if spreadKey == "three_card" then
+    if spreadKey == "one_card" then
+        return "one-card"
+    elseif spreadKey == "three_card" then
         return "three-card"
     elseif spreadKey == "celtic_cross" then
         return "celtic-cross"
@@ -180,7 +194,9 @@ end
 
 function BaseSpreadPostScene:getSpreadGameSceneClass()
     local spreadKey = self.config.spreadKey
-    if spreadKey == "three_card" then
+    if spreadKey == "one_card" then
+        return OneCardGameScene
+    elseif spreadKey == "three_card" then
         return ThreeCardGameScene
     elseif spreadKey == "pentagram" then
         return PentagramGameScene
@@ -240,8 +256,8 @@ function BaseSpreadPostScene:update()
 
     if self.canButton and pd.buttonJustPressed(pd.kButtonA) then
         Sound.playABut()
-        if self.textIndex < #self.textLines then
-            self.textIndex = self.textIndex + 1
+        if self.pageIndex < #self.textPages then
+            self.pageIndex = self.pageIndex + 1
             self:showCurrentLine()
         else
             self:finishReading()
@@ -269,4 +285,5 @@ function BaseSpreadPostScene:deinit()
     self.imagetable = nil
     self.scrollBoxImg = nil
     self.textLines = nil
+    self.textPages = nil
 end
