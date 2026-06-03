@@ -28,7 +28,10 @@ local DEFAULTS = {
         a_but7 = 0.5,
         a_but8 = 0.5,
         a_but9 = 0.5,
-        a_but10 = 0.5
+        a_but10 = 0.5,
+        pad_a = 1.0,
+        pad_b = 1.0,
+        witchpad = 1.0
     }
 }
 
@@ -136,11 +139,11 @@ function Sound.init(initialSoundMode)
 
     sfx.a_but10 = pd.sound.sampleplayer.new("sound/a_but10")
 
-    sfx.pad_a = pd.sound.sampleplayer.new("sound/pad_a")
+    sfx.pad_a = pd.sound.fileplayer.new("sound/pad_a")
 
-    sfx.pad_b = pd.sound.sampleplayer.new("sound/pad_b")
+    sfx.pad_b = pd.sound.fileplayer.new("sound/pad_b")
 
-    sfx.witchpad = pd.sound.sampleplayer.new("sound/witchpad")
+    sfx.witchpad = pd.sound.fileplayer.new("sound/witchpad")
 
     Sound.setSoundMode(initialSoundMode)
 end

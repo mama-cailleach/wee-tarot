@@ -9,6 +9,7 @@ local deckLayingImagetable = nil
 local explodeImagetable = nil
 local scaleTable = nil
 local imagetableShuffle = nil
+-- (no ImageCache here in original)
 
 local DEFAULT_FIRST_PROMPTS = {
     "Set your intentions, let the cards\nhear your silent whispers.",
@@ -103,7 +104,12 @@ function BaseSpreadGameScene:init(config, restoreState)
         self.state = "fortune"
         self:restoreSpreadState(restoreState)
     else
-        self.state = "intro"
+        self.state = "shuffle"
+        self:showFirstPrompt()
+        self:setup16CardShuffleAnimation()
+        --[[
+            self.state = "intro"
+            self:startDeckLayingIntro()
         self.deckLayingIntroTimer = pd.timer.performAfterDelay(1000, function()
             self.deckLayingIntroTimer = nil
             local coinFlip = math.random(1, 2)
@@ -112,7 +118,7 @@ function BaseSpreadGameScene:init(config, restoreState)
             else
                 self:setupCardExplodeIntro()
             end
-        end)
+        end)]]
     end
 
     self:add()
@@ -248,7 +254,7 @@ function BaseSpreadGameScene:showFirstPrompt()
             self:showFirstPrompt()
         end
     end)
-    Sound.playSFX("witchpad")
+    --Sound.playSFX("witchpad")
 end
 
 function BaseSpreadGameScene:startDeckLayingIntro()
@@ -315,7 +321,7 @@ function BaseSpreadGameScene:clearShufflePrompts()
         if timer then timer:remove() end
     end
     self.promptTypeTimers = {}
-    Sound.stopSFX("witchpad")
+    --Sound.stopSFX("witchpad")
 end
 
 function BaseSpreadGameScene:setup16CardShuffleAnimation()
@@ -784,12 +790,16 @@ function BaseSpreadGameScene:update()
                             self.shuffleAnimSprite:remove()
                             self.shuffleAnimSprite = nil
                         end
+                        self:setupCardExplodeAnimation()
+                        
+                        --[[
                         local coinFlip = math.random(1, 2)
                         if coinFlip == 1 then
                             self:setupCardExplodeAnimation()
                         else
                             self:startDeckLayingEnding()
                         end
+                        ]]
                         Sound.playSFX("cards2_slow")
                         pd.timer.performAfterDelay(2500, function()
                             Sound.playSFX("cards_fast3")

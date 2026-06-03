@@ -73,7 +73,11 @@ function Card:getZoomImage()
         return self.baseImage
     end
 
-    self.zoomImage = gfx.image.new(self.zoomImagePath)
+    if self.zoomImagePath then
+        self.zoomImage = gfx.image.new(self.zoomImagePath)
+    else
+        self.zoomImage = nil
+    end
     if self.zoomImage then
         return self.zoomImage
     end
