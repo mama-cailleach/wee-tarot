@@ -15,7 +15,8 @@ function SettingsScene:init()
 
     local img = gfx.image.new("images/bg/icon_tri_smol")
     self.spritewands = gfx.sprite.new(img)
-    self.spritewands:moveTo(160, 70)
+    self.selectorX = 200
+    self.spritewands:moveTo(self.selectorX, 70)
     self.spritewands:add()
 
     -- Add selector button sprite (e.g., ">" or "●")
@@ -24,7 +25,7 @@ function SettingsScene:init()
     gfx.setImageDrawMode(gfx.kDrawModeNXOR) -- for text color
 
     self.titleText = gfx.sprite.spriteWithText("MENU", 400, 200, nil, nil, nil, kTextAlignment.center)  
-    self.titleText:moveTo(210, 30)
+    self.titleText:moveTo(200, 30)
     self.titleText:setScale(1)
     self.titleText:add()
 
@@ -34,21 +35,21 @@ function SettingsScene:init()
     self.soundText = {"Music&Rain", "Just Music", "Just Rain"}
     self.soundTextIndex = Sound.getSoundMode()
 
-    self.buttonX = 210
+    self.buttonX = 200
     self.topY = 70
     self.step = 35
     self.bottomY = self.topY + 4 * self.step 
 
     -- Add buttons
     self:addButton("How To", self.buttonX, self.topY)
-    self:addButton("Alter Diary", self.buttonX, self.topY + self.step)
+    self:addButton("Sound", self.buttonX, self.topY + self.step)
     self.soundButton = self:addButton(self.soundText[self.soundTextIndex], self.buttonX, self.topY + self.step*2)
     self:addButton("Credits", self.buttonX, self.bottomY - self.step)
     self:addButton("Back", self.buttonX, self.bottomY)
 
     self.options = {
     {text = "How To", y = self.topY},
-    {text = "Alter Diary", y = self.topY + self.step},
+    {text = "Sound", y = self.topY + self.step},
     {text = self.soundText[self.soundTextIndex], y = self.topY + self.step*2},
     {text = "Credits", y = self.bottomY - self.step},
     {text = "Back", y = self.bottomY}
@@ -83,7 +84,7 @@ function SettingsScene:update()
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step then
         Sound.playABut()
         Sound.playSFX("cards_slow2")
-        SCENE_MANAGER:switchScene(DiarySettingsScene, "settings")
+        SCENE_MANAGER:switchScene(SoundSettingsScene)
     -- SOUND OPTION
     elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step*2 then
         -- Toggle soundTextIndex
@@ -118,7 +119,7 @@ function SettingsScene:update()
         Sound.playABut()
         self.selectorSprite:moveBy(0, -self.step)
         if self.selectorSprite.y < self.topY then
-            self.selectorSprite:moveTo(200, self.bottomY)
+            self.selectorSprite:moveTo(self.selectorX, self.bottomY)
         end
 
     end
@@ -129,7 +130,7 @@ function SettingsScene:update()
     local currentOption = self.options[self.selectedIndex]
     local textWidth = gfx.getTextSize(currentOption.text, font)
     local offset = 18
-    self.selectorSprite:moveTo(206 - textWidth/2 - offset, currentOption.y)
+    self.selectorSprite:moveTo(self.selectorX - textWidth/2 - offset, currentOption.y)
 
     
 end

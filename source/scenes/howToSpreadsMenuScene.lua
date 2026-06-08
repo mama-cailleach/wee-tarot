@@ -17,8 +17,8 @@ function HowToSpreadsMenuScene:init()
     self.selectorSprite:moveTo(128, 86)
     self.selectorSprite:add()
 
-    self.titleText = gfx.sprite.spriteWithText("Spreads", 400, 200, nil, nil, nil, kTextAlignment.center)
-    self.titleText:moveTo(210, 30)
+    self.titleText = gfx.sprite.spriteWithText("SPREADS", 400, 200, nil, nil, nil, kTextAlignment.center)
+    self.titleText:moveTo(205, 30)
     self.titleText:add()
 
     self.topicOptions = {
@@ -33,7 +33,7 @@ function HowToSpreadsMenuScene:init()
     self.optionSprites = {}
     self.selectedIndex = 1
     self.topY = 68
-    self.step = 28
+    self.step = 30
 
     self:createOptionSprites()
     self:updateSelectorPosition()

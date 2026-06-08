@@ -17,21 +17,22 @@ function HowToMenuScene:init()
     self.selectorSprite:moveTo(128, 86)
     self.selectorSprite:add()
 
-    self.titleText = gfx.sprite.spriteWithText("How To", 400, 200, nil, nil, nil, kTextAlignment.center)
-    self.titleText:moveTo(210, 30)
+    self.titleText = gfx.sprite.spriteWithText("HOW TO", 400, 200, nil, nil, nil, kTextAlignment.center)
+    self.titleText:moveTo(200, 30)
     self.titleText:add()
 
     self.topicOptions = {
+        { label = "Spreads", key = "spreads" },
+        { label = "Diary", key = "diary" },
         { label = "Table Manners", key = "table_manners" },
         { label = "Bits & Bobs", key = "bits_and_bobs" },
-        { label = "Spreads", key = "spreads" },
         { label = "Back", key = "back" }
     }
 
     self.optionSprites = {}
     self.selectedIndex = 1
     self.topY = 68
-    self.step = 28
+    self.step = 34
 
     self:createOptionSprites()
     self:updateSelectorPosition()
@@ -48,7 +49,7 @@ function HowToMenuScene:createOptionSprites()
     for index, option in ipairs(self.topicOptions) do
         local y = self.topY + (index - 1) * self.step
         local optionSprite = gfx.sprite.spriteWithText(option.label, 290, 40, nil, nil, nil, kTextAlignment.center)
-        optionSprite:moveTo(210, y)
+        optionSprite:moveTo(200, y)
         optionSprite:add()
         table.insert(self.optionSprites, optionSprite)
     end
@@ -57,9 +58,9 @@ end
 function HowToMenuScene:updateSelectorPosition()
     local option = self.topicOptions[self.selectedIndex]
     local textWidth = gfx.getTextSize(option.label)
-    local offset = 18
+    local offset = 22
     local y = self.topY + (self.selectedIndex - 1) * self.step
-    self.selectorSprite:moveTo(210 - textWidth / 2 - offset, y)
+    self.selectorSprite:moveTo(200 - textWidth / 2 - offset, y)
 end
 
 function HowToMenuScene:confirmSelection()
@@ -80,6 +81,12 @@ function HowToMenuScene:confirmSelection()
     if option.key == "spreads" then
         Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(HowToSpreadsMenuScene)
+        return
+    end
+
+    if option.key == "diary" then
+        Sound.playSFX("cards_fast2")
+        SCENE_MANAGER:switchScene(HowToDiaryScene)
         return
     end
 
