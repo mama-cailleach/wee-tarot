@@ -41,14 +41,14 @@ function SettingsScene:init()
 
     -- Add buttons
     self:addButton("How To", self.buttonX, self.topY)
-    self:addButton("Diary Mending", self.buttonX, self.topY + self.step)
+    self:addButton("Alter Diary", self.buttonX, self.topY + self.step)
     self.soundButton = self:addButton(self.soundText[self.soundTextIndex], self.buttonX, self.topY + self.step*2)
     self:addButton("Credits", self.buttonX, self.bottomY - self.step)
     self:addButton("Back", self.buttonX, self.bottomY)
 
     self.options = {
     {text = "How To", y = self.topY},
-    {text = "Diary Mending", y = self.topY + self.step},
+    {text = "Alter Diary", y = self.topY + self.step},
     {text = self.soundText[self.soundTextIndex], y = self.topY + self.step*2},
     {text = "Credits", y = self.bottomY - self.step},
     {text = "Back", y = self.bottomY}

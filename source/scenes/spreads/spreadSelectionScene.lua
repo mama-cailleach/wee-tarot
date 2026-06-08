@@ -9,11 +9,11 @@ local deckLabels = {"Full Deck", "Major Arcana", "Minor Arcana", "Cups", "Pentac
 function SpreadSelectionScene:init()
     SpreadSelectionScene.super.init(self)
 
-    self.bgSprite = gfx.sprite.new(gfx.image.new("images/bg/darkcloth"))
+    self.bgSprite = gfx.sprite.new(GameAssets.getDarkclothImage())
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
 
-    local selectorImage = gfx.image.new("images/bg/icon_tri_smol")
+    local selectorImage = GameAssets.getIconTriSmolImage()
     self.selectorSprite = gfx.sprite.new(selectorImage)
     self.selectorSprite:moveTo(120, 92)
     self.selectorSprite:add()
@@ -170,7 +170,7 @@ function SpreadSelectionScene:confirmSelection()
 
     if option.key == "one_card" then
         Sound.playSFX("cards_fast2")
-        SCENE_MANAGER:switchScene(GameScene)
+        SCENE_MANAGER:switchScene(OneCardGameScene)
         return
     elseif option.key == "three_card" then
         Sound.playSFX("cards_fast2")

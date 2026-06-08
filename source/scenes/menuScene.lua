@@ -1,8 +1,8 @@
 local pd <const> = playdate
 local gfx <const> = playdate.graphics
 
+-- First-time hub after title: scroll intro, then same menu hub as AfterDialogueScene (optionsTextOn).
 class('MenuScene').extends(gfx.sprite)
--- local MenuScene = MenuScene --| fixing the squigly line?
 
 local MAX_VISIBLE_LINES = 1
 
@@ -151,29 +151,29 @@ end
 
 function MenuScene:optionsText()
     gfx.setImageDrawMode(gfx.kDrawModeInverted)
-    -- Remove old sprites if they exist
     if self.settingsText then self.settingsText:remove() end
     if self.interactText then self.interactText:remove() end
+    if self.diaryText then self.diaryText:remove() end
 
-
-
-    -- Use the typewriter utility for both texts
     self.settingsText = utils.PromptTextTypewriterOneWay(
         "menu",
-        35, 203,   -- x, y
-        60        -- delayPerChar
+        35, 204,
+        80
     )
     self.interactText = utils.PromptTextTypewriterOneWay(
         "reading",
-        282, 203,  -- x, y
-        60        -- delayPerChar
+        282, 204,
+        80
     )
-    
+    self.diaryText = utils.PromptTextTypewriterOneWay(
+        "diary",
+        182, 204,
+        80
+    )
 
-
-    self.settingsButton = self:makeButtonSprite("B", 16, 222, 14)
-    self.interactButton = self:makeButtonSprite("A", 384, 222, 14)
-
+    self.settingsButton = self:makeButtonSprite(" ª", 16, 223, 13)
+    self.interactButton = self:makeButtonSprite("A", 384, 223, 14)
+    self.diaryButton = self:makeButtonSprite("B", 163, 223, 14)
 end
 
 function MenuScene:loadGameAnimation()
@@ -208,19 +208,8 @@ function MenuScene:update()
 
     -- Only allow A to advance text (crank logic commented out)
     if self.scrollBoxLoad and not self.optionsTextOn then
-        --[[]
-        local crankChange = pd.getCrankChange() / 90
-        if crankChange ~= 0 then
-            local prevOffset = self.scrollOffset
-            self.scrollOffset = math.max(0, math.min(self.scrollOffset + crankChange, self.maxScroll))
-            if math.floor(self.scrollOffset) ~= math.floor(prevOffset) then
-                self:showTextWindow()
-            end
-        end
-        --]]
         -- Always show A button
         if not self.aButton then self:buttonABlink() end
-
         -- Allow A to proceed to next text
         if pd.buttonJustPressed(pd.kButtonA) then
             if self.scrollOffset < self.maxScroll then
@@ -235,23 +224,39 @@ function MenuScene:update()
                 self.optionsTextOn = true
             end
         end
+    -- DON'T CHANGE THIS ELSEIF EVER! IT'S HOW IT WORKS ON THIS SCENE!!!!!!!!!!!!
     elseif self.optionsTextOn then
-        -- Only allow A/B for options after text is gone
-        if pd.buttonJustPressed(pd.kButtonB) then
+        if pd.buttonJustPressed(pd.kButtonUp) then
             Sound.playABut()
             Sound.playSFX("cards_slow2")
             SCENE_MANAGER:switchScene(SettingsScene)
         end
         if pd.buttonJustPressed(pd.kButtonA) then
             self:loadGameAnimation()
-            self.dinahSprite:changeState("transition")
-            self:removeAButton()
             Sound.playSFX("cards_fast2")
+            self.dinahSprite:changeState("transition")
         end
-        if pd.buttonJustPressed(pd.kButtonUp) then
+        if pd.buttonJustPressed(pd.kButtonB) then
             Sound.playABut()
             Sound.playSFX("cards_slow2")
             SCENE_MANAGER:switchScene(DiaryScene)
         end
+    end
+end
+
+
+function MenuScene:deinit()
+    if self.settingsText then self.settingsText:remove() self.settingsText = nil end
+    if self.interactText then self.interactText:remove() self.interactText = nil end
+    if self.diaryText then self.diaryText:remove() self.diaryText = nil end
+    if self.settingsButton then self.settingsButton:remove() self.settingsButton = nil end
+    if self.interactButton then self.interactButton:remove() self.interactButton = nil end
+    if self.diaryButton then self.diaryButton:remove() self.diaryButton = nil end
+    if self.dinahScrollText then self.dinahScrollText:remove() self.dinahScrollText = nil end
+    if self.scrollBoxSprite then self.scrollBoxSprite:remove() self.scrollBoxSprite = nil end
+    self:removeAButton()
+    if self.dinahSprite then self.dinahSprite:remove() self.dinahSprite = nil end
+    if MenuScene.super and MenuScene.super.deinit then
+        MenuScene.super.deinit(self)
     end
 end

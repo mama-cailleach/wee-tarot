@@ -11,7 +11,9 @@ import "CoreLibs/keyboard"
 -- myLibs
 import "libraries/utils"
 import "libraries/AnimatedSprite"
+import "libraries/gameAssets"
 import "data/save/playerProfileStore"
+import "data/save/diaryStore"
 import "scripts/Sound"
 import "scripts/screenShake"
 
@@ -52,15 +54,24 @@ local fontPaths = {
 local myFont = gfx.font.newFamily(fontPaths)
 gfx.setFont(myFont)
 
--- call first scene (do I need this as a function?)
-local function startGame()
-    local loading = gfx.image.new("SystemAssets/launchImage")
-    local loadingSprite = gfx.sprite.new(loading)
-    loadingSprite:moveTo(200, 120) -- center on screen
-    loadingSprite:add()
+local bootComplete = false
+local loadingSprite = nil
+
+local function finishBootAndStartTitle()
+    if loadingSprite then
+        loadingSprite:remove()
+        loadingSprite = nil
+    end
+    bootComplete = true
     SCENE_MANAGER:switchScene(TitleScene)
-    --SCENE_MANAGER:switchScene(ShuffleAnimationTestScene)
-    
+end
+
+local function beginBoot()
+    local loading = gfx.image.new("SystemAssets/launchImage")
+    loadingSprite = gfx.sprite.new(loading)
+    loadingSprite:moveTo(200, 120)
+    loadingSprite:add()
+    GameAssets.beginPreload()
 end
 
 local storedSoundMode = 1
@@ -69,12 +80,26 @@ if PlayerProfileStore and PlayerProfileStore.getSoundMode then
 end
 Sound.init(storedSoundMode)
 
-startGame()
+beginBoot()
 
 
 function pd.update()
+    if bootComplete and DiaryStore and DiaryStore.tickFlush then
+        DiaryStore.tickFlush(SCENE_MANAGER.transitioning)
+    end
+
     gfx.sprite.update()
     pd.timer.updateTimers()
+
+    if not bootComplete then
+        GameAssets.advancePreload()
+        if not GameAssets.isPreloadComplete() then
+            pd.drawFPS(380, 5)
+            return
+        end
+        DiaryStore.warmCache()
+        finishBootAndStartTitle()
+    end
+
     pd.drawFPS(380, 5)
-    
 end

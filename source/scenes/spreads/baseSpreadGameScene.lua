@@ -5,12 +5,6 @@ local gfx <const> = pd.graphics
 
 class('BaseSpreadGameScene').extends(gfx.sprite)
 
-local deckLayingImagetable = nil
-local explodeImagetable = nil
-local scaleTable = nil
-local imagetableShuffle = nil
--- (no ImageCache here in original)
-
 local DEFAULT_FIRST_PROMPTS = {
     "Set your intentions, let the cards\nhear your silent whispers.",
     "Let your energy flow... \nand the answers will find you.",
@@ -31,16 +25,11 @@ end
 function BaseSpreadGameScene:init(config, restoreState)
     BaseSpreadGameScene.super.init(self)
 
-    deckLayingImagetable = deckLayingImagetable or gfx.imagetable.new("images/shuffleAnimation/deck_laying_full_lower-table-400-240")
-    explodeImagetable = explodeImagetable or gfx.imagetable.new("images/shuffleAnimation/exploding_deck1-table-400-240")
-    scaleTable = scaleTable or gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
-    imagetableShuffle = imagetableShuffle or gfx.imagetable.new("images/shuffleAnimation/1_card_shuffle-table-400-240")
-
     self.config = config
     self.deck = Deck()
     self.selectedDeck = selectedDeck or "full"
 
-    self.bgSprite = gfx.sprite.new(gfx.image.new("images/bg/tarot_playspace"))
+    self.bgSprite = gfx.sprite.new(GameAssets.getTarotPlayspaceImage())
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
 
@@ -51,6 +40,12 @@ function BaseSpreadGameScene:init(config, restoreState)
     self.shuffleFrameCount = 1
     self.deckLayingSprite = nil
     self.deckLayingIntroTimer = nil
+    self.revealSprite = nil
+    self.spinSlideAnimSprite = nil
+    self.spinSlideTriggered = false
+    self.spinSlideTriggerSpinCount = math.random(5, 8)
+    self.shuffleSpinCount = 0
+    self.lastCrankTime = 0
 
     self.playerCards = {}
     self.playerCardNumbers = {}
@@ -97,31 +92,75 @@ function BaseSpreadGameScene:init(config, restoreState)
     self.firstPromptSprite = nil
     self.firstPromptTimer = nil
     self.promptTypeTimers = {}
+    self.entrySetupTimer = nil
+    self.restoreSetupTimer = nil
     self.confirmToMenu = restoreState and restoreState.confirmToMenu or false
 
     if restoreState then
-        self:showPlacementSprite(nil, nil, true)
         self.state = "fortune"
-        self:restoreSpreadState(restoreState)
-    else
+        self:startRestoreEntry(restoreState)
+    elseif config.enableIntroAnimation == false then
         self.state = "shuffle"
-        self:showFirstPrompt()
-        self:setup16CardShuffleAnimation()
-        --[[
-            self.state = "intro"
-            self:startDeckLayingIntro()
-        self.deckLayingIntroTimer = pd.timer.performAfterDelay(1000, function()
-            self.deckLayingIntroTimer = nil
-            local coinFlip = math.random(1, 2)
-            if coinFlip == 1 then
-                self:startDeckLayingIntro()
-            else
-                self:setupCardExplodeIntro()
-            end
-        end)]]
+        self:startShuffleEntry()
+    else
+        self:startIntroEntry()
     end
 
     self:add()
+end
+
+function BaseSpreadGameScene:startRestoreEntry(restoreState)
+    if self.restoreSetupTimer then
+        self.restoreSetupTimer:remove()
+        self.restoreSetupTimer = nil
+    end
+
+    self.restoreSetupTimer = pd.timer.performAfterDelay(0, function()
+        self.restoreSetupTimer = nil
+        self:showPlacementSprite(nil, nil, true)
+        self:restoreSpreadState(restoreState)
+    end)
+end
+
+function BaseSpreadGameScene:startIntroEntry()
+    if self.deckLayingIntroTimer then
+        self.deckLayingIntroTimer:remove()
+        self.deckLayingIntroTimer = nil
+    end
+
+    self.state = "intro"
+    self.deckLayingIntroTimer = pd.timer.performAfterDelay(1000, function()
+        self.deckLayingIntroTimer = nil
+        if self.state ~= "intro" then
+            return
+        end
+
+        local coinFlip = math.random(1, 2)
+        if coinFlip == 1 then
+            self:startDeckLayingIntro()
+        else
+            self:setupCardExplodeIntro()
+        end
+    end)
+end
+
+function BaseSpreadGameScene:startShuffleEntry()
+    if self.entrySetupTimer then
+        self.entrySetupTimer:remove()
+        self.entrySetupTimer = nil
+    end
+
+    -- Spread heavy setup across the frame after init (fade-out first frame stays light).
+    self.entrySetupTimer = pd.timer.performAfterDelay(0, function()
+        self.entrySetupTimer = nil
+        if self.state ~= "shuffle" then
+            return
+        end
+        self:showFirstPrompt()
+        self:setup16CardShuffleAnimation()
+        self.shuffleFrame = 1
+        self.shuffleFrameCount = self.shuffleAnimSprite and self.shuffleAnimSprite.imagetable:getLength() or 1
+    end)
 end
 
 function BaseSpreadGameScene:restoreSpreadState(restoreState)
@@ -263,7 +302,7 @@ function BaseSpreadGameScene:startDeckLayingIntro()
         self.deckLayingSprite = nil
     end
 
-    self.deckLayingSprite = AnimatedSprite.new(deckLayingImagetable)
+    self.deckLayingSprite = AnimatedSprite.new(GameAssets.getDeckLayingImagetable())
     self.deckLayingSprite:addState("laying", 1, 125, {
         tickStep = 1,
         loop = false,
@@ -276,6 +315,8 @@ function BaseSpreadGameScene:startDeckLayingIntro()
             self.state = "shuffle"
             self:showFirstPrompt()
             self:setup16CardShuffleAnimation()
+            self.shuffleFrame = 1
+            self.shuffleFrameCount = self.shuffleAnimSprite and self.shuffleAnimSprite.imagetable:getLength() or 1
         end
     }, true)
     self.deckLayingSprite:moveTo(205, 120)
@@ -285,7 +326,7 @@ end
 
 function BaseSpreadGameScene:setupCardExplodeIntro()
     if self.explodeAnimSprite then self.explodeAnimSprite:remove() self.explodeAnimSprite = nil end
-    self.explodeAnimSprite = AnimatedSprite.new(explodeImagetable)
+    self.explodeAnimSprite = AnimatedSprite.new(GameAssets.getExplodeDeckImagetable())
     self.explodeAnimSprite:addState("explode", 1, 72, {
         reverse = true,
         tickStep = 1,
@@ -299,6 +340,8 @@ function BaseSpreadGameScene:setupCardExplodeIntro()
             self.state = "shuffle"
             self:showFirstPrompt()
             self:setup16CardShuffleAnimation()
+            self.shuffleFrame = 1
+            self.shuffleFrameCount = self.shuffleAnimSprite and self.shuffleAnimSprite.imagetable:getLength() or 1
         end
     }, true)
     self.explodeAnimSprite:moveTo(207, 132)
@@ -326,7 +369,7 @@ end
 
 function BaseSpreadGameScene:setup16CardShuffleAnimation()
     if self.shuffleAnimSprite then self.shuffleAnimSprite:remove() self.shuffleAnimSprite = nil end
-    self.shuffleAnimSprite = AnimatedSprite.new(imagetableShuffle)
+    self.shuffleAnimSprite = AnimatedSprite.new(GameAssets.getShuffleImagetable())
     self.shuffleAnimSprite:addState("idle", 1, 1)
     self.shuffleAnimSprite:addState("shuffle", 1, 60, { tickStep = 1 })
     self.shuffleAnimSprite:moveTo(220, 135)
@@ -337,8 +380,13 @@ end
 
 function BaseSpreadGameScene:setupCardExplodeAnimation()
     if self.explodeAnimSprite then self.explodeAnimSprite:remove() self.explodeAnimSprite = nil end
-    self.explodeAnimSprite = AnimatedSprite.new(explodeImagetable)
-    self.explodeAnimSprite:addState("explode", 1, 72, {
+
+    local useFinale = self.config.useExplodeFinaleOnShuffleFinish == true
+    local imagetable = useFinale and GameAssets.getExplodeFinaleImagetable() or GameAssets.getExplodeDeckImagetable()
+    local frameCount = useFinale and 100 or 72
+
+    self.explodeAnimSprite = AnimatedSprite.new(imagetable)
+    self.explodeAnimSprite:addState("explode", 1, frameCount, {
         tickStep = 1,
         loop = false,
         onAnimationEndEvent = function()
@@ -348,7 +396,7 @@ function BaseSpreadGameScene:setupCardExplodeAnimation()
             end
         end
     }, true)
-    self.explodeAnimSprite:moveTo(207, 132)
+    self.explodeAnimSprite:moveTo(useFinale and 208 or 207, useFinale and 125 or 132)
     self.explodeAnimSprite:add()
     self.explodeAnimSprite:playAnimation()
 end
@@ -359,7 +407,7 @@ function BaseSpreadGameScene:startDeckLayingEnding()
         self.deckLayingSprite = nil
     end
 
-    self.deckLayingSprite = AnimatedSprite.new(deckLayingImagetable)
+    self.deckLayingSprite = AnimatedSprite.new(GameAssets.getDeckLayingImagetable())
     self.deckLayingSprite:addState("laying", 1, 126, {
         reverse=true,
         tickStep = 1,
@@ -378,16 +426,20 @@ end
 
 function BaseSpreadGameScene:scaleAnimation(x, y)
     if self.scaleSprite then self.scaleSprite:remove() self.scaleSprite = nil end
-    self.scaleSprite = AnimatedSprite.new(scaleTable)
+    self.scaleSprite = AnimatedSprite.new(GameAssets.getScaledCardImagetable())
     self.scaleSprite:addState("scale", 1, 60, {
-        tickStep = 0.5,
+        tickStep = self.config.scaleAnimationTickStep or 0.5,
         loop = false,
         onAnimationEndEvent = function()
             if self.scaleSprite then
                 self.scaleSprite:remove()
                 self.scaleSprite = nil
             end
-            self:showPlacementSprite()
+            if self.config.useDiamondPlacementZone then
+                self:showPlacementSprite()
+            else
+                self:showPlacementSprite(x, y)
+            end
             self.state = "revealed"
         end
     }, true)
@@ -397,25 +449,211 @@ function BaseSpreadGameScene:scaleAnimation(x, y)
     self.scaleSprite:playAnimation()
 end
 
-function BaseSpreadGameScene:showPlacementSprite(x, y, addImmediately)
-    if self.bgSprite then
-        local newBgImage = gfx.image.new("images/bg/cloth_bits_edges")
-        self.bgSprite:setImage(newBgImage)
+function BaseSpreadGameScene:playRevealBackAnimation(x, y)
+    if self.revealSprite then
+        self.revealSprite:remove()
+        self.revealSprite = nil
     end
+
+    local revealTable = GameAssets.getRevealImagetable()
+    self.revealSprite = AnimatedSprite.new(revealTable)
+    self.revealSprite:addState("animate", 3, 6, {
+        tickStep = 1,
+        loop = false,
+        xScale = 0.6,
+        yScale = 0.6,
+        onAnimationEndEvent = function()
+            if self.revealSprite then
+                self.revealSprite:remove()
+                self.revealSprite = nil
+            end
+            if self.state == "revealing" then
+                self.state = "revealed"
+            end
+        end
+    }, true)
+    self.revealSprite:addState("reveal", 1, 6, { tickStep = 1 }, false)
+    self.revealSprite:moveTo(x or 200, y or 110)
+    self.revealSprite:add()
+    self.revealSprite:changeState("animate", true)
+    self.revealSprite:playAnimation()
+end
+
+function BaseSpreadGameScene:showPlacementSprite(x, y, addImmediately)
+    local placementX = x or 200
+    local placementY = y or 120
+    local revealX = 200
+    local revealY = 110
+    local shouldAddPlacementNow = addImmediately == true
+
+    if self.config.useDiamondPlacementZone then
+        placementX = 200
+        placementY = 120
+        revealX = 200
+        revealY = 110
+        shouldAddPlacementNow = true
+    end
+
+    if self.bgSprite then
+        if self.config.useDarkclothPlacement then
+            self.bgSprite:setImage(GameAssets.getDarkclothImage())
+        else
+            self.bgSprite:setImage(GameAssets.getClothBitsEdgesImage())
+        end
+    end
+
     if not self.cardPlacementSprite then
-        self.cardPlacementSprite = gfx.sprite.new(gfx.image.new("images/decknback/placementzone_no_diamond"))
+        if self.config.useRevealBackAnimation then
+            self:playRevealBackAnimation(revealX, revealY)
+        end
+
+        local zoneImage = self.config.useDiamondPlacementZone
+            and GameAssets.getPlacementZoneDiamondImage()
+            or GameAssets.getPlacementZoneImage()
+
+        self.cardPlacementSprite = gfx.sprite.new(zoneImage)
         self.cardPlacementSprite:setScale(1)
-        self.cardPlacementSprite:moveTo(x or 200, y or 120)
-        self.cardPlacementSprite:setZIndex(200)
-        self.cardPlacementSprite:setImageDrawMode(gfx.kDrawModeXOR)
-        if addImmediately then
+        self.cardPlacementSprite:moveTo(placementX, placementY)
+
+        if not self.config.useDiamondPlacementZone then
+            self.cardPlacementSprite:setZIndex(200)
+            self.cardPlacementSprite:setImageDrawMode(gfx.kDrawModeXOR)
+        end
+
+        if shouldAddPlacementNow then
             self.cardPlacementSprite:add()
         end
     end
+
     if self.shuffleAnimSprite then
         self.shuffleAnimSprite:remove()
         self.shuffleAnimSprite = nil
     end
+end
+
+function BaseSpreadGameScene:triggerSpinSlideAnimation()
+    if self.spinSlideTriggered then return end
+    if self.state ~= "shuffle" then return end
+
+    self.spinSlideTriggered = true
+    self.state = "revealing"
+    self:clearShufflePrompts()
+
+    if self.shuffleFinishTimer then
+        self.shuffleFinishTimer:remove()
+        self.shuffleFinishTimer = nil
+    end
+
+    if self.crankInactivityTimer then
+        self.crankInactivityTimer:remove()
+        self.crankInactivityTimer = nil
+    end
+
+    if self.crankSoundPlaying then
+        Sound.stopCrankLoop()
+        self.crankSoundPlaying = false
+    end
+
+    if self.shuffleAnimSprite then
+        self.shuffleAnimSprite:remove()
+        self.shuffleAnimSprite = nil
+    end
+
+    if self.spinSlideAnimSprite then
+        self.spinSlideAnimSprite:remove()
+        self.spinSlideAnimSprite = nil
+    end
+
+    self.spinSlideAnimSprite = AnimatedSprite.new(GameAssets.getCardSpinSlideImagetable())
+    self.spinSlideAnimSprite:addState("slide", 1, 60, {
+        tickStep = 1,
+        loop = false,
+        onAnimationEndEvent = function()
+            if self.spinSlideAnimSprite then
+                self.spinSlideAnimSprite:remove()
+                self.spinSlideAnimSprite = nil
+            end
+            self:showPlacementSprite()
+        end
+    }, true)
+    self.spinSlideAnimSprite:moveTo(205, 150)
+    self.spinSlideAnimSprite:add()
+    self.spinSlideAnimSprite:playAnimation()
+    ScreenShake.screenShake(400, 4)
+end
+
+function BaseSpreadGameScene:advanceShuffleFrames(frameAdvance)
+    if not self.shuffleAnimSprite or self.spinSlideTriggered then return end
+
+    local frameCount = self.shuffleFrameCount or 60
+    local steps = math.abs(frameAdvance)
+    if steps == 0 then return end
+
+    local direction = frameAdvance > 0 and 1 or -1
+
+    for _ = 1, steps do
+        local nextFrame = self.shuffleFrame + direction
+
+        if nextFrame > frameCount then
+            nextFrame = 1
+            self.shuffleSpinCount += 1
+        elseif nextFrame < 1 then
+            nextFrame = frameCount
+        end
+
+        self.shuffleFrame = nextFrame
+        self.shuffleAnimSprite:setFrame(self.shuffleFrame)
+
+        if direction > 0
+            and self.shuffleSpinCount >= self.spinSlideTriggerSpinCount
+            and self.shuffleFrame == 1 then
+            self:triggerSpinSlideAnimation()
+            return
+        end
+    end
+end
+
+function BaseSpreadGameScene:drawSingleCardLegacy()
+    if self.spinSlideAnimSprite then
+        self.spinSlideAnimSprite:remove()
+        self.spinSlideAnimSprite = nil
+    end
+
+    self:clearDrawnCards()
+
+    local cardDrawed, cardNumber, cardSuit = self:drawCardByDeckSelection()
+    if cardNumber and cardSuit then
+        local visual = Card(cardNumber, cardSuit)
+        visual:moveTo(self.cardPositions[1].x, self.cardPositions[1].y)
+        visual:setScale(self.config.defaultScale)
+
+        if visual.inverted then
+            visual:setRotation(180)
+        else
+            visual:setRotation(0)
+        end
+
+        self:cacheCardImageForVisual(1, visual)
+
+        table.insert(self.drawnCardVisuals, visual)
+        table.insert(self.playerCards, cardDrawed)
+        table.insert(self.playerCardNumbers, cardNumber)
+        table.insert(self.playerCardSuits, cardSuit)
+        table.insert(self.playerCardsInverted, visual.inverted or false)
+
+        self:playRevealBackAnimation(200, 110)
+    end
+
+    if self.cardPlacementSprite then
+        self.cardPlacementSprite:add()
+    end
+
+    self.selectionReady = true
+    self.selectedCardIndex = 1
+    self.selectedCardZoomed = false
+    self:selectCard(1)
+    self.state = "fortune"
+    Sound.playSFX("tuin")
 end
 
 function BaseSpreadGameScene:drawCardByDeckSelection()
@@ -823,36 +1061,64 @@ function BaseSpreadGameScene:update()
 
     if self.state == "revealed" and not self.revealedTimersStarted then
         self.revealedTimersStarted = true
-        pd.timer.performAfterDelay(800, function()
-            self:drawCardsLogic()
+        local drawDelay = self.config.revealedDrawDelayMs or 800
+        pd.timer.performAfterDelay(drawDelay, function()
+            if self.config.useLegacySingleCardDraw then
+                self:drawSingleCardLegacy()
+            else
+                self:drawCardsLogic()
+            end
         end)
     end
 
     if self.state == "shuffle" and self.shuffleAnimSprite and not self.shuffleFinishTimer then
         local crankChange = pd.getCrankChange()
         if crankChange ~= 0 then
-            self.shuffleFrame = ((self.shuffleFrame - 1 + math.floor(crankChange / 7)) % self.shuffleFrameCount) + 1
-            self.shuffleAnimSprite:setFrame(self.shuffleFrame)
-
-            if not self.crankSoundPlaying then
-                Sound.startCrankLoop()
-                self.crankSoundPlaying = true
-            end
-
-            if self.crankInactivityTimer then
-                self.crankInactivityTimer:remove()
-                self.crankInactivityTimer = nil
-            end
-
-            local scene = self
-            self.crankInactivityTimer = pd.timer.performAfterDelay(100, function()
-                if scene.crankSoundPlaying then
-                    Sound.stopCrankLoop()
-                    scene.crankSoundPlaying = false
+            if self.config.enableSpinSlideShuffle then
+                local frameAdvance = math.floor(crankChange / 7)
+                if frameAdvance ~= 0 then
+                    Sound.playSFX("cards2_fast2")
+                    self:advanceShuffleFrames(frameAdvance)
+                    if self.state ~= "shuffle" then
+                        return
+                    end
                 end
-                scene.crankInactivityTimer = nil
-            end)
+
+                self.lastCrankTime = pd.getElapsedTime()
+
+                if not self.crankSoundPlaying then
+                    Sound.startCrankLoop()
+                    self.crankSoundPlaying = true
+                end
+            else
+                self.shuffleFrame = ((self.shuffleFrame - 1 + math.floor(crankChange / 7)) % self.shuffleFrameCount) + 1
+                self.shuffleAnimSprite:setFrame(self.shuffleFrame)
+
+                if not self.crankSoundPlaying then
+                    Sound.startCrankLoop()
+                    self.crankSoundPlaying = true
+                end
+
+                if self.crankInactivityTimer then
+                    self.crankInactivityTimer:remove()
+                    self.crankInactivityTimer = nil
+                end
+
+                local scene = self
+                self.crankInactivityTimer = pd.timer.performAfterDelay(100, function()
+                    if scene.crankSoundPlaying then
+                        Sound.stopCrankLoop()
+                        scene.crankSoundPlaying = false
+                    end
+                    scene.crankInactivityTimer = nil
+                end)
+            end
         end
+    end
+
+    if self.config.enableSpinSlideShuffle and self.crankSoundPlaying and pd.getElapsedTime() - self.lastCrankTime > 0.1 then
+        Sound.stopCrankLoop()
+        self.crankSoundPlaying = false
     end
 
     if self.state == "fortune" then
@@ -868,6 +1134,8 @@ function BaseSpreadGameScene:deinit()
     if self.shuffleAnimSprite then self.shuffleAnimSprite:remove() self.shuffleAnimSprite = nil end
     if self.explodeAnimSprite then self.explodeAnimSprite:remove() self.explodeAnimSprite = nil end
     if self.scaleSprite then self.scaleSprite:remove() self.scaleSprite = nil end
+    if self.revealSprite then self.revealSprite:remove() self.revealSprite = nil end
+    if self.spinSlideAnimSprite then self.spinSlideAnimSprite:remove() self.spinSlideAnimSprite = nil end
 
     for _, timer in ipairs(self.revealTimers or {}) do
         if timer then timer:remove() end
@@ -882,10 +1150,14 @@ function BaseSpreadGameScene:deinit()
         self.crankSoundPlaying = false
     end
 
-    deckLayingImagetable = nil
-    explodeImagetable = nil
-    scaleTable = nil
-    imagetableShuffle = nil
+    if self.entrySetupTimer then
+        self.entrySetupTimer:remove()
+        self.entrySetupTimer = nil
+    end
+    if self.restoreSetupTimer then
+        self.restoreSetupTimer:remove()
+        self.restoreSetupTimer = nil
+    end
 
     self:clearShufflePrompts()
 

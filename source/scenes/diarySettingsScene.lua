@@ -32,7 +32,7 @@ function DiarySettingsScene:init(source, returnState)
     self.diaryLine:add()
 
 
-    self.settingsLabel = gfx.sprite.spriteWithText("MEND", 150, 40, nil, nil, nil, kTextAlignment.left)
+    self.settingsLabel = gfx.sprite.spriteWithText("ALTER", 150, 40, nil, nil, nil, kTextAlignment.left)
     if self.settingsLabel then
         self.settingsLabel:setCenter(0, 0)
         self.settingsLabel:moveTo(260, 1)

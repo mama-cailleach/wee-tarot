@@ -2,6 +2,7 @@ import "baseSpreadGameScene"
 import "oneCardPostScene"
 
 local ONE_CARD_CONFIG = {
+    spreadKey = "one_card",
     cardCount = 1,
     cardPositions = {
         { x = 200, y = 120 }
@@ -17,6 +18,14 @@ local ONE_CARD_CONFIG = {
     zoomScale = 1.55,
     revealDelay = 500,
     nonSelectedDimAlpha = 0,
+    enableSpinSlideShuffle = true,
+    revealedDrawDelayMs = 1150,
+    scaleAnimationTickStep = 1,
+    useDarkclothPlacement = true,
+    useRevealBackAnimation = true,
+    useDiamondPlacementZone = true,
+    useExplodeFinaleOnShuffleFinish = true,
+    useLegacySingleCardDraw = true,
     postSceneClass = OneCardPostScene
 }
 

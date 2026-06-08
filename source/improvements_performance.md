@@ -16,6 +16,19 @@ Reduce the visible and audible hitch when entering spread game scenes and spread
 4. Delay nonessential sound effects by a frame or two if needed to reduce audible hitching.
 5. Move any file I/O or expensive setup out of scene `init()` when possible, especially in the post scene.
 
+## Boot preload (implemented)
+- `source/libraries/gameAssets.lua` — caches spread shuffle/post/selection images and imagetables.
+- `main.lua` — one asset per `update()` frame behind `SystemAssets/launchImage`, then `TitleScene`.
+- Scenes use `GameAssets.get*()` (no per-scene preload, no nil caches in `deinit`).
+
+## Spread game / post entry (implemented)
+- Defer `showFirstPrompt` + shuffle sprite to the frame after spread game `init`.
+- Post scene: `init` only stores card data; Dinah/scroll on next frame; reading text built when scroll animation finishes (~2.8s).
+- Diary: entries + browser index at boot (`warmCache`); new entry updates RAM cache + invalidates index; disk write on hub ª/A or idle `tickFlush`. Journal/list assets in `GameAssets`.
+- After-dialogue: darkcloth + Dinah in `init`; menu typewriter staggered ~50ms after fade (not same frame as first diary write).
+- B exit: defer `restoreSpreadState` one frame. A exit: defer `AfterDialogueScene` visuals.
+- `AfterDialogueScene` uses cached Dinah imagetable; menu typewriter deferred one frame.
+
 ## Experiments To Try
 - Stage the cloth/background change first, then trigger card creation after a short delay.
 - Create cards in small batches instead of all at once.

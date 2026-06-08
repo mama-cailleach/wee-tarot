@@ -49,17 +49,13 @@ function DiaryEntriesListScene:init(restoreState)
     self.bgSprite:add()
     ]]
 
-    self.bgImage = gfx.image.new("images/bg/journal1")
-    self.bgSprite = gfx.sprite.new(self.bgImage)
-    self.bgSprite:moveTo(200,120)
+    self.bgSprite = gfx.sprite.new(GameAssets.getJournal1Image())
+    self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
-    
 
     self.entries = DiaryStore.getEntries()
     self.entriesListDescending = PlayerProfileStore.getEntriesListDescending()
-    self.browserData = {
-        years = {}
-    }
+    self.browserData = DiaryStore.getBrowserData(self.entriesListDescending)
     self.browserMode = "year"
     self.selectedYearIndex = 1
     self.selectedMonthIndex = 1
@@ -95,18 +91,20 @@ function DiaryEntriesListScene:init(restoreState)
     self.lastPreviewRenderTime = 0
     self.previewNeedsRender = false
 
-    local selectorImage = gfx.image.new("images/bg/icon_knot1_smol")
+    local selectorImage = GameAssets.getIconKnotSmolImage()
     if selectorImage then
         self.selectorSprite = gfx.sprite.new(selectorImage)
         self.selectorSprite:add()
     end
 
-    self:buildBrowserData()
     self:applyRestoreState(restoreState)
 
-    self:renderCurrentMode(true)
-
     self:add()
+
+    -- Defer first list/preview build to the frame after init (keeps scene fade smooth).
+    pd.timer.performAfterDelay(0, function()
+        self:renderCurrentMode(true)
+    end)
 end
 
 function DiaryEntriesListScene:clearEntrySprites()
@@ -125,100 +123,14 @@ function DiaryEntriesListScene:clearHeaderSprites()
 end
 
 function DiaryEntriesListScene:createTextSprite(text, width, height, alignment)
-    return gfx.sprite.spriteWithText(text, width, height, nil, nil, nil, alignment or kTextAlignment.left)
+    gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+    local sprite = gfx.sprite.spriteWithText(text, width, height, nil, nil, nil, alignment or kTextAlignment.left)
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    return sprite
 end
 
 function DiaryEntriesListScene:buildBrowserData()
-    local yearLookup = {}
-    local years = {}
-
-    for entryIndex, entry in ipairs(self.entries) do
-        local parsed = parseDiaryDate(entry.date)
-        if parsed then
-            local yearBucket = yearLookup[parsed.year]
-            if not yearBucket then
-                yearBucket = {
-                    year = parsed.year,
-                    months = {},
-                    monthLookup = {}
-                }
-                yearLookup[parsed.year] = yearBucket
-                table.insert(years, yearBucket)
-            end
-
-            local monthBucket = yearBucket.monthLookup[parsed.month]
-            if not monthBucket then
-                monthBucket = {
-                    month = parsed.month,
-                    days = {},
-                    dayLookup = {},
-                    entries = {}
-                }
-                yearBucket.monthLookup[parsed.month] = monthBucket
-                table.insert(yearBucket.months, monthBucket)
-            end
-
-            local dayBucket = monthBucket.dayLookup[parsed.day]
-            if not dayBucket then
-                dayBucket = {
-                    day = parsed.day,
-                    date = parsed.date,
-                    entries = {}
-                }
-                monthBucket.dayLookup[parsed.day] = dayBucket
-                table.insert(monthBucket.days, dayBucket)
-            end
-
-            table.insert(dayBucket.entries, entry)
-            table.insert(monthBucket.entries, {
-                entry = entry,
-                day = parsed.day,
-                date = parsed.date,
-                sortOrder = entryIndex
-            })
-        end
-    end
-
-    table.sort(years, function(left, right)
-        return left.year > right.year
-    end)
-
-    for _, yearBucket in ipairs(years) do
-        table.sort(yearBucket.months, function(left, right)
-            return left.month < right.month
-        end)
-
-        for _, monthBucket in ipairs(yearBucket.months) do
-            table.sort(monthBucket.days, function(left, right)
-                return left.day < right.day
-            end)
-
-            table.sort(monthBucket.entries, function(left, right)
-                if left.day == right.day then
-                    local leftTime = self:formatPreviewTime(left.entry and left.entry.time)
-                    local rightTime = self:formatPreviewTime(right.entry and right.entry.time)
-
-                    if leftTime == rightTime then
-                        return left.sortOrder < right.sortOrder
-                    end
-
-                    if self.entriesListDescending then
-                        return leftTime > rightTime
-                    end
-
-                    return leftTime < rightTime
-                end
-
-                if self.entriesListDescending then
-                    return left.day > right.day
-                end
-
-                return left.day < right.day
-            end)
-        end
-    end
-
-    self.browserData.years = years
+    self.browserData = DiaryStore.getBrowserData(self.entriesListDescending)
 end
 
 function DiaryEntriesListScene:getYearListCount()
@@ -246,7 +158,7 @@ function DiaryEntriesListScene:getYearListItem(index)
     if index == totalYears + 1 then
         return {
             isMend = true,
-            label = "Mend"
+            label = "Alter"
         }
     end
 
@@ -539,7 +451,10 @@ function DiaryEntriesListScene:formatPreviewTime(timeText)
 end
 
 function DiaryEntriesListScene:formatSpreadLabel(spreadType)
-    return SpreadReadingData.getSpreadDisplayName(spreadType or "unknown")
+    if SpreadReadingData.normalizeSpreadKey(spreadType) == "three_card" then
+        return "Root-Trunk-\nBranch"
+    end
+    return SpreadReadingData.getSpreadDisplayName(spreadType)
 end
 
 function DiaryEntriesListScene:buildEntrySummaryText(entry)
@@ -573,7 +488,7 @@ end
 function DiaryEntriesListScene:buildYearPreviewText()
     if self.selectedYearIndex == self:getYearMendIndex() then
         return table.concat({
-            "Diary Mending",
+            "Alter Diary",
             "\nºººººººº\n",
             "Customise the the fabric of your diary.",
             "\nºººººººº\n",
@@ -735,8 +650,10 @@ function DiaryEntriesListScene:renderPreview(resetScroll)
     self.previewScrollY = math.max(0, math.min(self.previewScrollY, self.previewMaxScroll))
 
     gfx.pushContext(self.previewImage)
-        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        gfx.setColor(gfx.kColorBlack)
         gfx.fillRect(0, 0, self.previewWidth, self.previewHeight)
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
         gfx.drawTextInRect(previewText, 0, -self.previewScrollY, self.previewWidth, fullHeight, nil, nil, kTextAlignment.center)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
     gfx.popContext()

@@ -3,12 +3,24 @@ local gfx <const> = pd.graphics
 
 import "data/save/playerProfileStore"
 import "data/spreadReadingData"
-local Utilities = import "libraries/utils"
+import "libraries/utils"
 local ImageCache = import "libraries/imageCache"
 local DebugStats = import "libraries/debugStats"
 ImageCache.setup({ maxEntries = 2, maxBytes = 131072 })
 
 class('DiaryEntryScene').extends(gfx.sprite)
+
+local MONTH_NAMES_FULL = {
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+}
+
+local function createWhiteTextSprite(text, width, height, alignment)
+    gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+    local sprite = gfx.sprite.spriteWithText(text, width, height, nil, nil, nil, alignment or kTextAlignment.center)
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    return sprite
+end
 
 function DiaryEntryScene:init(entry, returnState)
     DiaryEntryScene.super.init(self)
@@ -94,13 +106,20 @@ function DiaryEntryScene:getNavigationCount()
     return self:getCardCount() + 1
 end
 
+function DiaryEntryScene:getSpreadKey()
+    return SpreadReadingData.normalizeSpreadKey(self.entry.spreadType)
+end
+
 function DiaryEntryScene:getSpreadName()
-    return SpreadReadingData.getSpreadDisplayName(self.entry.spreadType or "unknown")
+    if self:getSpreadKey() == "three_card" then
+        return "Root-Trunk-\nBranch"
+    end
+    return SpreadReadingData.getSpreadDisplayName(self.entry.spreadType)
 end
 
 function DiaryEntryScene:buildArrows()
     if not self.arrowRight then
-        self.arrowRight = gfx.sprite.spriteWithText("®", 40, 40, nil, nil, nil, kTextAlignment.center)
+        self.arrowRight = createWhiteTextSprite("®", 40, 40, kTextAlignment.center)
         self.arrowRight:setRotation(90)
         self.arrowRight:moveTo(self.cardCenterX + 70, self.cardCenterY)
         self.arrowRight:setZIndex(310)
@@ -108,7 +127,7 @@ function DiaryEntryScene:buildArrows()
     end
 
     if not self.arrowLeft then
-        self.arrowLeft = gfx.sprite.spriteWithText("®", 40, 40, nil, nil, nil, kTextAlignment.center)
+        self.arrowLeft = createWhiteTextSprite("®", 40, 40, kTextAlignment.center)
         self.arrowLeft:setRotation(270)
         self.arrowLeft:moveTo(self.cardCenterX - 70, self.cardCenterY)
         self.arrowLeft:setZIndex(310)
@@ -138,20 +157,69 @@ function DiaryEntryScene:buildHeaderText()
     return date .. " + " .. spread
 end
 
+function DiaryEntryScene:toOrdinal(day)
+    local suffix = "th"
+    local mod100 = day % 100
+    if mod100 < 11 or mod100 > 13 then
+        local mod10 = day % 10
+        if mod10 == 1 then
+            suffix = "st"
+        elseif mod10 == 2 then
+            suffix = "nd"
+        elseif mod10 == 3 then
+            suffix = "rd"
+        end
+    end
+    return tostring(day) .. suffix
+end
+
+function DiaryEntryScene:formatPreviewDate(date)
+    local day, month, year = string.match(date or "", "^(%d%d)%-(%d%d)%-(%d%d%d%d)$")
+    if not day or not month or not year then
+        return "Erstwhile"
+    end
+
+    local monthIndex = tonumber(month) or 0
+    local monthText = MONTH_NAMES_FULL[monthIndex] or "???"
+    local dayText = self:toOrdinal(tonumber(day) or 0)
+
+    return dayText .. " of \n" .. monthText .. "\n" .. year
+end
+
+function DiaryEntryScene:formatPreviewTime(timeText)
+    if type(timeText) ~= "string" then
+        return "00.00"
+    end
+
+    timeText = string.gsub(timeText, ":", ".")
+
+    if not string.match(timeText, "^%d%d%.%d%d$") then
+        return "00.00"
+    end
+
+    return timeText
+end
+
 function DiaryEntryScene:buildSpreadSummaryText()
     local lines = {}
-    local spreadType = self.entry.spreadType or "unknown"
-    local config = SpreadReadingData.getConfig(spreadType)
+    local spreadKey = self:getSpreadKey()
+    local config = SpreadReadingData.getConfig(spreadKey)
+
+    table.insert(lines, self:formatPreviewDate(self.entry.date))
+    table.insert(lines, "at")
+    table.insert(lines, self:formatPreviewTime(self.entry.time))
+    table.insert(lines, "ºººººººº")
+    table.insert(lines, "")
 
     if type(self.entry.cards) == "table" then
-        table.insert(lines, "Cards Pulled")
+        table.insert(lines, "Cards Pulled:")
         table.insert(lines, "")
         for _, card in ipairs(self.entry.cards) do
             local position = card.position or 0
             local cardName = card.name or "Unknown Card"
             local orientation = card.inverted and " (reversed)" or ""
-            local positionLabel = config and position > 0 and SpreadReadingData.getPositionName(spreadType, position) or tostring(position)
-            table.insert(lines, positionLabel .. ". " .. cardName .. orientation)
+            local positionLabel = config and position > 0 and SpreadReadingData.getPositionName(spreadKey, position) or tostring(position)
+            table.insert(lines, positionLabel .. ". " .. cardName .. orientation .. "\n")
         end
     end
 
@@ -159,35 +227,28 @@ function DiaryEntryScene:buildSpreadSummaryText()
 end
 
 function DiaryEntryScene:getCardDetails()
-    if type(self.entry.cardDetails) == "table" and #self.entry.cardDetails > 0 then
-        return self.entry.cardDetails
-    end
-
     local details = {}
     if type(self.entry.cards) ~= "table" then
         return details
     end
 
+    local spreadKey = self:getSpreadKey()
+    local config = SpreadReadingData.getConfig(spreadKey)
+
     for _, card in ipairs(self.entry.cards) do
         local position = tonumber(card.position) or (#details + 1)
-        local positionLabel = SpreadReadingData.getConfig(self.entry.spreadType or "unknown") and position > 0 and SpreadReadingData.getPositionName(self.entry.spreadType or "unknown", position) or ("Card " .. tostring(position))
-        local readingLines = {}
-        local fortuneLines = type(self.entry.fortuneLines) == "table" and self.entry.fortuneLines or nil
-        local line = fortuneLines and fortuneLines[position] or nil
-        if type(line) == "string" and #line > 0 then
-            table.insert(readingLines, line)
-        elseif type(self.entry.fortuneText) == "string" and #self.entry.fortuneText > 0 then
-            table.insert(readingLines, self.entry.fortuneText)
-        end
+        local cardName = card.name or "Unknown Card"
+        local inverted = card.inverted == true
+        local positionLabel = config and position > 0
+            and SpreadReadingData.getPositionName(spreadKey, position)
+            or ("Card " .. tostring(position))
 
         table.insert(details, {
             position = position,
             positionLabel = positionLabel,
-            cardName = card.name or "Unknown Card",
-            inverted = card.inverted == true,
-            themes = {},
-            readingLines = readingLines,
-            readingText = #readingLines > 0 and table.concat(readingLines, "\n") or nil
+            cardName = cardName,
+            inverted = inverted,
+            themes = SpreadReadingData.pickKeywords(cardName, inverted, 3)
         })
     end
 
@@ -216,7 +277,8 @@ function DiaryEntryScene:buildCardDetailText(detail)
 
     table.insert(lines, cardName)
     table.insert(lines, "")
-    table.insert(lines, "Position: " .. positionLabel)
+    table.insert(lines, positionLabel)
+    table.insert(lines, "")
     table.insert(lines, "Orientation: " .. orientation)
 
     if type(detail.themes) == "table" and #detail.themes > 0 then
@@ -224,24 +286,8 @@ function DiaryEntryScene:buildCardDetailText(detail)
         table.insert(lines, "Themes:")
         table.insert(lines, table.concat(detail.themes, ", "))
     end
-
-    local readingLines = type(detail.readingLines) == "table" and detail.readingLines or nil
-    if readingLines and #readingLines > 0 then
-        table.insert(lines, "")
-        table.insert(lines, "Reading:")
-        for _, line in ipairs(readingLines) do
-            table.insert(lines, line)
-        end
-    elseif type(detail.readingText) == "string" and #detail.readingText > 0 then
-        table.insert(lines, "")
-        table.insert(lines, "Reading:")
-        table.insert(lines, detail.readingText)
-    end
-
-    if #lines <= 4 then
-        table.insert(lines, "")
-        table.insert(lines, "No reading data available.")
-    end
+    table.insert(lines, "")
+    table.insert(lines, "ºººººººº")
 
     return table.concat(lines, "\n")
 end
@@ -251,18 +297,12 @@ function DiaryEntryScene:buildBodyText()
     local bodyText
 
     if selectedCard and selectedCard.isSpreadCard then
-        if type(self.entry.fortuneText) == "string" and #self.entry.fortuneText > 0 then
-            bodyText = self.entry.fortuneText
-        elseif type(self.entry.fortuneLines) == "table" and #self.entry.fortuneLines > 0 then
-            bodyText = table.concat(self.entry.fortuneLines, "\n")
-        else
-            bodyText = self:buildSpreadSummaryText()
-        end
+        bodyText = self:buildSpreadSummaryText()
     else
         bodyText = self:buildCardDetailText(self:getSelectedCardDetail())
     end
 
-    local wrappedLines = Utilities.wrapTextToLines(bodyText or "", self.viewWidth, gfx.getSystemFont())
+    local wrappedLines = utils.wrapTextToLines(bodyText or "", self.viewWidth, gfx.getSystemFont())
     return table.concat(wrappedLines, "\n")
 end
 
@@ -273,7 +313,7 @@ function DiaryEntryScene:renderHeader()
     end
 
     local headerText = self:buildHeaderText()
-    self.headerSprite = gfx.sprite.spriteWithText(headerText, 186, 24, nil, nil, nil, kTextAlignment.left)
+    self.headerSprite = createWhiteTextSprite(headerText, 186, 24, kTextAlignment.center)
     if self.headerSprite then
         self.headerSprite:setCenter(0, 0)
         self.headerSprite:moveTo(self.viewX, 6)
@@ -301,7 +341,7 @@ function DiaryEntryScene:getSelectedCard()
         return {
             isSpreadCard = true,
             name = self:getSpreadName(),
-            imagePath = "images/spreads/" .. (self.entry.spreadType)
+            imagePath = "images/spreads/" .. self:getSpreadKey()
         }
     end
 
@@ -338,7 +378,7 @@ function DiaryEntryScene:renderSelectedCard()
 
     local card = self:getSelectedCard()
     if not card then
-        self.cardFallbackSprite = gfx.sprite.spriteWithText("No cards", 120, 40, nil, nil, nil, kTextAlignment.center)
+        self.cardFallbackSprite = createWhiteTextSprite("No cards", 120, 40, kTextAlignment.center)
         if self.cardFallbackSprite then
             self.cardFallbackSprite:setCenter(0.5, 0.5)
             self.cardFallbackSprite:moveTo(self.cardCenterX, cardY)
@@ -348,7 +388,7 @@ function DiaryEntryScene:renderSelectedCard()
     end
 
     local cardNameText = card.isSpreadCard and self:getSpreadName() or card.name or "Unknown Card"
-    self.cardNameSprite = gfx.sprite.spriteWithText(cardNameText, 160, 80, nil, nil, nil, kTextAlignment.center)
+    self.cardNameSprite = createWhiteTextSprite(cardNameText, 160, 80, kTextAlignment.center)
     if self.cardNameSprite then
         self.cardNameSprite:setCenter(0.5, 0.5)
         self.cardNameSprite:moveTo(self.cardCenterX, 40)
@@ -365,7 +405,7 @@ function DiaryEntryScene:renderSelectedCard()
 
     if not cardImage then
         local fallbackName = card.name or "Unknown Card"
-        self.cardFallbackSprite = gfx.sprite.spriteWithText(fallbackName, 120, 60, nil, nil, nil, kTextAlignment.center)
+        self.cardFallbackSprite = createWhiteTextSprite(fallbackName, 120, 60, kTextAlignment.center)
         if self.cardFallbackSprite then
             self.cardFallbackSprite:setCenter(0.5, 0.5)
             self.cardFallbackSprite:moveTo(self.cardCenterX, cardY)
@@ -400,7 +440,9 @@ function DiaryEntryScene:renderBody()
             local created = gfx.image.new(self.viewWidth, fullHeight)
             if created then
                 gfx.pushContext(created)
-                    gfx.drawTextInRect(bodyText, 0, 0, self.viewWidth, fullHeight, nil, nil, kTextAlignment.left)
+                    gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+                    gfx.drawTextInRect(bodyText, 0, 0, self.viewWidth, fullHeight, nil, nil, kTextAlignment.center)
+                    gfx.setImageDrawMode(gfx.kDrawModeCopy)
                 gfx.popContext()
                 DebugStats.inc('fullImageCreates')
             end
@@ -442,7 +484,8 @@ function DiaryEntryScene:renderBody()
         end
 
         gfx.pushContext(self.bodyImage)
-            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+            gfx.setColor(gfx.kColorBlack)
             gfx.fillRect(0, 0, self.viewWidth, self.viewHeight)
             -- draw visible tiles
             for ti = startTile, endTile do
@@ -451,8 +494,9 @@ function DiaryEntryScene:renderBody()
                     local timg = gfx.image.new(self.viewWidth, tileHeight)
                     if timg then
                         gfx.pushContext(timg)
-                            -- draw the portion of text at vertical offset for this tile
-                            gfx.drawTextInRect(bodyText, 0, - (ti * tileHeight), self.viewWidth, fullHeight, nil, nil, kTextAlignment.left)
+                            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+                            gfx.drawTextInRect(bodyText, 0, - (ti * tileHeight), self.viewWidth, fullHeight, nil, nil, kTextAlignment.center)
+                            gfx.setImageDrawMode(gfx.kDrawModeCopy)
                         gfx.popContext()
                         DebugStats.inc('tileCreates')
                     end
@@ -464,7 +508,6 @@ function DiaryEntryScene:renderBody()
                     tileImg:draw(0, drawY)
                 end
             end
-            gfx.setImageDrawMode(gfx.kDrawModeCopy)
         gfx.popContext()
 
         if not self.bodySprite then

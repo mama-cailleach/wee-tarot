@@ -36,9 +36,9 @@ function PostScene:init(cardName, cardNumber, cardSuit, isInverted)
     self.invert = isInverted
 
     -- --- Scene-Specific Variables ---
-    self.imagetable = gfx.imagetable.new("images/bg/dinahBG-table-400-266")
+    self.imagetable = GameAssets.getDinahImagetable()
     self.dinahSprite = AnimatedSprite.new(self.imagetable)
-    self.scrollBoxImg = gfx.image.new("images/textScroll/scroll1b")
+    self.scrollBoxImg = GameAssets.getScrollBoxImage()
     self.scrollBoxSprite = gfx.sprite.new(self.scrollBoxImg)
     self.dinahText = {} -- This will be populated by addCardTextToDinah
     self.aButton = nil
@@ -68,7 +68,6 @@ function PostScene:init(cardName, cardNumber, cardSuit, isInverted)
     self:addCardTextToDinah(self.card)
     self.scrollOffset = 0
     self.maxScroll = math.max(0, #self.dinahTextLines - 1)
-    self:persistDiaryEntry()
 
     -- Set up the scroll box animator, and crucially, its callback
     self.scrollBoxAnimatorIn = gfx.animator.new(3000, 300, 170, pd.easingFunctions.outBack)
@@ -196,19 +195,17 @@ function PostScene:update()
             self.scrollOffset = self.scrollOffset + 1
             self:showTextWindow()
         else
-            -- At end, proceed to next scene or options
-            self:persistDiaryEntry()
+            self:queueReadingToDiary()
             self.canButton = false
             self:removeAButton()
-            if self.dinahScrollText then 
-                self.dinahScrollText:remove() 
-                self.dinahScrollText = nil 
+            if self.dinahScrollText then
+                self.dinahScrollText:remove()
+                self.dinahScrollText = nil
             end
-            if self.scrollBoxSprite then 
-                self.scrollBoxSprite:remove() 
+            if self.scrollBoxSprite then
+                self.scrollBoxSprite:remove()
             end
-            -- You can add optionsText here if you want options, or just go to next scene:
-            AfterDialogueScene()
+            SCENE_MANAGER:switchScene(BufferScene)
         end
     end
 
@@ -228,54 +225,20 @@ function PostScene:update()
     end
 end
 
-function PostScene:buildDiaryEntry()
-    local fortuneLines = self.dinahTextLines or {}
-    local fortuneText = self.dinahTextBlock or table.concat(fortuneLines, "\n")
-    local cardInfo = ALL_CARD_DATA[self.card] or {}
-    local themes = cardInfo.reversed_keywords
-    if self.invert ~= true or type(themes) ~= "table" or #themes == 0 then
-        themes = cardInfo.upright_keywords or {}
-    end
-
-    local cardDetails = {
-        {
-            position = 1,
-            positionLabel = "Card",
-            cardName = self.card,
-            inverted = self.invert == true,
-            themes = themes,
-            descriptionLines = cardInfo.correspondence or fortuneLines,
-            readingLines = fortuneLines,
-            readingText = fortuneText
-        }
-    }
-
-    return {
-        date = DiaryStore.formatDateFromSystem(),
-        time = DiaryStore.formatTimeFromSystem(),
-        spreadType = "one-card",
-        cards = {
-            {
-                name = self.card,
-                number = self.cardNumber,
-                suit = self.cardSuit,
-                inverted = self.invert == true,
-                position = 1
-            }
-        },
-        cardDetails = cardDetails,
-        fortuneLines = fortuneLines,
-        fortuneText = fortuneText
-    }
-end
-
-function PostScene:persistDiaryEntry()
+function PostScene:queueReadingToDiary()
     if self.diaryEntrySaved then
         return
     end
 
-    local entry = self:buildDiaryEntry()
-    DiaryStore.appendEntry(entry)
+    DiaryStore.queueCompletedReading("one_card", {
+        {
+            name = self.card,
+            number = self.cardNumber,
+            suit = self.cardSuit,
+            inverted = self.invert == true,
+            position = 1
+        }
+    })
     self.diaryEntrySaved = true
 end
 

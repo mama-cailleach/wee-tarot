@@ -16,7 +16,7 @@ local SPREAD_CONFIGS = {
             "One card settles on the table.",
             "Let us hear what it has to say."
         },
-        positionNames = { "Card" },
+        positionNames = { "Fortune Card" },
         closingLine = "Press A to continue, or B for one last glimpse."
     },
     three_card = {
@@ -398,8 +398,16 @@ end
 
 SpreadReadingData = {}
 
+function SpreadReadingData.normalizeSpreadKey(spreadKey)
+    if type(spreadKey) ~= "string" then
+        return "unknown"
+    end
+
+    return string.gsub(string.lower(spreadKey), "%-", "_")
+end
+
 function SpreadReadingData.getConfig(spreadKey)
-    return SPREAD_CONFIGS[spreadKey]
+    return SPREAD_CONFIGS[SpreadReadingData.normalizeSpreadKey(spreadKey)]
 end
 
 function SpreadReadingData.getSpreadDisplayName(spreadKey)
@@ -407,10 +415,9 @@ function SpreadReadingData.getSpreadDisplayName(spreadKey)
         return "Unknown Spread"
     end
 
-    local lowered = string.lower(spreadKey)
-    local normalized = string.gsub(lowered, "%-", "_")
+    local normalized = SpreadReadingData.normalizeSpreadKey(spreadKey)
 
-    return SPREAD_DISPLAY_NAMES[lowered] or SPREAD_DISPLAY_NAMES[normalized] or spreadKey
+    return SPREAD_DISPLAY_NAMES[normalized] or spreadKey
 end
 
 function SpreadReadingData.pickKeywords(cardName, inverted, keywordCount)
@@ -443,7 +450,7 @@ function SpreadReadingData.pickKeywords(cardName, inverted, keywordCount)
 end
 
 function SpreadReadingData.getPositionName(spreadKey, index)
-    local config = SPREAD_CONFIGS[spreadKey]
+    local config = SpreadReadingData.getConfig(spreadKey)
     if not config then
         return "Card " .. tostring(index)
     end

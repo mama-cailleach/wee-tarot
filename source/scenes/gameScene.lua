@@ -6,26 +6,10 @@ local gfx <const> = pd.graphics
 class('GameScene').extends(gfx.sprite)
 
 
--- pre lodaing imagetable
-local explodeImagetable = nil
-local scaleTable = nil
-local imagetableShuffle = nil
-local cardSpinSlideImagetable = nil
-local deckLayingImagetable = nil
-local explodeDeckImagetable = nil
-
 function GameScene:init()
     self.deck = Deck()
 
-    explodeImagetable = explodeImagetable or gfx.imagetable.new("images/shuffleAnimation/explode_finale-table-400-240")
-    scaleTable = scaleTable or gfx.imagetable.new("images/shuffleAnimation/scaled_card-table-400-240")
-    imagetableShuffle = imagetableShuffle or gfx.imagetable.new("images/shuffleAnimation/1_card_shuffle-table-400-240")
-    cardSpinSlideImagetable = cardSpinSlideImagetable or gfx.imagetable.new("images/shuffleAnimation/card_spin_slide-table-400-240")
-    deckLayingImagetable = deckLayingImagetable or gfx.imagetable.new("images/shuffleAnimation/deck_laying_full_lower-table-400-240")
-    explodeDeckImagetable = explodeDeckImagetable or gfx.imagetable.new("images/shuffleAnimation/exploding_deck1-table-400-240")
-
-
-    self.bgSprite = gfx.sprite.new(gfx.image.new("images/bg/tarot_playspace"))
+    self.bgSprite = gfx.sprite.new(GameAssets.getTarotPlayspaceImage())
     self.bgSprite:moveTo(200,120)
     self.bgSprite:add()
 
@@ -205,7 +189,7 @@ function GameScene:startDeckLayingIntro()
         self.deckLayingSprite = nil
     end
 
-    self.deckLayingSprite = AnimatedSprite.new(deckLayingImagetable)
+    self.deckLayingSprite = AnimatedSprite.new(GameAssets.getDeckLayingImagetable())
     self.deckLayingSprite:addState("laying", 1, 125, {
         tickStep = 1,
         loop = false,
@@ -229,7 +213,7 @@ end
 
 function GameScene:setupCardExplodeIntro()
     if self.explodeDeckAnimSprite then self.explodeDeckAnimSprite:remove() self.explodeDeckAnimSprite = nil end
-    self.explodeDeckAnimSprite = AnimatedSprite.new(explodeDeckImagetable)
+    self.explodeDeckAnimSprite = AnimatedSprite.new(GameAssets.getExplodeDeckImagetable())
     self.explodeDeckAnimSprite:addState("explode", 1, 72, {
         reverse = true,
         tickStep = 1,
@@ -256,7 +240,7 @@ end
 --OG 16card
 function GameScene:setup16CardShuffleAnimation()
     if self.shuffleAnimSprite then self.shuffleAnimSprite:remove() self.shuffleAnimSprite = nil end
-    self.shuffleAnimSprite = AnimatedSprite.new(imagetableShuffle)
+    self.shuffleAnimSprite = AnimatedSprite.new(GameAssets.getShuffleImagetable())
     self.shuffleAnimSprite:addState("idle", 1, 1)
     self.shuffleAnimSprite:addState("shuffle", 1, 60, {tickStep = 1})
     self.shuffleAnimSprite:moveTo(220, 135)
@@ -302,7 +286,7 @@ function GameScene:triggerSpinSlideAnimation()
         self.spinSlideAnimSprite = nil
     end
 
-    self.spinSlideAnimSprite = AnimatedSprite.new(cardSpinSlideImagetable)
+    self.spinSlideAnimSprite = AnimatedSprite.new(GameAssets.getCardSpinSlideImagetable())
     self.spinSlideAnimSprite:addState("slide", 1, 60, {
         tickStep = 1,
         loop = false,
@@ -401,7 +385,7 @@ end
 
 function GameScene:setupCardExplodeAnimation()
     if self.explodeAnimSprite then self.explodeAnimSprite:remove() self.explodeAnimSprite = nil end
-    self.explodeAnimSprite = AnimatedSprite.new(explodeImagetable)
+    self.explodeAnimSprite = AnimatedSprite.new(GameAssets.getExplodeFinaleImagetable())
     self.explodeAnimSprite:addState("explode", 1, 100, {tickStep = 1, loop = false, onAnimationEndEvent = function()
         -- what happens after
         self.explodeAnimSprite:remove()
@@ -464,7 +448,7 @@ end
 
 function GameScene:scaleAnimation(x, y)
     if self.scaleSprite then self.scaleSprite:remove() self.scaleSprite = nil end
-    self.scaleSprite = AnimatedSprite.new(scaleTable)
+    self.scaleSprite = AnimatedSprite.new(GameAssets.getScaledCardImagetable())
     self.scaleSprite:addState("scale", 1, 60, {tickStep = 1, loop = false, onAnimationEndEvent = function()
         self.scaleSprite:remove()
         self.scaleSprite = nil
@@ -620,13 +604,6 @@ function GameScene:deinit()
         self.crankSoundPlaying = false
     end
 
-    explodeImagetable = nil
-    scaleTable = nil
-    imagetableShuffle = nil
-    cardSpinSlideImagetable = nil
-    deckLayingImagetable = nil
-    explodeDeckImagetable = nil
-    
     -- Remove any other timers or sprites you create
     --GameScene.super.deinit(self)
 end
