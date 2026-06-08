@@ -82,9 +82,11 @@ GameAssets.prewarmDiaryListAssets() → touch list UI images
 
 ### Load source priority (`loadEntriesFromStorage`)
 
-1. **`pd.datastore.read("data/save/diaryEntries")`** — player save on device
-2. If missing or empty → **`data/save/diaryEntries.json`** — bundled fallback (dev/shipped seed data)
-3. All entries pass through `sanitizeEntry()` (date, time, spread key, cards)
+1. **`pd.datastore.read("data/save/diaryIndex")`** — ordered list of entry ids + `nextId`
+2. **`pd.datastore.read("data/save/diaryEntry_<id>")`** — one reading per file
+3. Legacy monolithic **`data/save/diaryEntries`** is migrated once into sharded files
+4. If nothing on device → **`data/save/diaryEntries.json`** bundled fallback (dev/shipped seed)
+5. All entries pass through `sanitizeEntry()` (date, time, spread key, cards)
 
 ### Every frame after boot
 
@@ -219,11 +221,16 @@ DiaryStore.invalidateBrowserCache()
 | `AfterDialogueScene:flushDiaryToDiskIfNeeded()` | Player presses **Up** (Settings) or **A** (new reading) from hub |
 | `appendEntry()` | **Unused** in current scenes — writes synchronously if called directly |
 
-`writeCacheToDisk()`:
+`flushPendingAppend()` (sharded — flat cost per save):
 
 ```lua
-pd.datastore.write({ schemaVersion = 1, entries = entriesCache }, "data/save/diaryEntries", true)
+-- Entry file(s) not yet persisted (usually one new reading)
+pd.datastore.write({ schemaVersion = 2, date, time, spreadType, cards }, "data/save/diaryEntry_<id>", true)
+-- Small index (ids only)
+pd.datastore.write({ schemaVersion = 2, nextId, order }, "data/save/diaryIndex", true)
 ```
+
+BufferScene calls `flushPendingEntryFiles()` at 4s and `finishPendingFlush()` at 4.5s (two frames).
 
 ### After save — browser index refresh
 

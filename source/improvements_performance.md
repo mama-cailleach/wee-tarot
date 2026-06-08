@@ -24,7 +24,7 @@ Reduce the visible and audible hitch when entering spread game scenes and spread
 ## Spread game / post entry (implemented)
 - Defer `showFirstPrompt` + shuffle sprite to the frame after spread game `init`.
 - Post scene: `init` only stores card data; Dinah/scroll on next frame; reading text built when scroll animation finishes (~2.8s).
-- Diary: entries + browser index at boot (`warmCache`); new entry updates RAM cache + invalidates index; disk write on hub ª/A or idle `tickFlush`. Journal/list assets in `GameAssets`.
+- Diary: sharded save (`diaryIndex` + `diaryEntry_<id>`); flush writes one entry file + small index (BufferScene at 4s/4.5s); legacy monolithic blob migrates once. Browser/index prewarm unchanged in buffer.
 - After-dialogue: darkcloth + Dinah in `init`; menu typewriter staggered ~50ms after fade (not same frame as first diary write).
 - B exit: defer `restoreSpreadState` one frame. A exit: defer `AfterDialogueScene` visuals.
 - `AfterDialogueScene` uses cached Dinah imagetable; menu typewriter deferred one frame.

@@ -4,16 +4,26 @@ import "data/spreadReadingData"
 
 DiaryStore = {}
 
-local DATASTORE_PATH <const> = "data/save/diaryEntries"
+local INDEX_PATH <const> = "data/save/diaryIndex"
+local LEGACY_PATH <const> = "data/save/diaryEntries"
 local BUNDLED_FALLBACK_PATH <const> = "data/save/diaryEntries.json"
+local ENTRY_PATH_PREFIX <const> = "data/save/diaryEntry_"
+
+local SCHEMA_VERSION <const> = 2
 
 local entriesCache = nil
+local indexCache = nil
+local persistedIds = {}
 local pendingDiskWrite = false
 local framesUntilFlush = 0
 local browserCacheByDescending = {}
 
--- Idle backup: flush JSON to disk if the player stays on the hub a while.
+-- Idle backup: flush to disk if the player stays on the hub a while.
 local FLUSH_IDLE_FRAMES <const> = 180
+
+local function entryPathForId(entryId)
+    return ENTRY_PATH_PREFIX .. tostring(entryId)
+end
 
 local function sanitizeEntry(raw)
     if type(raw) ~= "table" then
@@ -47,12 +57,18 @@ local function sanitizeEntry(raw)
         end
     end
 
-    return {
+    local entry = {
         date = date,
         time = time,
         spreadType = spreadType,
         cards = cards
     }
+
+    if type(raw.id) == "number" then
+        entry.id = raw.id
+    end
+
+    return entry
 end
 
 local function sanitizeEntries(rawEntries)
@@ -80,32 +96,185 @@ local function readBundledFallback()
     return sanitizeEntries(fallback.entries)
 end
 
-local function loadEntriesFromStorage()
-    local stored = pd.datastore.read(DATASTORE_PATH)
-    if type(stored) ~= "table" then
-        return readBundledFallback()
+local function ensureIndexCache()
+    if indexCache then
+        return indexCache
     end
 
-    local storedEntries = sanitizeEntries(stored.entries)
-    if #storedEntries == 0 then
-        return readBundledFallback()
-    end
+    indexCache = {
+        schemaVersion = SCHEMA_VERSION,
+        nextId = 1,
+        order = {}
+    }
 
-    return storedEntries
+    return indexCache
 end
 
-local function writeCacheToDisk()
+local function buildIndexFromEntries(entries)
+    local index = ensureIndexCache()
+    index.order = {}
+
+    for i, entry in ipairs(entries or {}) do
+        if not entry.id then
+            entry.id = i
+        end
+        table.insert(index.order, entry.id)
+    end
+
+    index.nextId = #index.order + 1
+    return index
+end
+
+local function writeIndexToDisk()
+    if not indexCache then
+        return false
+    end
+
+    pd.datastore.write({
+        schemaVersion = SCHEMA_VERSION,
+        nextId = indexCache.nextId,
+        order = indexCache.order
+    }, INDEX_PATH, true)
+
+    return true
+end
+
+local function writeEntryToDisk(entry)
+    if not entry or type(entry.id) ~= "number" then
+        return false
+    end
+
+    pd.datastore.write({
+        schemaVersion = SCHEMA_VERSION,
+        date = entry.date,
+        time = entry.time,
+        spreadType = entry.spreadType,
+        cards = entry.cards
+    }, entryPathForId(entry.id), true)
+
+    persistedIds[entry.id] = true
+    return true
+end
+
+local function readEntryFromDisk(entryId)
+    local stored = pd.datastore.read(entryPathForId(entryId))
+    if type(stored) ~= "table" then
+        return nil
+    end
+
+    local entry = sanitizeEntry(stored)
+    if entry then
+        entry.id = entryId
+    end
+
+    return entry
+end
+
+local function loadEntriesFromIndex()
+    local storedIndex = pd.datastore.read(INDEX_PATH)
+    if type(storedIndex) ~= "table" or type(storedIndex.order) ~= "table" or #storedIndex.order == 0 then
+        return nil
+    end
+
+    indexCache = {
+        schemaVersion = SCHEMA_VERSION,
+        nextId = tonumber(storedIndex.nextId) or (#storedIndex.order + 1),
+        order = storedIndex.order
+    }
+
+    local entries = {}
+    persistedIds = {}
+
+    for _, entryId in ipairs(indexCache.order) do
+        local numericId = tonumber(entryId)
+        if numericId then
+            local entry = readEntryFromDisk(numericId)
+            if entry then
+                table.insert(entries, entry)
+                persistedIds[numericId] = true
+            end
+        end
+    end
+
+    if #entries == 0 then
+        return nil
+    end
+
+    return entries
+end
+
+local function migrateLegacyBlob(legacy)
+    local entries = sanitizeEntries(legacy.entries)
+    if #entries == 0 then
+        return nil
+    end
+
+    buildIndexFromEntries(entries)
+
+    for _, entry in ipairs(entries) do
+        writeEntryToDisk(entry)
+    end
+
+    writeIndexToDisk()
+
+    pd.datastore.write({
+        schemaVersion = 1,
+        migrated = true
+    }, LEGACY_PATH, true)
+
+    print(string.format("[DiaryStore] migrated %d legacy entries to sharded storage", #entries))
+    return entries
+end
+
+local function loadEntriesFromStorage()
+    local indexedEntries = loadEntriesFromIndex()
+    if indexedEntries then
+        return indexedEntries
+    end
+
+    local legacy = pd.datastore.read(LEGACY_PATH)
+    if type(legacy) == "table" and legacy.migrated ~= true and type(legacy.entries) == "table" and #legacy.entries > 0 then
+        local migrated = migrateLegacyBlob(legacy)
+        if migrated then
+            return migrated
+        end
+    end
+
+    local bundledEntries = readBundledFallback()
+    if #bundledEntries > 0 then
+        buildIndexFromEntries(bundledEntries)
+        return bundledEntries
+    end
+
+    ensureIndexCache()
+    return {}
+end
+
+local function assignEntryId(entry)
+    local index = ensureIndexCache()
+    local entryId = index.nextId
+    index.nextId = entryId + 1
+    entry.id = entryId
+    table.insert(index.order, 1, entryId)
+    return entryId
+end
+
+local function flushUnpersistedEntries()
     if not entriesCache then
         return false
     end
 
-    local savePayload = {
-        schemaVersion = 1,
-        entries = entriesCache
-    }
+    local wroteAny = false
 
-    pd.datastore.write(savePayload, DATASTORE_PATH, true)
-    return true
+    for _, entry in ipairs(entriesCache) do
+        if entry.id and not persistedIds[entry.id] then
+            if writeEntryToDisk(entry) then
+                wroteAny = true
+            end
+        end
+    end
+
+    return wroteAny
 end
 
 function DiaryStore.getEntries()
@@ -119,6 +288,8 @@ end
 
 function DiaryStore.invalidateCache()
     entriesCache = nil
+    indexCache = nil
+    persistedIds = {}
     browserCacheByDescending = {}
 end
 
@@ -265,7 +436,6 @@ function DiaryStore.getBrowserData(entriesListDescending)
     return data
 end
 
---- Prebuild list index + touch list images (no disk write).
 function DiaryStore.prewarmDiaryUI()
     DiaryStore.getBrowserData(false)
     DiaryStore.getBrowserData(true)
@@ -274,13 +444,13 @@ function DiaryStore.prewarmDiaryUI()
     end
 end
 
---- New entry is visible in getEntries() immediately; only the JSON write is deferred.
 function DiaryStore.scheduleAppendPresanitized(sanitizedEntry)
     if not sanitizedEntry then
         return false
     end
 
     local entries = DiaryStore.getEntries()
+    assignEntryId(sanitizedEntry)
     table.insert(entries, 1, sanitizedEntry)
     entriesCache = entries
 
@@ -303,14 +473,42 @@ function DiaryStore.queueCompletedReading(spreadType, cards)
     })
 end
 
+function DiaryStore.flushPendingEntryFiles()
+    if not pendingDiskWrite then
+        return false
+    end
+
+    local t0 = pd.getElapsedTime()
+    flushUnpersistedEntries()
+    print(string.format("[DiaryStore] flush entries %.1fms", (pd.getElapsedTime() - t0) * 1000))
+    return true
+end
+
+function DiaryStore.finishPendingFlush()
+    if not pendingDiskWrite then
+        return false
+    end
+
+    local t0 = pd.getElapsedTime()
+    writeIndexToDisk()
+
+    pendingDiskWrite = false
+    framesUntilFlush = 0
+
+    print(string.format("[DiaryStore] flush index %.1fms", (pd.getElapsedTime() - t0) * 1000))
+    return true
+end
+
 function DiaryStore.flushPendingAppend()
     if not pendingDiskWrite then
         return false
     end
 
-    pendingDiskWrite = false
-    framesUntilFlush = 0
-    return writeCacheToDisk()
+    local t0 = pd.getElapsedTime()
+    DiaryStore.flushPendingEntryFiles()
+    DiaryStore.finishPendingFlush()
+    print(string.format("[DiaryStore] flush total %.1fms", (pd.getElapsedTime() - t0) * 1000))
+    return true
 end
 
 function DiaryStore.tickFlush(isSceneTransitioning)
@@ -369,11 +567,8 @@ function DiaryStore.appendEntry(entry, alreadySanitized)
         return false
     end
 
-    local entries = DiaryStore.getEntries()
-    table.insert(entries, 1, sanitized)
-    entriesCache = entries
-    pendingDiskWrite = true
-    return writeCacheToDisk()
+    DiaryStore.scheduleAppendPresanitized(sanitized)
+    return DiaryStore.flushPendingAppend()
 end
 
 return DiaryStore
