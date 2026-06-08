@@ -5,6 +5,13 @@ import "data/save/playerProfileStore"
 
 class('DiarySettingsScene').extends(gfx.sprite)
 
+local function createWhiteTextSprite(text, width, height, alignment)
+    gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+    local sprite = gfx.sprite.spriteWithText(text, width, height, nil, nil, nil, alignment or kTextAlignment.left)
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    return sprite
+end
+
 function DiarySettingsScene:init(source, returnState)
     DiarySettingsScene.super.init(self)
 
@@ -16,7 +23,7 @@ function DiarySettingsScene:init(source, returnState)
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
 
-    self.diaryLabel = gfx.sprite.spriteWithText("This diary\n belongs to", 320, 80, nil, nil, nil, kTextAlignment.left)
+    self.diaryLabel = createWhiteTextSprite("This diary\n belongs to", 320, 80, kTextAlignment.left)
     self.diaryLabel:setCenter(0, 0)
     self.diaryLabel:moveTo(40, 45)
     self.diaryLabel:add()
@@ -26,13 +33,13 @@ function DiarySettingsScene:init(source, returnState)
     self.isEditingName = false
     self.entriesListDescending = PlayerProfileStore.getEntriesListDescending()
 
-    self.diaryLine = gfx.sprite.spriteWithText(self.name, 120, 120, nil, nil, nil, kTextAlignment.center)
+    self.diaryLine = createWhiteTextSprite(self.name, 120, 120, kTextAlignment.center)
     self.diaryLine:setCenter(0, 0)
     self.diaryLine:moveTo(48, 120)
     self.diaryLine:add()
 
 
-    self.settingsLabel = gfx.sprite.spriteWithText("ALTER", 150, 40, nil, nil, nil, kTextAlignment.left)
+    self.settingsLabel = createWhiteTextSprite("ALTER", 150, 40, kTextAlignment.left)
     if self.settingsLabel then
         self.settingsLabel:setCenter(0, 0)
         self.settingsLabel:moveTo(260, 1)
@@ -69,7 +76,7 @@ function DiarySettingsScene:setDiaryLineText(text)
         displayText = "?"
     end
 
-    self.diaryLine = gfx.sprite.spriteWithText(displayText, 120, 120, nil, nil, nil, kTextAlignment.center)
+    self.diaryLine = createWhiteTextSprite(displayText, 120, 120, kTextAlignment.center)
     if self.diaryLine then
         self.diaryLine:setCenter(0, 0)
         self.diaryLine:moveTo(48, 120)
@@ -115,7 +122,7 @@ function DiarySettingsScene:renderMenu()
     self.menuSprites = {}
 
     for i, option in ipairs(self.menuOptions) do
-        local sprite = gfx.sprite.spriteWithText(option, 150, 40, nil, nil, nil, kTextAlignment.left)
+        local sprite = createWhiteTextSprite(option, 150, 40, kTextAlignment.left)
         if sprite then
             sprite:setCenter(0, 0)
             sprite:moveTo(260, self:getMenuRowY(i))
@@ -137,7 +144,7 @@ function DiarySettingsScene:renderOrderValue()
 
     local orderText = self.entriesListDescending and "Descending" or "Ascending"
 
-    self.orderValueSprite = gfx.sprite.spriteWithText(orderText, 320, 40, nil, nil, nil, kTextAlignment.left)
+    self.orderValueSprite = createWhiteTextSprite(orderText, 320, 40, kTextAlignment.left)
     if self.orderValueSprite then
         self.orderValueSprite:setCenter(0, 0)
         self.orderValueSprite:moveTo(245, self:getMenuRowY(2) + 28)
@@ -189,7 +196,7 @@ function DiarySettingsScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonA) then
-        Sound.playSFX("cards_fast2")
+        Sound.playABut()
         if self.selectedMenuIndex == 1 then
             self:startNameEdit()
         elseif self.selectedMenuIndex == 2 then

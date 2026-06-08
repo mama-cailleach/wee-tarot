@@ -1,4 +1,5 @@
 import "../../scripts/deck"
+import "../../data/save/diaryStore"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -14,6 +15,9 @@ local DEFAULT_FIRST_PROMPTS = {
     "The deck awaits your touch,\nguide it with your thoughts.",
     "With each shuffle, your destiny\nstirs. Trust the journey."
 }
+
+local CARDS_PER_CREATION_BATCH <const> = 2
+local SFX_DEFER_MS <const> = 33
 
 local function clamp01(value)
     if value == nil then return 0 end
@@ -56,6 +60,9 @@ function BaseSpreadGameScene:init(config, restoreState)
     self.cardPositions = config.cardPositions
     self.revealTimers = {}
     self.revealedTimersStarted = false
+    self.drawCardPool = nil
+    self.drawCardNextIndex = 1
+    self.drawCardsBatchTimer = nil
 
     self.defaultSelectedCardIndex = 1
     self.selectionReady = restoreState ~= nil
@@ -95,6 +102,8 @@ function BaseSpreadGameScene:init(config, restoreState)
     self.entrySetupTimer = nil
     self.restoreSetupTimer = nil
     self.confirmToMenu = restoreState and restoreState.confirmToMenu or false
+    self.diaryEntrySaved = false
+    self.diarySpreadKey = (restoreState and restoreState.spreadKey) or config.spreadKey or "unknown"
 
     if restoreState then
         self.state = "fortune"
@@ -672,7 +681,17 @@ function BaseSpreadGameScene:drawCardByDeckSelection()
     return self.deck:drawFullDeck()
 end
 
+function BaseSpreadGameScene:clearDrawCardsBatch()
+    if self.drawCardsBatchTimer then
+        self.drawCardsBatchTimer:remove()
+        self.drawCardsBatchTimer = nil
+    end
+    self.drawCardPool = nil
+    self.drawCardNextIndex = 1
+end
+
 function BaseSpreadGameScene:clearDrawnCards()
+    self:clearDrawCardsBatch()
     for _, sprite in ipairs(self.drawnCardVisuals) do
         sprite:remove()
     end
@@ -704,20 +723,29 @@ end
 
 function BaseSpreadGameScene:cacheCardImageForVisual(index, visual)
     if not self.enableCardDimming or not visual then return end
+    if self.cardImageCache[index] then return end
 
     local originalImage = visual:getImage()
     if not originalImage then return end
-
-    local zoomImage = visual.getZoomImage and visual:getZoomImage() or nil
 
     self.cardImageCache[index] = {
         original = originalImage,
         dimmed = self:createDimmedImage(originalImage, self.nonSelectedDimAlpha),
         selected = self:createDimmedImage(originalImage, self.selectedDimAlpha),
-        zoomOriginal = zoomImage,
-        zoomDimmed = zoomImage and self:createDimmedImage(zoomImage, self.nonSelectedDimAlpha) or nil,
-        zoomSelected = zoomImage and self:createDimmedImage(zoomImage, self.selectedDimAlpha) or nil
     }
+end
+
+function BaseSpreadGameScene:ensureZoomCacheForIndex(index, visual)
+    if not self.enableCardDimming or not visual then return end
+
+    local cache = self.cardImageCache[index]
+    if not cache or cache.zoomCacheBuilt then return end
+    cache.zoomCacheBuilt = true
+
+    local zoomImage = visual.getZoomImage and visual:getZoomImage() or nil
+    cache.zoomOriginal = zoomImage
+    cache.zoomDimmed = zoomImage and self:createDimmedImage(zoomImage, self.nonSelectedDimAlpha) or nil
+    cache.zoomSelected = zoomImage and self:createDimmedImage(zoomImage, self.selectedDimAlpha) or nil
 end
 
 function BaseSpreadGameScene:clearCardImageCache()
@@ -732,6 +760,11 @@ function BaseSpreadGameScene:getCardImageForState(index, isSelected)
 
     if isSelected then
         if self.selectedCardZoomed then
+            local visual = self.drawnCardVisuals[index]
+            if visual then
+                self:ensureZoomCacheForIndex(index, visual)
+                cache = self.cardImageCache[index]
+            end
             return cache.zoomSelected or cache.zoomOriginal or cache.selected or cache.original
         end
         return cache.selected or cache.original
@@ -841,44 +874,74 @@ function BaseSpreadGameScene:buildDrawPoolForSelection()
     return pool
 end
 
-function BaseSpreadGameScene:drawCardsLogic()
-    self:clearDrawnCards()
+function BaseSpreadGameScene:createDrawnCardVisual(index, draw)
+    local cardDrawed = draw and draw.name
+    local cardNumber = draw and draw.number
+    local cardSuit = draw and draw.suit
+    if not cardNumber or not cardSuit then return end
 
-    local drawPool = self:buildDrawPoolForSelection()
+    local visual = Card(cardNumber, cardSuit)
+    visual:moveTo(self.cardPositions[index].x, self.cardPositions[index].y)
+    visual:setScale(self.config.defaultScale)
+    visual:setVisible(false)
 
-    for index = 1, self.config.cardCount do
-        local draw = drawPool[index]
-        local cardDrawed = draw and draw.name
-        local cardNumber = draw and draw.number
-        local cardSuit = draw and draw.suit
-        if cardNumber and cardSuit then
-            local visual = Card(cardNumber, cardSuit)
-            visual:moveTo(self.cardPositions[index].x, self.cardPositions[index].y)
-            visual:setScale(self.config.defaultScale)
-            visual:setVisible(false)
-            
-            local cardRotations = self.config.cardRotations
-            if cardRotations and cardRotations[index] then
-                visual:setRotation(cardRotations[index])
-            end
-
-            self:cacheCardImageForVisual(index, visual)
-            
-            table.insert(self.drawnCardVisuals, visual)
-
-            table.insert(self.playerCards, cardDrawed)
-            table.insert(self.playerCardNumbers, cardNumber)
-            table.insert(self.playerCardSuits, cardSuit)
-            table.insert(self.playerCardsInverted, visual.inverted or false)
-        end
+    local cardRotations = self.config.cardRotations
+    if cardRotations and cardRotations[index] then
+        visual:setRotation(cardRotations[index])
     end
+
+    table.insert(self.drawnCardVisuals, visual)
+    table.insert(self.playerCards, cardDrawed)
+    table.insert(self.playerCardNumbers, cardNumber)
+    table.insert(self.playerCardSuits, cardSuit)
+    table.insert(self.playerCardsInverted, visual.inverted or false)
+end
+
+function BaseSpreadGameScene:advanceDrawCardsBatch()
+    self.drawCardsBatchTimer = nil
+
+    if not self.drawCardPool then return end
+
+    local cardCount = self.config.cardCount
+    local batchEnd = math.min(self.drawCardNextIndex + CARDS_PER_CREATION_BATCH - 1, cardCount)
+
+    for index = self.drawCardNextIndex, batchEnd do
+        self:createDrawnCardVisual(index, self.drawCardPool[index])
+    end
+
+    self.drawCardNextIndex = batchEnd + 1
+
+    if self.drawCardNextIndex <= cardCount then
+        self.drawCardsBatchTimer = pd.timer.performAfterDelay(SFX_DEFER_MS, function()
+            self:advanceDrawCardsBatch()
+        end)
+        return
+    end
+
+    self:finishDrawCards()
+end
+
+function BaseSpreadGameScene:finishDrawCards()
+    self.drawCardPool = nil
+    self.drawCardNextIndex = 1
 
     if self.selectionReady then
         self:selectCard(self.selectedCardIndex or self.defaultSelectedCardIndex)
     end
 
-    self:revealCardsSequentially()
-    Sound.playSFX("pad_b")
+    self.drawCardsBatchTimer = pd.timer.performAfterDelay(SFX_DEFER_MS, function()
+        self.drawCardsBatchTimer = nil
+        self:revealCardsSequentially()
+        Sound.playSFX("pad_b")
+    end)
+end
+
+function BaseSpreadGameScene:drawCardsLogic()
+    self:clearDrawnCards()
+
+    self.drawCardPool = self:buildDrawPoolForSelection()
+    self.drawCardNextIndex = 1
+    self:advanceDrawCardsBatch()
 end
 
 function BaseSpreadGameScene:getCardPositionForSelection(index, isSelected)
@@ -953,13 +1016,51 @@ function BaseSpreadGameScene:cycleSelectedCard(direction)
     self:selectCard(self.selectedCardIndex + direction)
 end
 
+function BaseSpreadGameScene:buildDiaryCards()
+    local cards = {}
+
+    for index, cardName in ipairs(self.playerCards or {}) do
+        table.insert(cards, {
+            name = cardName,
+            number = self.playerCardNumbers and self.playerCardNumbers[index] or nil,
+            suit = self.playerCardSuits and self.playerCardSuits[index] or nil,
+            inverted = self.playerCardsInverted and self.playerCardsInverted[index] == true or false,
+            position = index
+        })
+    end
+
+    return cards
+end
+
+function BaseSpreadGameScene:queueReadingToDiary()
+    if self.diaryEntrySaved then
+        return
+    end
+
+    DiaryStore.queueCompletedReading(self.diarySpreadKey, self:buildDiaryCards())
+    self.diaryEntrySaved = true
+end
+
+function BaseSpreadGameScene:finishReading()
+    self:queueReadingToDiary()
+    SCENE_MANAGER:switchScene(BufferScene)
+end
+
 function BaseSpreadGameScene:revealCardsSequentially()
     local revealDelay = self.config.revealDelay
     for i, visual in ipairs(self.drawnCardVisuals) do
         local timer = pd.timer.performAfterDelay((i - 1) * revealDelay, function()
-            if visual then
-                visual:setVisible(true)
+            if not visual then return end
+            visual:setVisible(true)
+            self:cacheCardImageForVisual(i, visual)
+            local playRevealSfx = function()
                 Sound.playSFX("cards_fast3")
+            end
+            if i == 1 then
+                local sfxTimer = pd.timer.performAfterDelay(SFX_DEFER_MS, playRevealSfx)
+                table.insert(self.revealTimers, sfxTimer)
+            else
+                playRevealSfx()
             end
         end)
         table.insert(self.revealTimers, timer)
@@ -1052,7 +1153,7 @@ function BaseSpreadGameScene:update()
         elseif self.state == "fortune" and #self.playerCards == self.config.cardCount then
             Sound.playSFX("cards_fast2")
             if self.confirmToMenu then
-                SCENE_MANAGER:switchScene(AfterDialogueScene)
+                self:finishReading()
             else
                 SCENE_MANAGER:switchScene(self.config.postSceneClass, self.playerCards, self.playerCardNumbers, self.playerCardSuits, self.playerCardsInverted, self.selectedCardIndex)
             end
@@ -1158,6 +1259,7 @@ function BaseSpreadGameScene:deinit()
         self.restoreSetupTimer:remove()
         self.restoreSetupTimer = nil
     end
+    self:clearDrawCardsBatch()
 
     self:clearShufflePrompts()
 

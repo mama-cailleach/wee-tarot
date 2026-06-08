@@ -2,6 +2,7 @@ import "baseSpreadGameScene"
 import "pentagramPostScene"
 
 local PENTAGRAM_CONFIG = {
+    spreadKey = "pentagram",
     cardCount = 5,
     cardPositions = {
         { x = 200, y = 58 },

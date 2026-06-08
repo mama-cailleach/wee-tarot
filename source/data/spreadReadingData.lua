@@ -2,6 +2,21 @@ import "data/cardDescriptions"
 
 local FALLBACK_KEYWORDS = { "mystery", "uncertain path", "hidden lesson" }
 
+local KEYWORD_INTRO_OPTIONS = {
+    "The spirits whisper... ",
+    "The card's pulse summons forth: ",
+    "The oracles of old murmur of: ",
+    "From the sands of time, this card reveals: ",
+    "This card hums with forgotten truths: ",
+    "From the woven threads of fate, we find: ",
+    "Here lies the essence unveiled: ",
+    "Let these currents stir the soul: "
+}
+
+local function pickKeywordIntroLine()
+    return KEYWORD_INTRO_OPTIONS[math.random(1, #KEYWORD_INTRO_OPTIONS)]
+end
+
 local SPREAD_DISPLAY_NAMES = {
     one_card = "1-bit Fortune", -- one_card not in use here, but might transfer in a later update. for now it's a separate logic
     three_card = "Root-Trunk-Branch",
@@ -478,6 +493,8 @@ function SpreadReadingData.buildCardDetails(spreadKey, cardNames, cardInverted)
         end
 
         table.insert(readingLines, "Card pulled: " .. cardName .. (inverted and " (Reversed)" or ""))
+
+        
         table.insert(readingLines, "Themes: " .. table.concat(themes, ", ") .. ".")
 
         table.insert(details, {
@@ -513,7 +530,7 @@ function SpreadReadingData.buildPlaceholderReadingSections(spreadKey, cardNames,
 
         -- Positions: break each position into smaller display sections so pages
         -- can show the position name, a sampled position line, the pulled card,
-        -- and the themes as separate sections.
+        -- keyword intro, and themes as separate sections.
         for index, positionLines in ipairs(reading.positionLines) do
             local positionName = config.positionNames and config.positionNames[index] or ("Card " .. tostring(index))
             local cardName = cardNames and cardNames[index] or "Unknown Card"
@@ -531,9 +548,12 @@ function SpreadReadingData.buildPlaceholderReadingSections(spreadKey, cardNames,
             -- 3) Card pulled section
             table.insert(sections, { type = "card_pulled", index = index, lines = { "Card pulled: " .. cardName .. (inverted and " (Reversed)" or "") } })
 
-            -- 4) Themes section
+            -- 4) Keyword intro section
+            table.insert(sections, { type = "keywordIntro", index = index, lines = { pickKeywordIntroLine() } })
+
+            -- 5) Themes section
             local keywords = SpreadReadingData.pickKeywords(cardName, inverted, 3)
-            table.insert(sections, { type = "themes", index = index, lines = { "Themes: " .. table.concat(keywords, ", ") .. "." } })
+            table.insert(sections, { type = "themes", index = index, lines = { table.concat(keywords, ", ") .. "." } })
         end
 
         -- Closing section (pick one closing line)
@@ -556,10 +576,9 @@ function SpreadReadingData.buildPlaceholderReadingSections(spreadKey, cardNames,
         local inverted = cardInverted and cardInverted[index] and " (Reversed)" or ""
         local keywords = SpreadReadingData.pickKeywords(cardName, cardInverted and cardInverted[index], 3)
 
-        local lines = {}
-        table.insert(lines, positionName .. ": " .. cardName .. inverted)
-        table.insert(lines, "Themes: " .. table.concat(keywords, ", ") .. ".")
-        table.insert(simpleSections, { type = "position", index = index, lines = lines })
+        table.insert(simpleSections, { type = "position", index = index, lines = { positionName .. ": " .. cardName .. inverted } })
+        table.insert(simpleSections, { type = "keywordIntro", index = index, lines = { pickKeywordIntroLine() } })
+        table.insert(simpleSections, { type = "themes", index = index, lines = { table.concat(keywords, ", ") .. "." } })
     end
 
     if config.closingLine then

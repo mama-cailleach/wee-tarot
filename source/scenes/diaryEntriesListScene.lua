@@ -116,10 +116,44 @@ function DiaryEntriesListScene:clearEntrySprites()
     self.entrySprites = {}
 end
 
-function DiaryEntriesListScene:clearHeaderSprites()
+function DiaryEntriesListScene:clearTitleSprite()
     if self.titleSprite then self.titleSprite:remove() self.titleSprite = nil end
+end
+
+function DiaryEntriesListScene:clearMonthArrows()
     if self.leftArrowSprite then self.leftArrowSprite:remove() self.leftArrowSprite = nil end
     if self.rightArrowSprite then self.rightArrowSprite:remove() self.rightArrowSprite = nil end
+end
+
+function DiaryEntriesListScene:clearHeaderSprites()
+    self:clearTitleSprite()
+    self:clearMonthArrows()
+end
+
+function DiaryEntriesListScene:ensureMonthArrows()
+    if self.leftArrowSprite and self.rightArrowSprite then
+        return
+    end
+
+    if not self.leftArrowSprite then
+        self.leftArrowSprite = self:createTextSprite("®", 60, 60, kTextAlignment.center)
+        if self.leftArrowSprite then
+            self.leftArrowSprite:setRotation(270)
+            self.leftArrowSprite:setCenter(0.5, 0.5)
+            self.leftArrowSprite:moveTo(self.listLeft, 21)
+            self.leftArrowSprite:add()
+        end
+    end
+
+    if not self.rightArrowSprite then
+        self.rightArrowSprite = self:createTextSprite("®", 60, 60, kTextAlignment.center)
+        if self.rightArrowSprite then
+            self.rightArrowSprite:setRotation(90)
+            self.rightArrowSprite:setCenter(0.5, 0.5)
+            self.rightArrowSprite:moveTo(self.listLeft + 96, 21)
+            self.rightArrowSprite:add()
+        end
+    end
 end
 
 function DiaryEntriesListScene:createTextSprite(text, width, height, alignment)
@@ -588,7 +622,7 @@ function DiaryEntriesListScene:renderYearFooter()
         table.insert(self.entrySprites, separatorSprite)
     end
 
-    local mendSprite = self:createTextSprite("Mend", 150, 40, kTextAlignment.left)
+    local mendSprite = self:createTextSprite("Alter", 150, 40, kTextAlignment.left)
     if mendSprite then
         mendSprite:setCenter(0, 0)
         mendSprite:moveTo(self.listLeft + self.listLeftOffset, self.yearFooterMendY)
@@ -723,17 +757,14 @@ function DiaryEntriesListScene:updateSelectorPosition()
 end
 
 function DiaryEntriesListScene:renderModeTitle()
-    self:clearHeaderSprites()
+    self:clearTitleSprite()
 
     local titleText = "YEAR"
-    local showArrows = false
-
     if self.browserMode == "monthDay" then
         local monthBucket = self:getCurrentMonthBucket()
         titleText = MONTH_NAMES[monthBucket and monthBucket.month or 1] or "???"
-        showArrows = true
     end
-    
+
     self.titleSprite = self:createTextSprite(titleText, 160, 60, kTextAlignment.center)
     if self.titleSprite then
         self.titleSprite:setCenter(0.5, 0)
@@ -741,22 +772,10 @@ function DiaryEntriesListScene:renderModeTitle()
         self.titleSprite:add()
     end
 
-    if showArrows then
-        self.leftArrowSprite = self:createTextSprite("®", 60, 60, kTextAlignment.center)
-        if self.leftArrowSprite then
-            self.leftArrowSprite:setRotation(270)
-            self.leftArrowSprite:setCenter(0.5, 0.5)
-            self.leftArrowSprite:moveTo(self.listLeft, 21)
-            self.leftArrowSprite:add()
-        end
-
-        self.rightArrowSprite = self:createTextSprite("®", 60, 60, kTextAlignment.center)
-        if self.rightArrowSprite then
-            self.rightArrowSprite:setRotation(90)
-            self.rightArrowSprite:setCenter(0.5, 0.5)
-            self.rightArrowSprite:moveTo(self.listLeft + 96, 21)
-            self.rightArrowSprite:add()
-        end
+    if self.browserMode == "monthDay" then
+        self:ensureMonthArrows()
+    else
+        self:clearMonthArrows()
     end
 end
 
@@ -875,7 +894,7 @@ function DiaryEntriesListScene:enterMonthDayMode()
     end
 
     self.browserMode = "monthDay"
-    self.selectedMonthIndex = math.max(1, math.min(self.selectedMonthIndex, #yearBucket.months))
+    self.selectedMonthIndex = #yearBucket.months
     self.selectedDayIndex = 0
     self.dayListStartIndex = 1
     self:moveMonthDaySelection(1)
@@ -951,10 +970,12 @@ function DiaryEntriesListScene:update()
 
         self.lastCrankTime = pd.getElapsedTime()
 
+
         if not self.crankSoundPlaying then
             Sound.startCrankLoop()
             self.crankSoundPlaying = true
         end
+
     end
 
     if self.crankSoundPlaying and pd.getElapsedTime() - self.lastCrankTime > 0.1 then

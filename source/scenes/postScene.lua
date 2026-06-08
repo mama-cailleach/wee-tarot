@@ -189,7 +189,6 @@ function PostScene:update()
 
     -- Advance text with A button
     if self.canButton and pd.buttonJustPressed(pd.kButtonA) then
-        Sound.playABut()
         self.aPress += 1
         if self.scrollOffset < self.maxScroll then
             self.scrollOffset = self.scrollOffset + 1
@@ -205,6 +204,7 @@ function PostScene:update()
             if self.scrollBoxSprite then
                 self.scrollBoxSprite:remove()
             end
+            Sound.playABut()
             SCENE_MANAGER:switchScene(BufferScene)
         end
     end

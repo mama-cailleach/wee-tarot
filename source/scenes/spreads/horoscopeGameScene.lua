@@ -2,6 +2,7 @@ import "baseSpreadGameScene"
 import "horoscopePostScene"
 
 local HOROSCOPE_CONFIG = {
+    spreadKey = "horoscope",
     cardCount = 12,
     cardPositions = {
         { x = 50, y = 120 }, { x = 100, y = 160 }, { x = 150, y = 175 }, { x = 200, y = 190 }, { x = 250, y = 175 }, { x = 300, y = 160 },

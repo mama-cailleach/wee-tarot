@@ -78,9 +78,6 @@ function OneCardPostScene:finishReading()
 end
 
 function OneCardPostScene:goBackToSpreadView()
-    self.canButton = false
-    self:removeAButton()
-
     if self.textSprite then
         self.textSprite:remove()
         self.textSprite = nil
@@ -90,12 +87,7 @@ function OneCardPostScene:goBackToSpreadView()
         self.scrollBoxSprite = nil
     end
 
-    local cardName = self.cardNames[1]
-    local cardNumber = self.cardNumbers[1]
-    local cardSuit = self.cardSuits[1]
-    local isInverted = self.cardInverted[1] == true
-
-    SCENE_MANAGER:switchScene(CardViewScene, cardName, cardNumber, cardSuit, isInverted)
+    OneCardPostScene.super.goBackToSpreadView(self)
 end
 
 function OneCardPostScene:update()

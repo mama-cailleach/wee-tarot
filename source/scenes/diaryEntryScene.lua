@@ -15,6 +15,10 @@ local MONTH_NAMES_FULL = {
     "July", "August", "September", "October", "November", "December"
 }
 
+local CARD_Z_NORMAL <const> = 200
+local CARD_Z_ZOOMED <const> = 320
+local ARROW_Z <const> = 30
+
 local function createWhiteTextSprite(text, width, height, alignment)
     gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
     local sprite = gfx.sprite.spriteWithText(text, width, height, nil, nil, nil, alignment or kTextAlignment.center)
@@ -89,6 +93,7 @@ function DiaryEntryScene:init(entry, returnState)
 
     self:renderHeader()
     self:renderBody()
+    self:buildArrows()
     self:renderSelectedCard()
 
     self:add()
@@ -122,7 +127,7 @@ function DiaryEntryScene:buildArrows()
         self.arrowRight = createWhiteTextSprite("®", 40, 40, kTextAlignment.center)
         self.arrowRight:setRotation(90)
         self.arrowRight:moveTo(self.cardCenterX + 70, self.cardCenterY)
-        self.arrowRight:setZIndex(310)
+        self.arrowRight:setZIndex(ARROW_Z)
         self.arrowRight:add()
     end
 
@@ -130,8 +135,20 @@ function DiaryEntryScene:buildArrows()
         self.arrowLeft = createWhiteTextSprite("®", 40, 40, kTextAlignment.center)
         self.arrowLeft:setRotation(270)
         self.arrowLeft:moveTo(self.cardCenterX - 70, self.cardCenterY)
-        self.arrowLeft:setZIndex(310)
+        self.arrowLeft:setZIndex(ARROW_Z)
         self.arrowLeft:add()
+    end
+
+    self:syncArrowVisibility()
+end
+
+function DiaryEntryScene:syncArrowVisibility()
+    local showArrows = self.currentCardScale ~= self.zoomScale
+    if self.arrowLeft then
+        self.arrowLeft:setVisible(showArrows)
+    end
+    if self.arrowRight then
+        self.arrowRight:setVisible(showArrows)
     end
 end
 
@@ -359,7 +376,9 @@ function DiaryEntryScene:getSelectedCard()
 end
 
 function DiaryEntryScene:renderSelectedCard()
-    local cardY = self.currentCardScale == self.zoomScale and self.zoomY or self.cardCenterY
+    local isZoomed = self.currentCardScale == self.zoomScale
+    local cardY = isZoomed and self.zoomY or self.cardCenterY
+    local cardZ = isZoomed and CARD_Z_ZOOMED or CARD_Z_NORMAL
 
     if self.cardSprite then
         self.cardSprite:remove()
@@ -382,8 +401,10 @@ function DiaryEntryScene:renderSelectedCard()
         if self.cardFallbackSprite then
             self.cardFallbackSprite:setCenter(0.5, 0.5)
             self.cardFallbackSprite:moveTo(self.cardCenterX, cardY)
+            self.cardFallbackSprite:setZIndex(cardZ)
             self.cardFallbackSprite:add()
         end
+        self:syncArrowVisibility()
         return
     end
 
@@ -392,15 +413,15 @@ function DiaryEntryScene:renderSelectedCard()
     if self.cardNameSprite then
         self.cardNameSprite:setCenter(0.5, 0.5)
         self.cardNameSprite:moveTo(self.cardCenterX, 40)
+        self.cardNameSprite:setZIndex(300)
         self.cardNameSprite:add()
     end
 
     local cardImage = nil
-    local zoomed = self.currentCardScale == self.zoomScale
     if card.isSpreadCard then
-        cardImage = Card.loadImageWithZoomFallback(card.imagePath, zoomed)
+        cardImage = Card.loadImageWithZoomFallback(card.imagePath, isZoomed)
     else
-        cardImage = Card.loadImageWithZoomFallback(Card.getImagePath(card.number, card.suit, false), zoomed)
+        cardImage = Card.loadImageWithZoomFallback(Card.getImagePath(card.number, card.suit, false), isZoomed)
     end
 
     if not cardImage then
@@ -409,8 +430,10 @@ function DiaryEntryScene:renderSelectedCard()
         if self.cardFallbackSprite then
             self.cardFallbackSprite:setCenter(0.5, 0.5)
             self.cardFallbackSprite:moveTo(self.cardCenterX, cardY)
+            self.cardFallbackSprite:setZIndex(cardZ)
             self.cardFallbackSprite:add()
         end
+        self:syncArrowVisibility()
         return
     end
 
@@ -419,8 +442,11 @@ function DiaryEntryScene:renderSelectedCard()
         self.cardSprite:setCenter(0.5, 0.5)
         self.cardSprite:moveTo(self.cardCenterX, cardY)
         self.cardSprite:setRotation(card.inverted and 180 or 0)
+        self.cardSprite:setZIndex(cardZ)
         self.cardSprite:add()
     end
+
+    self:syncArrowVisibility()
 end
 
 function DiaryEntryScene:renderBody()
@@ -523,7 +549,6 @@ function DiaryEntryScene:renderBody()
         DebugStats.inc('viewportRenders')
     end
 
-    self:buildArrows()
     self.lastBodyRenderTime = pd.getElapsedTime()
     self.bodyNeedsRender = false
 end

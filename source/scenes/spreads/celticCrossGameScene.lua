@@ -2,6 +2,7 @@ import "baseSpreadGameScene"
 import "celticCrossPostScene"
 
 local CELTIC_CROSS_CONFIG = {
+    spreadKey = "celtic_cross",
     cardCount = 10,
     cardPositions = {
         { x = 150, y = 120 }, { x = 150, y = 140 }, { x = 150, y = 190 }, { x = 80, y = 120 }, { x = 150, y = 50 },

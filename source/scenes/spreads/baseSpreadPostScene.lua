@@ -439,6 +439,28 @@ function BaseSpreadPostScene:goBackToSpreadView()
 
 
 
+    local spreadKey = self.config.spreadKey or "unknown"
+
+    if spreadKey == "one_card" then
+
+        SCENE_MANAGER:switchScene(CardViewScene,
+
+            self.cardNames[1],
+
+            self.cardNumbers[1],
+
+            self.cardSuits[1],
+
+            self.cardInverted[1] == true,
+
+            spreadKey)
+
+        return
+
+    end
+
+
+
     SCENE_MANAGER:switchScene(gameSceneClass, {
 
         cardNames = self.cardNames,
@@ -450,6 +472,8 @@ function BaseSpreadPostScene:goBackToSpreadView()
         cardInverted = self.cardInverted,
 
         selectedCardIndex = self.selectedCardIndex,
+
+        spreadKey = spreadKey,
 
         confirmToMenu = true
 
@@ -530,10 +554,12 @@ function BaseSpreadPostScene:update()
 
 
     if self.canButton and pd.buttonJustPressed(pd.kButtonB) then
+        if self.pageIndex >= #self.textPages then
+        
+            Sound.playABut()
 
-        Sound.playABut()
-
-        self:goBackToSpreadView()
+            self:goBackToSpreadView()
+        end
 
     end
 

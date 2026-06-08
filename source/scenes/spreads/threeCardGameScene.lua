@@ -2,6 +2,7 @@ import "baseSpreadGameScene"
 import "threeCardPostScene"
 
 local THREE_CARD_CONFIG = {
+    spreadKey = "three_card",
     cardCount = 3,
     cardPositions = {
         { x = 100, y = 120 },

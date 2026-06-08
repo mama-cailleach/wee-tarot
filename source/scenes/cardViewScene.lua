@@ -1,14 +1,19 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+import "data/save/diaryStore"
+
 class('CardViewScene').extends(gfx.sprite)
 
-function CardViewScene:init(cardName, cardNumber, cardSuit, isInverted)
+function CardViewScene:init(cardName, cardNumber, cardSuit, isInverted, spreadKey, diaryCards)
     Sound.playSFX("cards_slow")
     self.card = cardName
     self.cardNumber = cardNumber
     self.cardSuit = cardSuit
     self.invert = isInverted
+    self.spreadKey = spreadKey or "one_card"
+    self.diaryCards = diaryCards
+    self.diaryEntrySaved = false
 
     self.bgSprite = gfx.sprite.new(gfx.image.new("images/bg/darkcloth"))
     self.bgSprite:moveTo(200,120)
@@ -52,12 +57,42 @@ function CardViewScene:showPlacementSprite(x, y)
         self.cardPlacementSprite:add()
 end
 
+function CardViewScene:buildDiaryCards()
+    if type(self.diaryCards) == "table" and #self.diaryCards > 0 then
+        return self.diaryCards
+    end
+
+    return {
+        {
+            name = self.card,
+            number = self.cardNumber,
+            suit = self.cardSuit,
+            inverted = self.invert == true,
+            position = 1
+        }
+    }
+end
+
+function CardViewScene:queueReadingToDiary()
+    if self.diaryEntrySaved then
+        return
+    end
+
+    DiaryStore.queueCompletedReading(self.spreadKey, self:buildDiaryCards())
+    self.diaryEntrySaved = true
+end
+
+function CardViewScene:finishReading()
+    self:queueReadingToDiary()
+    SCENE_MANAGER:switchScene(BufferScene)
+end
+
 -- --- Update Method ---
 function CardViewScene:update()
     gfx.sprite.update()
     if pd.buttonJustPressed(pd.kButtonA) then
         Sound.playSFX("cards_slow2")
-        SCENE_MANAGER:switchScene(AfterDialogueScene)
+        self:finishReading()
     end
 
     if pd.buttonJustPressed(pd.kButtonUp) then
