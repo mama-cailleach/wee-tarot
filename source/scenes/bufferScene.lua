@@ -8,7 +8,7 @@ class('BufferScene').extends(gfx.sprite)
 
 local MIN_HOLD_MS <const> = 6000
 
-local WORK_DELAYS_MS <const> = { 1000, 2000, 3000, 4000, 4500 }
+local WORK_DELAYS_MS <const> = { 1000, 1500, 2000, 3000, 4000 }
 
 function BufferScene:init()
     BufferScene.super.init(self)

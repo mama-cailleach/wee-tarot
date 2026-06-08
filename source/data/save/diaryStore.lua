@@ -9,12 +9,14 @@ local LEGACY_PATH <const> = "data/save/diaryEntries"
 local BUNDLED_FALLBACK_PATH <const> = "data/save/diaryEntries.json"
 local ENTRY_PATH_PREFIX <const> = "data/save/diaryEntry_"
 
-local SCHEMA_VERSION <const> = 2
+local SCHEMA_VERSION <const> = 3
+local LEGACY_INDEX_SCHEMA <const> = 2
 
 local entriesCache = nil
 local indexCache = nil
 local persistedIds = {}
 local pendingDiskWrite = false
+local pendingFlushEntryId = nil
 local framesUntilFlush = 0
 local browserCacheByDescending = {}
 
@@ -68,6 +70,11 @@ local function sanitizeEntry(raw)
         entry.id = raw.id
     end
 
+    local prevId = tonumber(raw.prevId)
+    if prevId and prevId > 0 then
+        entry.prevId = prevId
+    end
+
     return entry
 end
 
@@ -104,24 +111,36 @@ local function ensureIndexCache()
     indexCache = {
         schemaVersion = SCHEMA_VERSION,
         nextId = 1,
-        order = {}
+        headId = nil
     }
 
     return indexCache
 end
 
+local function linkEntriesNewestFirst(entries)
+    for i, entry in ipairs(entries or {}) do
+        local olderEntry = entries[i + 1]
+        if olderEntry and olderEntry.id then
+            entry.prevId = olderEntry.id
+        else
+            entry.prevId = nil
+        end
+    end
+end
+
 local function buildIndexFromEntries(entries)
     local index = ensureIndexCache()
-    index.order = {}
 
     for i, entry in ipairs(entries or {}) do
         if not entry.id then
             entry.id = i
         end
-        table.insert(index.order, entry.id)
     end
 
-    index.nextId = #index.order + 1
+    linkEntriesNewestFirst(entries)
+
+    index.headId = entries[1] and entries[1].id or nil
+    index.nextId = #entries + 1
     return index
 end
 
@@ -133,7 +152,7 @@ local function writeIndexToDisk()
     pd.datastore.write({
         schemaVersion = SCHEMA_VERSION,
         nextId = indexCache.nextId,
-        order = indexCache.order
+        headId = indexCache.headId
     }, INDEX_PATH, true)
 
     return true
@@ -144,13 +163,19 @@ local function writeEntryToDisk(entry)
         return false
     end
 
-    pd.datastore.write({
+    local payload = {
         schemaVersion = SCHEMA_VERSION,
         date = entry.date,
         time = entry.time,
         spreadType = entry.spreadType,
         cards = entry.cards
-    }, entryPathForId(entry.id), true)
+    }
+
+    if type(entry.prevId) == "number" then
+        payload.prevId = entry.prevId
+    end
+
+    pd.datastore.write(payload, entryPathForId(entry.id), true)
 
     persistedIds[entry.id] = true
     return true
@@ -170,22 +195,11 @@ local function readEntryFromDisk(entryId)
     return entry
 end
 
-local function loadEntriesFromIndex()
-    local storedIndex = pd.datastore.read(INDEX_PATH)
-    if type(storedIndex) ~= "table" or type(storedIndex.order) ~= "table" or #storedIndex.order == 0 then
-        return nil
-    end
-
-    indexCache = {
-        schemaVersion = SCHEMA_VERSION,
-        nextId = tonumber(storedIndex.nextId) or (#storedIndex.order + 1),
-        order = storedIndex.order
-    }
-
+local function loadEntriesFromOrderList(orderList)
     local entries = {}
     persistedIds = {}
 
-    for _, entryId in ipairs(indexCache.order) do
+    for _, entryId in ipairs(orderList or {}) do
         local numericId = tonumber(entryId)
         if numericId then
             local entry = readEntryFromDisk(numericId)
@@ -196,10 +210,96 @@ local function loadEntriesFromIndex()
         end
     end
 
+    return entries
+end
+
+local function loadEntriesFromHeadChain(headId, nextId)
+    indexCache = {
+        schemaVersion = SCHEMA_VERSION,
+        nextId = tonumber(nextId) or 1,
+        headId = tonumber(headId)
+    }
+
+    local entries = {}
+    persistedIds = {}
+
+    local currentId = indexCache.headId
+    local safety = 0
+
+    while currentId and safety < 10000 do
+        safety += 1
+        local entry = readEntryFromDisk(currentId)
+        if not entry then
+            break
+        end
+
+        table.insert(entries, entry)
+        persistedIds[currentId] = true
+        currentId = entry.prevId
+    end
+
     if #entries == 0 then
         return nil
     end
 
+    return entries
+end
+
+local function persistV3ChainMetadata(entries)
+    linkEntriesNewestFirst(entries)
+    buildIndexFromEntries(entries)
+
+    for _, entry in ipairs(entries) do
+        writeEntryToDisk(entry)
+    end
+
+    writeIndexToDisk()
+end
+
+local function migrateLegacyIndexToV3(entries)
+    print(string.format("[DiaryStore] upgrading index v%d -> v%d (%d entries)", LEGACY_INDEX_SCHEMA, SCHEMA_VERSION, #entries))
+    persistV3ChainMetadata(entries)
+end
+
+local function loadEntriesFromIndex()
+    local storedIndex = pd.datastore.read(INDEX_PATH)
+    if type(storedIndex) ~= "table" then
+        return nil
+    end
+
+    local schemaVersion = tonumber(storedIndex.schemaVersion) or LEGACY_INDEX_SCHEMA
+
+    if schemaVersion >= SCHEMA_VERSION then
+        local headId = tonumber(storedIndex.headId)
+        if not headId or headId <= 0 then
+            indexCache = {
+                schemaVersion = SCHEMA_VERSION,
+                nextId = tonumber(storedIndex.nextId) or 1,
+                headId = nil
+            }
+            persistedIds = {}
+            return {}
+        end
+
+        return loadEntriesFromHeadChain(headId, storedIndex.nextId)
+    end
+
+    if type(storedIndex.order) ~= "table" or #storedIndex.order == 0 then
+        return nil
+    end
+
+    local entries = loadEntriesFromOrderList(storedIndex.order)
+    if #entries == 0 then
+        return nil
+    end
+
+    indexCache = {
+        schemaVersion = LEGACY_INDEX_SCHEMA,
+        nextId = tonumber(storedIndex.nextId) or (#storedIndex.order + 1),
+        headId = entries[1] and entries[1].id or nil
+    }
+
+    migrateLegacyIndexToV3(entries)
     return entries
 end
 
@@ -209,13 +309,7 @@ local function migrateLegacyBlob(legacy)
         return nil
     end
 
-    buildIndexFromEntries(entries)
-
-    for _, entry in ipairs(entries) do
-        writeEntryToDisk(entry)
-    end
-
-    writeIndexToDisk()
+    persistV3ChainMetadata(entries)
 
     pd.datastore.write({
         schemaVersion = 1,
@@ -255,7 +349,8 @@ local function assignEntryId(entry)
     local entryId = index.nextId
     index.nextId = entryId + 1
     entry.id = entryId
-    table.insert(index.order, 1, entryId)
+    entry.prevId = index.headId
+    index.headId = entryId
     return entryId
 end
 
@@ -277,6 +372,38 @@ local function flushUnpersistedEntries()
     return wroteAny
 end
 
+local function findCachedEntryById(entryId)
+    if not entriesCache or type(entryId) ~= "number" then
+        return nil
+    end
+
+    for _, entry in ipairs(entriesCache) do
+        if entry.id == entryId then
+            return entry
+        end
+    end
+
+    return nil
+end
+
+--- Normal post-reading save: write only the newly appended entry, not all RAM-only history.
+local function flushPendingEntryOnly()
+    if type(pendingFlushEntryId) ~= "number" then
+        return flushUnpersistedEntries()
+    end
+
+    if persistedIds[pendingFlushEntryId] then
+        return false
+    end
+
+    local entry = findCachedEntryById(pendingFlushEntryId)
+    if not entry then
+        return false
+    end
+
+    return writeEntryToDisk(entry)
+end
+
 function DiaryStore.getEntries()
     if entriesCache then
         return entriesCache
@@ -290,6 +417,7 @@ function DiaryStore.invalidateCache()
     entriesCache = nil
     indexCache = nil
     persistedIds = {}
+    pendingFlushEntryId = nil
     browserCacheByDescending = {}
 end
 
@@ -450,7 +578,7 @@ function DiaryStore.scheduleAppendPresanitized(sanitizedEntry)
     end
 
     local entries = DiaryStore.getEntries()
-    assignEntryId(sanitizedEntry)
+    pendingFlushEntryId = assignEntryId(sanitizedEntry)
     table.insert(entries, 1, sanitizedEntry)
     entriesCache = entries
 
@@ -479,8 +607,8 @@ function DiaryStore.flushPendingEntryFiles()
     end
 
     local t0 = pd.getElapsedTime()
-    flushUnpersistedEntries()
-    print(string.format("[DiaryStore] flush entries %.1fms", (pd.getElapsedTime() - t0) * 1000))
+    flushPendingEntryOnly()
+    print(string.format("[DiaryStore] flush entry %s %.1fms", tostring(pendingFlushEntryId), (pd.getElapsedTime() - t0) * 1000))
     return true
 end
 
@@ -493,6 +621,7 @@ function DiaryStore.finishPendingFlush()
     writeIndexToDisk()
 
     pendingDiskWrite = false
+    pendingFlushEntryId = nil
     framesUntilFlush = 0
 
     print(string.format("[DiaryStore] flush index %.1fms", (pd.getElapsedTime() - t0) * 1000))

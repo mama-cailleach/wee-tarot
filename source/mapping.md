@@ -82,8 +82,8 @@ GameAssets.prewarmDiaryListAssets() → touch list UI images
 
 ### Load source priority (`loadEntriesFromStorage`)
 
-1. **`pd.datastore.read("data/save/diaryIndex")`** — ordered list of entry ids + `nextId`
-2. **`pd.datastore.read("data/save/diaryEntry_<id>")`** — one reading per file
+1. **`pd.datastore.read("data/save/diaryIndex")`** — compact v3: `{ nextId, headId }` only (newest entry id)
+2. **`pd.datastore.read("data/save/diaryEntry_<id>")`** — one reading per file (`prevId` links older entries)
 3. Legacy monolithic **`data/save/diaryEntries`** is migrated once into sharded files
 4. If nothing on device → **`data/save/diaryEntries.json`** bundled fallback (dev/shipped seed)
 5. All entries pass through `sanitizeEntry()` (date, time, spread key, cards)
@@ -224,10 +224,10 @@ DiaryStore.invalidateBrowserCache()
 `flushPendingAppend()` (sharded — flat cost per save):
 
 ```lua
--- Entry file(s) not yet persisted (usually one new reading)
-pd.datastore.write({ schemaVersion = 2, date, time, spreadType, cards }, "data/save/diaryEntry_<id>", true)
--- Small index (ids only)
-pd.datastore.write({ schemaVersion = 2, nextId, order }, "data/save/diaryIndex", true)
+-- Only the newly appended entry (not every RAM-only / bundled entry)
+pd.datastore.write({ schemaVersion = 3, date, time, spreadType, cards, prevId }, "data/save/diaryEntry_<id>", true)
+-- Tiny index (fixed size — does not grow with entry count)
+pd.datastore.write({ schemaVersion = 3, nextId, headId }, "data/save/diaryIndex", true)
 ```
 
 BufferScene calls `flushPendingEntryFiles()` at 4s and `finishPendingFlush()` at 4.5s (two frames).
