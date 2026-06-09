@@ -78,8 +78,12 @@ function DiaryEntriesListScene:init(restoreState)
     self.previewHeight = 240
     self.previewScrollY = 0
     self.previewMaxScroll = 0
-    self.previewScrollStep = 10
+    self.previewPageIndex = 0
+    self.previewCrankAccumulator = 0
+    self.previewTicksPerPage = 8
     self.previewTicksPerRevolution = 30
+    self.previewRenderThrottle = 0.04
+    self.previewPageStep = math.floor(self.previewHeight * 0.75) 
     local screenHeight = 240
     self.visibleEntryCount = math.max(1, math.floor((screenHeight - self.listTop) / self.rowHeight))
     self.selectorSprite = nil
@@ -667,6 +671,44 @@ function DiaryEntriesListScene:buildPreviewText()
     return self:buildMonthDayPreviewText()
 end
 
+function DiaryEntriesListScene:getPreviewPageCount()
+    if self.previewMaxScroll <= 0 then
+        return 1
+    end
+
+    local count = 1
+    local y = 0
+    while y < self.previewMaxScroll do
+        count = count + 1
+        y = y + self.previewPageStep
+    end
+    return count
+end
+
+function DiaryEntriesListScene:getPreviewPageScrollY(pageIndex)
+    local scrollY = pageIndex * self.previewPageStep
+    if scrollY >= self.previewMaxScroll then
+        return self.previewMaxScroll
+    end
+    return scrollY
+end
+
+function DiaryEntriesListScene:stepPreviewPage(direction)
+    if self.previewMaxScroll <= 0 then
+        return false
+    end
+
+    local maxPageIndex = self:getPreviewPageCount() - 1
+    local nextIndex = self.previewPageIndex + direction
+    if nextIndex < 0 or nextIndex > maxPageIndex then
+        return false
+    end
+
+    self.previewPageIndex = nextIndex
+    self.previewScrollY = self:getPreviewPageScrollY(nextIndex)
+    return true
+end
+
 function DiaryEntriesListScene:renderPreview(resetScroll)
     -- Reuse preview image/sprite to avoid allocations
     if not self.previewImage then
@@ -675,13 +717,20 @@ function DiaryEntriesListScene:renderPreview(resetScroll)
 
     if resetScroll then
         self.previewScrollY = 0
+        self.previewPageIndex = 0
+        self.previewCrankAccumulator = 0
     end
 
     local previewText = self:buildPreviewText()
     local _, textHeight = gfx.getTextSizeForMaxWidth(previewText, self.previewWidth)
     local fullHeight = math.max(self.previewHeight, textHeight + 8)
     self.previewMaxScroll = math.max(0, fullHeight - self.previewHeight)
-    self.previewScrollY = math.max(0, math.min(self.previewScrollY, self.previewMaxScroll))
+
+    local maxPageIndex = self:getPreviewPageCount() - 1
+    if self.previewPageIndex > maxPageIndex then
+        self.previewPageIndex = maxPageIndex
+    end
+    self.previewScrollY = self:getPreviewPageScrollY(self.previewPageIndex)
 
     gfx.pushContext(self.previewImage)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
@@ -961,21 +1010,28 @@ function DiaryEntriesListScene:update()
     local crankTicks = pd.getCrankTicks(self.previewTicksPerRevolution)
 
     if crankTicks ~= 0 and self.previewMaxScroll > 0 then
-        local nextScroll = self.previewScrollY + (crankTicks * self.previewScrollStep)
-        local clampedScroll = math.max(0, math.min(nextScroll, self.previewMaxScroll))
-        if clampedScroll ~= self.previewScrollY then
-            self.previewScrollY = clampedScroll
-            self:renderPreview(false)
+        self.previewCrankAccumulator = self.previewCrankAccumulator + crankTicks
+
+        while math.abs(self.previewCrankAccumulator) >= self.previewTicksPerPage do
+            local direction = self.previewCrankAccumulator > 0 and 1 or -1
+            if not self:stepPreviewPage(direction) then
+                self.previewCrankAccumulator = 0
+                break
+            end
+            self.previewNeedsRender = true
+            self.previewCrankAccumulator = self.previewCrankAccumulator - (direction * self.previewTicksPerPage)
         end
 
         self.lastCrankTime = pd.getElapsedTime()
-
 
         if not self.crankSoundPlaying then
             Sound.startCrankLoop()
             self.crankSoundPlaying = true
         end
+    end
 
+    if self.previewNeedsRender and (pd.getElapsedTime() - (self.lastPreviewRenderTime or 0) > self.previewRenderThrottle) then
+        self:renderPreview(false)
     end
 
     if self.crankSoundPlaying and pd.getElapsedTime() - self.lastCrankTime > 0.1 then
