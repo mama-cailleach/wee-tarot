@@ -100,7 +100,7 @@ end
 
 function TitleScene:loadMenuAnimation()
     self.BGSprite.states["idleEnd"].onAnimationEndEvent = function ()
-        SCENE_MANAGER:switchScene(SettingsScene) --MenuScene ********  AfterDialogueScene
+        SCENE_MANAGER:switchScene(MenuScene) --MenuScene ********  AfterDialogueScene
         Sound.playMusic(0)
         self:soundTrigger()
 

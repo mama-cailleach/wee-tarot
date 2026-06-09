@@ -6,9 +6,9 @@ import "data/save/diaryStore"
 -- Diary flush + browser prewarm happen here (spread across frames), not on the hub.
 class('BufferScene').extends(gfx.sprite)
 
-local MIN_HOLD_MS <const> = 6000
+local MIN_HOLD_MS <const> = 4000
 
-local WORK_DELAYS_MS <const> = { 1000, 1500, 2000, 3000, 4000 }
+local WORK_DELAYS_MS <const> = { 500, 1000, 1500, 2000, 3000 }
 
 function BufferScene:init()
     BufferScene.super.init(self)

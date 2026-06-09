@@ -230,11 +230,6 @@ Focus on the surrounding environment, other people's actions, social pressures, 
 - "The social climate. A cold draft coming under the door, straight from someone else’s house."
 
 #### Hopes and Fears
-For Hopes and Fears (the trickiest position in the staff, where secret desires and late-night dread merge into one paradox), the focus is on the hesitation of the human heart. In our fortune teller's weary style, this is the place where you want the storm to break just so the waiting is over, or where you're terrified of getting exactly what you asked for.
-
-Here are 6 short flavor text options for Hopes and Fears:
-🕸️ Hopes and Fears (The Paradox / The Shiver)
-
 Focus on hidden desires, self-sabotage, anxiety, and the strange way we long for the things we dread.
 
 - "The hopes and the fears, because humans are foolish enough to pray for the storm just to end the drought."

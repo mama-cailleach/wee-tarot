@@ -37,6 +37,12 @@ function SpreadSelectionScene:init()
 
     self.spreadOptionIndex = 1
     self.deckOptionIndex = 1
+    for index, option in ipairs(self.spreadOptions) do
+        if option.key == (selectedSpread or "one_card") then
+            self.spreadOptionIndex = index
+            break
+        end
+    end
     for index, key in ipairs(deckKeys) do
         if key == (selectedDeck or "full") then
             self.deckOptionIndex = index
@@ -44,6 +50,7 @@ function SpreadSelectionScene:init()
         end
     end
 
+    selectedSpread = self.spreadOptions[self.spreadOptionIndex].key
     selectedDeck = deckKeys[self.deckOptionIndex]
 
     self.rowLabels = {"SPREAD", "DECK", "SEEK"}
@@ -121,6 +128,7 @@ function SpreadSelectionScene:cycleSpreadOption(direction)
     end
 
     self.spreadOptionIndex = ((self.spreadOptionIndex - 1 + direction) % spreadCount) + 1
+    selectedSpread = self.spreadOptions[self.spreadOptionIndex].key
     self:updateSpreadValueSprite()
 end
 
@@ -160,6 +168,7 @@ end
 
 function SpreadSelectionScene:confirmSelection()
     local option = self.spreadOptions[self.spreadOptionIndex]
+    selectedSpread = option.key
     selectedDeck = deckKeys[self.deckOptionIndex]
 
     if not option.implemented then

@@ -186,11 +186,11 @@ function BaseHowToScene:update()
         end
 
         if pd.buttonJustPressed(pd.kButtonA) then
-            Sound.playABut()
             if self.scrollOffset < self.maxScroll then
                 self.scrollOffset = self.scrollOffset + 1
                 self:showTextWindow()
             else
+                Sound.playABut()
                 self:finishTutorial()
             end
         end

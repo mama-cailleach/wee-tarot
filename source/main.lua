@@ -41,6 +41,7 @@ local gfx <const> = pd.graphics
 SCENE_MANAGER = SceneManager()
 
 selectedDeck = "full" -- full, major, minor, cups, pentacles, swords, wands
+selectedSpread = "one_card"
 
 
 -- font tarotheque (https://www.dafont.com/gschaftlhuber.d11133?text=Hello+%E9+%E3+%E7)

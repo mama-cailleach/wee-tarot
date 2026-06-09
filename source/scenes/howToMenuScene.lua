@@ -99,12 +99,14 @@ end
 
 function HowToMenuScene:update()
     if pd.buttonJustPressed(pd.kButtonDown) then
+        Sound.playABut()
         self.selectedIndex = self.selectedIndex + 1
         if self.selectedIndex > #self.topicOptions then
             self.selectedIndex = 1
         end
         self:updateSelectorPosition()
     elseif pd.buttonJustPressed(pd.kButtonUp) then
+        Sound.playABut()
         self.selectedIndex = self.selectedIndex - 1
         if self.selectedIndex < 1 then
             self.selectedIndex = #self.topicOptions
@@ -113,11 +115,12 @@ function HowToMenuScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonA) then
+        Sound.playABut()
         self:confirmSelection()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
-        Sound.playSFX("cards_slow")
+        Sound.playSFX("b_button")
         SCENE_MANAGER:switchScene(SettingsScene)
     end
 end

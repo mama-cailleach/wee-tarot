@@ -1,10 +1,15 @@
 local TABLE_MANNERS_TEXTS = {
+    "First time? Don't fret. I'll hold the veil open for you.",
     "Before we begin, a little ritual etiquette.",
     "Find a quiet moment and set your intention.",
     "The cards respond best when asked with honesty, not panic.",
     "First, choose your layout and your tools.",
-    "The Spreads will show you the shape of the query; the Deck will provide the voice.",
+    "The Spreads can help you shape of the query; the Deck can provide the voice.",
     "When the choices feel right, press SEEK to begin the hunt.",
+    "The spreads are merely standard paths through the woods,",
+    "guides to help us interpret the shade.",
+    "Feel free to wander off them and adapt as you see fit.",
+    "If you wish to study the map closer, there is more information within.",
     "Touch the deck gently. You are asking, not demanding.",
     "Breathe in. Breathe out. Let the noise settle.",
     "One clear question is stronger than ten tangled ones.",
@@ -19,7 +24,9 @@ local TABLE_MANNERS_TEXTS = {
     "Look back at the Cloth one last time, or step away.",
     "Whichever path you take to leave, the thread is caught.", 
     "The spirits commit the reading to your diary before closing the door.",
-    "A record kept is a lesson saved. Go well."
+    "When the spirits go quiet, you may seek another reading.",
+    "But remember, darling...",
+    "The cards don't lie. Even when you do."
 }
 
 class('HowToTableMannersScene').extends(BaseHowToScene)
@@ -27,3 +34,5 @@ class('HowToTableMannersScene').extends(BaseHowToScene)
 function HowToTableMannersScene:init()
     HowToTableMannersScene.super.init(self, TABLE_MANNERS_TEXTS)
 end
+
+

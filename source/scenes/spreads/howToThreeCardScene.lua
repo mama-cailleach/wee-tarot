@@ -1,15 +1,25 @@
 local THREE_CARD_TEXTS = {
-    "Three cards this time. Root, Trunk, Branch. A tidy little haunting.",
-    "Root holds what feeds the question and what still grips the ground.",
-    "Trunk sits in the middle of the mess. That is the living present, like it or not.",
-    "Branch leans forward. Not a promise. More like a warning with good posture.",
-    "Shuffle as usual. Let the deck loosen its secrets.",
-    "Use the crank until the cards feel awake.",
-    "Press A when you are ready to reveal all three.",
-    "They appear from left to right. Root first, then Trunk, then Branch.",
-    "After the reveal, I will walk you through each position one by one.",
-    "Do not rush the middle card. It usually knows where the bruise is.",
-    "When the reading ends, you can return and draw another spread."
+    "Ah, looking for a bit more weight to your questions, are you?",
+    "We call this one the Root, Trunk, and Branch.", 
+    "A three-card layout, woven tight like the old Celtic Tree of Life.",
+    "Some folks prefer the tidy names: Past, Present, and Future.", 
+    "Or as I like to call them... Afore, The Noo, and Efter.",
+    "But I prefer the woods. A three-card read... or a tree-card read,",
+    "They sound the same, and nature's a far better teacher anyway.",
+    "The first card is the Root. It sits in the heavy, dark, damp earth.",
+    "It speaks of your hidden histories, your foundations...", 
+    "and the things you've buried deep that are still very much alive.",
+    "The second is the Trunk.", 
+    "The weather-beaten endurance of the here and now.",
+    "It's the weight of the moment, the thick bark,", 
+    "and how you're holding steady against the gale.",
+    "And the third, the Branch.", 
+    "The reach into the shifting wind, the vulnerability of new growth,", 
+    "and whatever is waiting for you on the grey horizon.",
+    "Shuffle the deck. Let the wood smoke settle in your mind.",
+    "See how the branches lean back toward the roots.",
+    "Well? Don't just stand there like a big old trunk.",
+    "Away you go!"
 }
 
 class('HowToThreeCardScene').extends(BaseHowToScene)

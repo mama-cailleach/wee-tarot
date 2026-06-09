@@ -557,7 +557,11 @@ function BaseSpreadPostScene:update()
         if self.pageIndex >= #self.textPages then
         
             Sound.playABut()
-
+            Sound.playSFX("cards_slow2")
+            self:goBackToSpreadView()
+        elseif self.pageIndex == (#self.textPages -1) then
+            Sound.playABut()
+            Sound.playSFX("cards_slow2")
             self:goBackToSpreadView()
         end
 

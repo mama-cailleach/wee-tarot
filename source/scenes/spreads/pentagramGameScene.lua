@@ -47,9 +47,9 @@ function PentagramGameScene:buildDrawPoolForSelection()
         -- Position 1 (center/top): Major (Heart/Self)
         -- Position 2 (left): Swords (Air)
         -- Position 3 (bottom-left): Pentacles (Earth)
-        -- Position 4 (bottom-right): Cups (Water)
-        -- Position 5 (right): Wands (Fire)
-        local elementMapping = {5, 3, 4, 1, 2} -- suit indices for each position
+        -- Position 4 (bottom-right): Wands (Fire)
+        -- Position 5 (right): Cups (Water)
+        local elementMapping = {5, 3, 4, 2, 1} -- suit indices for each position
         
         local pool = {}
         for positionIndex, suitIndex in ipairs(elementMapping) do
