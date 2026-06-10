@@ -12,6 +12,11 @@ local MONTH_NAMES = {
     "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 }
 
+local MONTH_NAMES_FULL = {
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+}
+
 local function parseDiaryDate(dateText)
     local dayText, monthText, yearText = string.match(dateText or "", "^(%d%d)%-(%d%d)%-(%d%d%d%d)$")
     if not dayText or not monthText or not yearText then
@@ -38,14 +43,15 @@ function DiaryEntriesListScene:init(restoreState)
 
 
     --[[
+    self.bgImage = gfx.image.new("images/bg/journal1")
+    self.bgSprite = gfx.sprite.new(self.bgImage)
+    self.bgSprite:moveTo(200, 120)
+    self.bgSprite:add()
+    ]]
 
     self.bgSprite = gfx.sprite.new(GameAssets.getJournal1Image())
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
-
-    ]]
-
-
 
     self.entries = DiaryStore.getEntries()
     self.entriesListDescending = PlayerProfileStore.getEntriesListDescending()
@@ -70,12 +76,14 @@ function DiaryEntriesListScene:init(restoreState)
     self.previewTop = 0
     self.previewWidth = 170
     self.previewHeight = 240
-    self.previewVerticalPad = 12
+    self.previewScrollY = 0
+    self.previewMaxScroll = 0
     self.previewPageIndex = 0
     self.previewCrankAccumulator = 0
     self.previewTicksPerPage = 8
     self.previewTicksPerRevolution = 30
     self.previewRenderThrottle = 0.04
+    self.previewPageStep = math.floor(self.previewHeight * 0.75) 
     local screenHeight = 240
     self.visibleEntryCount = math.max(1, math.floor((screenHeight - self.listTop) / self.rowHeight))
     self.selectorSprite = nil
@@ -451,17 +459,33 @@ function DiaryEntriesListScene:toOrdinal(day)
     return tostring(day) .. suffix
 end
 
+function DiaryEntriesListScene:formatPreviewDate(date)
+    local day, month, year = string.match(date or "", "^(%d%d)%-(%d%d)%-(%d%d%d%d)$")
+    if not day or not month or not year then
+        return "Erstwhile"
+    end
+
+    local monthIndex = tonumber(month) or 0
+    local monthText = MONTH_NAMES_FULL[monthIndex] or "???"
+    local dayText = self:toOrdinal(tonumber(day) or 0)
+
+    local dateString = dayText .. " of \n" .. monthText .. "\n" .. year
+
+    return dateString
+end
+
 function DiaryEntriesListScene:formatPreviewTime(timeText)
     if type(timeText) ~= "string" then
-        return "0000"
+        return "00.00"
     end
 
-    local hour, minute = string.match(timeText, "^(%d%d)[%.:](%d%d)$")
-    if hour and minute then
-        return hour .. "©" .. minute .. "'"
+    timeText = string.gsub(timeText, ":", ".")
+
+    if not string.match(timeText, "^%d%d%.%d%d$") then
+        return "00.00"
     end
 
-    return "0000"
+    return timeText
 end
 
 function DiaryEntriesListScene:formatSpreadLabel(spreadType)
@@ -471,32 +495,59 @@ function DiaryEntriesListScene:formatSpreadLabel(spreadType)
     return SpreadReadingData.getSpreadDisplayName(spreadType)
 end
 
-function DiaryEntriesListScene:formatCardCountLabel(entry)
-    local count = 0
-    if type(entry) == "table" and type(entry.cards) == "table" then
-        count = #entry.cards
+function DiaryEntriesListScene:buildEntrySummaryText(entry)
+    if not entry then
+        return "No diary entries yet."
     end
 
-    if count == 1 then
-        return "1 card"
-    end
+    local lines = {"SPREAD\n",
+        self:formatSpreadLabel(entry.spreadType),
+        "\nºººººººº\n"
+    }
 
-    return tostring(count) .. " cards"
+    if type(entry.cards) == "table" and #entry.cards > 0 then
+        table.insert(lines, "CARDS\n")
+        --table.insert(lines, "\nºººººººº\n")
+        for _, card in ipairs(entry.cards) do
+            local cardName = card.name or "Unknown Card"
+            table.insert(lines, "--\n")
+            table.insert(lines, cardName)
+            table.insert(lines, "\n")
+            --table.insert(lines, "\nºººººººº\n")
+        end
+    else
+        table.insert(lines, "No cards recorded")
+    end
+    table.insert(lines, "ºººººººº\n")
+
+    return table.concat(lines, "")
 end
 
-function DiaryEntriesListScene:hasYearStatPages()
-    if self.browserMode ~= "year" then
-        return false
+function DiaryEntriesListScene:buildYearPreviewText()
+    if self.selectedYearIndex == self:getYearMendIndex() then
+        return table.concat({
+            "Alter Diary",
+            "\nºººººººº\n",
+            "Customise the the fabric of your diary.",
+            "\nºººººººº\n",
+            "Name:\n", PlayerProfileStore.getName(),
+            "\n--\nOrdering:\n", PlayerProfileStore.getEntriesListDescending() and "Newest to Oldest" or "Oldest to Newest"
+        }, "")
     end
 
-    if self.selectedYearIndex == self:getYearMendIndex() or self:isLockAndLeaveSelected() then
-        return false
+    if self:isLockAndLeaveSelected() then
+        return table.concat({
+            "Close",
+            "\nºººººººº\n",
+            "Close and lock your diary.\n\nProtect your readings from unwanted eyes and keep your secrets safe."
+        }, "")
     end
 
-    return self:getCurrentYearBucket() ~= nil
-end
+    local yearBucket = self:getCurrentYearBucket()
+    if not yearBucket then
+        return "No entries for this year."
+    end
 
-function DiaryEntriesListScene:computeYearStats(yearBucket)
     local totalReadings = 0
     local totalCardsPulled = 0
     local cardCounts = {}
@@ -546,77 +597,20 @@ function DiaryEntriesListScene:computeYearStats(yearBucket)
         favoriteSpread = self:formatSpreadLabel(favoriteSpreadKey)
     end
 
-    return {
-        totalReadings = totalReadings,
-        totalCardsPulled = totalCardsPulled,
-        mostSeenCard = mostSeenCard,
-        favoriteSpread = favoriteSpread
-    }
-end
-
-function DiaryEntriesListScene:buildYearStatPageText(pageIndex, stats)
-    local title = "The Tally\n"
-    local separator = "ºººººººº"
-    local pages = {
-        table.concat({ title, separator, "\n", "Total Readings:\n", tostring(stats.totalReadings), "\n", separator,"\n" }, ""),
-        table.concat({ title, separator, "\n", "Total Cards Pulled:\n", tostring(stats.totalCardsPulled), "\n", separator, "\n" }, ""),
-        table.concat({ title, separator, "\n", "Card Most Seen:\n", stats.mostSeenCard, "\n", separator, "\n" }, ""),
-        table.concat({ title, separator, "\n", "Favorite Spread:\n", stats.favoriteSpread, "\n", separator, "\n" }, "")
+    local lines = {
+        tostring(yearBucket.year),
+        "\nºººººººº\n",
+        "Total Readings:\n", tostring(totalReadings),
+        "\nºººººººº\n",
+        "Total Cards Pulled:\n", tostring(totalCardsPulled),
+        "\nºººººººº\n",
+        "Card Most Seen:\n", mostSeenCard,
+        "\nºººººººº\n",
+        "Favorite Spread:\n", favoriteSpread,
+        "\nºººººººº\n"
     }
 
-    return pages[(pageIndex or 0) + 1] or pages[1]
-end
-
-function DiaryEntriesListScene:buildAlterPageText(pageIndex)
-    local separator = "\nºººººººº\n"
-    local pages = {
-        table.concat({
-            "Alter Diary",
-            separator,
-            "Pick the thread and patch the cover."
-        }, ""),
-        table.concat({
-            "Name:\n", PlayerProfileStore.getName(),
-            "\n--\nOrdering:\n", PlayerProfileStore.getEntriesListDescending() and "Newest to Oldest" or "Oldest to Newest"
-        }, "")
-    }
-
-    return pages[(pageIndex or 0) + 1] or pages[1]
-end
-
-function DiaryEntriesListScene:buildClosePageText(pageIndex)
-    local separator = "\nºººººººº\n"
-    local pages = {
-        table.concat({
-            "Step Away",
-            separator,
-            "Leave it be and latch\nyour diary,\ndarling."
-        }, ""),
-        table.concat({
-            "Protect your readings from unwanted eyes and keep your secrets safe.",
-            separator
-        }, "")
-    }
-
-    return pages[(pageIndex or 0) + 1] or pages[1]
-end
-
-function DiaryEntriesListScene:buildYearPreviewText()
-    if self.selectedYearIndex == self:getYearMendIndex() then
-        return self:buildAlterPageText(self.previewPageIndex)
-    end
-
-    if self:isLockAndLeaveSelected() then
-        return self:buildClosePageText(self.previewPageIndex)
-    end
-
-    local yearBucket = self:getCurrentYearBucket()
-    if not yearBucket then
-        return "No entries for this year."
-    end
-
-    local stats = self:computeYearStats(yearBucket)
-    return self:buildYearStatPageText(self.previewPageIndex, stats)
+    return table.concat(lines, "")
 end
 
 function DiaryEntriesListScene:renderYearFooter()
@@ -656,19 +650,17 @@ function DiaryEntriesListScene:buildMonthDayPreviewText()
         return "No diary entries yet."
     end
 
-    local entry = selectedItem.entry
-    local timeText = selectedItem.time or self:formatPreviewTime(entry and entry.time)
-    local spreadLabel = self:formatSpreadLabel(entry and entry.spreadType)
-    local cardCountLabel = self:formatCardCountLabel(entry)
+    local timeText = selectedItem.time or self:formatPreviewTime(selectedItem.entry and selectedItem.entry.time)
 
-    return table.concat({
-        timeText,
-        "\n\nºººººººº\n",
-        spreadLabel,
+    local lines = {
+        self:formatPreviewDate(selectedItem.date),
         "\n",
-        cardCountLabel,
-        "\n"
-    }, "")
+        timeText,
+        "\nºººººººº\n"
+    }
+
+    table.insert(lines, self:buildEntrySummaryText(selectedItem.entry))
+    return table.concat(lines, "")
 end
 
 function DiaryEntriesListScene:buildPreviewText()
@@ -680,33 +672,40 @@ function DiaryEntriesListScene:buildPreviewText()
 end
 
 function DiaryEntriesListScene:getPreviewPageCount()
-    if self.browserMode ~= "year" then
+    if self.previewMaxScroll <= 0 then
         return 1
     end
 
-    if self.selectedYearIndex == self:getYearMendIndex() or self:isLockAndLeaveSelected() then
-        return 2
+    local count = 1
+    local y = 0
+    while y < self.previewMaxScroll do
+        count = count + 1
+        y = y + self.previewPageStep
     end
+    return count
+end
 
-    if self:hasYearStatPages() then
-        return 4
+function DiaryEntriesListScene:getPreviewPageScrollY(pageIndex)
+    local scrollY = pageIndex * self.previewPageStep
+    if scrollY >= self.previewMaxScroll then
+        return self.previewMaxScroll
     end
-
-    return 1
+    return scrollY
 end
 
 function DiaryEntriesListScene:stepPreviewPage(direction)
-    local maxPageIndex = self:getPreviewPageCount() - 1
-    if maxPageIndex <= 0 then
+    if self.previewMaxScroll <= 0 then
         return false
     end
 
+    local maxPageIndex = self:getPreviewPageCount() - 1
     local nextIndex = self.previewPageIndex + direction
     if nextIndex < 0 or nextIndex > maxPageIndex then
         return false
     end
 
     self.previewPageIndex = nextIndex
+    self.previewScrollY = self:getPreviewPageScrollY(nextIndex)
     return true
 end
 
@@ -717,31 +716,28 @@ function DiaryEntriesListScene:renderPreview(resetScroll)
     end
 
     if resetScroll then
+        self.previewScrollY = 0
         self.previewPageIndex = 0
         self.previewCrankAccumulator = 0
     end
+
+    local previewText = self:buildPreviewText()
+    local _, textHeight = gfx.getTextSizeForMaxWidth(previewText, self.previewWidth)
+    local fullHeight = math.max(self.previewHeight, textHeight + 8)
+    self.previewMaxScroll = math.max(0, fullHeight - self.previewHeight)
 
     local maxPageIndex = self:getPreviewPageCount() - 1
     if self.previewPageIndex > maxPageIndex then
         self.previewPageIndex = maxPageIndex
     end
-    if self.previewPageIndex < 0 then
-        self.previewPageIndex = 0
-    end
-
-    local previewText = self:buildPreviewText()
-    local _, textHeight = gfx.getTextSizeForMaxWidth(previewText, self.previewWidth)
-    local verticalPad = self.previewVerticalPad or 8
-    local maxDrawHeight = self.previewHeight - (verticalPad * 2)
-    local paddedHeight = math.min(maxDrawHeight, textHeight + (verticalPad * 2))
-    local drawY = math.floor((self.previewHeight - paddedHeight) / 2)
+    self.previewScrollY = self:getPreviewPageScrollY(self.previewPageIndex)
 
     gfx.pushContext(self.previewImage)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
         gfx.setColor(gfx.kColorBlack)
         gfx.fillRect(0, 0, self.previewWidth, self.previewHeight)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        gfx.drawTextInRect(previewText, 0, drawY, self.previewWidth, paddedHeight, nil, nil, kTextAlignment.center)
+        gfx.drawTextInRect(previewText, 0, -self.previewScrollY, self.previewWidth, fullHeight, nil, nil, kTextAlignment.center)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
     gfx.popContext()
 
@@ -1013,7 +1009,7 @@ end
 function DiaryEntriesListScene:update()
     local crankTicks = pd.getCrankTicks(self.previewTicksPerRevolution)
 
-    if crankTicks ~= 0 and self:getPreviewPageCount() > 1 then
+    if crankTicks ~= 0 and self.previewMaxScroll > 0 then
         self.previewCrankAccumulator = self.previewCrankAccumulator + crankTicks
 
         while math.abs(self.previewCrankAccumulator) >= self.previewTicksPerPage do

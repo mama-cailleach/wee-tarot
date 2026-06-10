@@ -171,7 +171,7 @@ function MenuScene:optionsText()
         80
     )
 
-    self.settingsButton = self:makeButtonSprite(" ª", 16, 223, 13)
+    self.settingsButton = self:makeButtonSprite("ª", 16, 223, 13)
     self.interactButton = self:makeButtonSprite("A", 384, 223, 14)
     self.diaryButton = self:makeButtonSprite("B", 163, 223, 14)
 end

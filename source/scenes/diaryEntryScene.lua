@@ -205,16 +205,15 @@ end
 
 function DiaryEntryScene:formatPreviewTime(timeText)
     if type(timeText) ~= "string" then
-        return "00.00"
+        return "0000"
     end
 
-    timeText = string.gsub(timeText, ":", ".")
-
-    if not string.match(timeText, "^%d%d%.%d%d$") then
-        return "00.00"
+    local hour, minute = string.match(timeText, "^(%d%d)[%.:](%d%d)$")
+    if hour and minute then
+        return hour .. "©" .. minute .. "'"
     end
 
-    return timeText
+    return "0000"
 end
 
 function DiaryEntryScene:buildSpreadSummaryText()
@@ -292,16 +291,16 @@ function DiaryEntryScene:buildCardDetailText(detail)
     local orientation = detail.inverted and "Reversed" or "Upright"
     local positionLabel = detail.positionLabel or ("Card " .. tostring(position))
 
-    table.insert(lines, cardName)
-    table.insert(lines, "")
     table.insert(lines, positionLabel)
     table.insert(lines, "")
-    table.insert(lines, "Orientation: " .. orientation)
+    table.insert(lines, cardName)
+    table.insert(lines, "")
+    table.insert(lines, orientation)
 
     if type(detail.themes) == "table" and #detail.themes > 0 then
         table.insert(lines, "")
-        table.insert(lines, "Themes:")
-        table.insert(lines, table.concat(detail.themes, ", "))
+        table.insert(lines, "The Whispers:")
+        table.insert(lines, table.concat(detail.themes, " × ") .. " × " )
     end
     table.insert(lines, "")
     table.insert(lines, "ºººººººº")
