@@ -119,11 +119,13 @@ function DiaryScene:update()
         end
         if self.bgKeySprite then
             self.bgKeySprite:changeState("anim")
+            Sound.playSFX("unlocking")
         end
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
         Sound.playSFX("b_button")
+        Sound.playSFX("cards_fast2")
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end
 end

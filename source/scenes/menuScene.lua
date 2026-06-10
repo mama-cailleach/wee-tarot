@@ -228,7 +228,7 @@ function MenuScene:update()
     elseif self.optionsTextOn then
         if pd.buttonJustPressed(pd.kButtonUp) then
             Sound.playABut()
-            Sound.playSFX("cards_slow2")
+            Sound.playSFX("cards_fast2")
             SCENE_MANAGER:switchScene(SettingsScene)
         end
         if pd.buttonJustPressed(pd.kButtonA) then
@@ -238,7 +238,7 @@ function MenuScene:update()
         end
         if pd.buttonJustPressed(pd.kButtonB) then
             Sound.playABut()
-            Sound.playSFX("cards_slow2")
+            Sound.playSFX("cards_fast2")
             SCENE_MANAGER:switchScene(DiaryScene)
         end
     end

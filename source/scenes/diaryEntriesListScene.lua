@@ -1004,7 +1004,7 @@ function DiaryEntriesListScene:buildReturnState()
 end
 
 function DiaryEntriesListScene:leaveDiary()
-    Sound.playSFX("b_button")
+    Sound.playSFX("locking")
     SCENE_MANAGER:switchScene(DiaryScene)
 end
 
@@ -1015,7 +1015,7 @@ function DiaryEntriesListScene:openCurrentEntry()
         return
     end
 
-    Sound.playSFX("cards_fast2")
+
     SCENE_MANAGER:switchScene(DiaryEntryScene, selectedItem.entry, self:buildReturnState())
 end
 
@@ -1074,12 +1074,13 @@ function DiaryEntriesListScene:update()
 
         if pd.buttonJustPressed(pd.kButtonA) then
             if self.selectedYearIndex == #self.browserData.years + 1 then
-                Sound.playABut()
+                Sound.playSFX("page")
+                Sound.playSFX("cards_slow2")
                 SCENE_MANAGER:switchScene(DiarySettingsScene, "diary", self:buildReturnState())
             elseif self:isLockAndLeaveSelected() then
                 self:leaveDiary()
             elseif totalYears > 0 then
-                Sound.playABut()
+                Sound.playSFX("page")
                 self:enterMonthDayMode()
             end
         end
@@ -1095,25 +1096,25 @@ function DiaryEntriesListScene:update()
         local monthRows = self:buildMonthDayRows()
 
         if pd.buttonJustPressed(pd.kButtonLeft) and yearBucket and #yearBucket.months > 0 then
-            Sound.playABut()
+            Sound.playSFX("page")
             self:cycleMonth(-1)
         end
 
         if pd.buttonJustPressed(pd.kButtonRight) and yearBucket and #yearBucket.months > 0 then
-            Sound.playABut()
+            Sound.playSFX("page")
             self:cycleMonth(1)
         end
 
-        if pd.buttonJustPressed(pd.kButtonDown) and #monthRows > 0 then
+        if pd.buttonJustPressed(pd.kButtonDown) and #monthRows > 1 then
             if self:moveMonthDaySelection(1) then
-                Sound.playABut()
+                Sound.playSFX("page2")
                 self:renderCurrentMode(true)
             end
         end
 
-        if pd.buttonJustPressed(pd.kButtonUp) and #monthRows > 0 then
+        if pd.buttonJustPressed(pd.kButtonUp) and #monthRows > 1 then
             if self:moveMonthDaySelection(-1) then
-                Sound.playABut()
+                Sound.playSFX("page2")
                 self:renderCurrentMode(true)
             end
         end
@@ -1121,6 +1122,8 @@ function DiaryEntriesListScene:update()
         if pd.buttonJustPressed(pd.kButtonA) then
             if #monthRows > 0 then
                 Sound.playABut()
+                Sound.playSFX("page")
+                Sound.playSFX("cards_slow2")
                 self:openCurrentEntry()
             end
         end

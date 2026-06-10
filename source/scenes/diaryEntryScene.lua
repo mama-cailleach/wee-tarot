@@ -589,7 +589,7 @@ function DiaryEntryScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonLeft) then
-        Sound.playABut()
+        Sound.playSFX("page2")
         local navigationCount = self:getNavigationCount()
         if navigationCount > 0 then
             self.selectedCardIndex = (self.selectedCardIndex - 1 + navigationCount) % navigationCount
@@ -600,7 +600,7 @@ function DiaryEntryScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonRight) then
-        Sound.playABut()
+        Sound.playSFX("page2")
         local navigationCount = self:getNavigationCount()
         if navigationCount > 0 then
             self.selectedCardIndex = (self.selectedCardIndex + 1) % navigationCount
@@ -633,6 +633,7 @@ function DiaryEntryScene:update()
 
     if pd.buttonJustPressed(pd.kButtonB) then
         Sound.playSFX("b_button")
+        Sound.playSFX("cards_slow2")
         SCENE_MANAGER:switchScene(DiaryEntriesListScene, self.returnState)
     end
 end

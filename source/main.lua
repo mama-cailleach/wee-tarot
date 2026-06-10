@@ -81,7 +81,17 @@ if PlayerProfileStore and PlayerProfileStore.getSoundMode then
 end
 Sound.init(storedSoundMode)
 
+pd.setCrankSoundsDisabled(true)
+
 beginBoot()
+
+function pd.crankDocked()
+    Sound.playSFX("docking")
+end
+
+function pd.crankUndocked()
+    Sound.playSFX("undocking")
+end
 
 
 function pd.update()
@@ -103,4 +113,5 @@ function pd.update()
     end
 
     pd.drawFPS(380, 5)
+
 end

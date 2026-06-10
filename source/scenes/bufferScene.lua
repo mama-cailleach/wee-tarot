@@ -29,6 +29,7 @@ function BufferScene:init()
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
 
     self:scheduleDiaryWork()
+
     self.exitTimer = pd.timer.performAfterDelay(MIN_HOLD_MS, function()
         self.exitTimer = nil
         SCENE_MANAGER:switchScene(AfterDialogueScene)
@@ -39,6 +40,7 @@ end
 
 function BufferScene:scheduleDiaryWork()
     self:clearWorkTimers()
+    Sound.playSFX("hahahaha")
 
     table.insert(self.workTimers, pd.timer.performAfterDelay(WORK_DELAYS_MS[1], function()
         DiaryStore.getBrowserData(false)

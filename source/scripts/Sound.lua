@@ -31,7 +31,15 @@ local DEFAULTS = {
         a_but10 = 0.5,
         pad_a = 1.0,
         pad_b = 1.0,
-        witchpad = 1.0
+        witchpad = 1.0,
+        docking = 1.0,
+        locking = 1.0,
+        unlocking = 1.0,
+        undocking = 1.0,
+        hahahaha = 1.0,
+        page = 1.0,
+        page2 = 1.0,
+        page3 = 1.0
     }
 }
 
@@ -143,7 +151,24 @@ function Sound.init(initialSoundMode)
 
     sfx.pad_b = pd.sound.fileplayer.new("sound/pad_b")
 
-    sfx.witchpad = pd.sound.fileplayer.new("sound/witchpad")
+    sfx.witchpad = pd.sound.fileplayer.new("sound/witchpad") -- not in use?
+
+    sfx.locking = pd.sound.sampleplayer.new("sound/lockin1")
+    
+    sfx.unlocking = pd.sound.sampleplayer.new("sound/unlocking2")
+
+    sfx.docking = pd.sound.sampleplayer.new("sound/dockin1")
+
+    sfx.undocking = pd.sound.sampleplayer.new("sound/undocking4")
+
+    sfx.hahahaha = pd.sound.sampleplayer.new("sound/hahahaha1")
+
+    sfx.page = pd.sound.sampleplayer.new("sound/page1-2")
+
+    sfx.page2 = pd.sound.sampleplayer.new("sound/page2-2")
+
+    sfx.page3 = pd.sound.sampleplayer.new("sound/page3-2")
+
 
     Sound.setSoundMode(initialSoundMode)
 end
