@@ -1,5 +1,6 @@
 import "data/cardDescriptions"
 import "data/save/diaryStore"
+import "data/spreadReadingData"
 
 
 local pd <const> = playdate
@@ -230,13 +231,19 @@ function PostScene:queueReadingToDiary()
         return
     end
 
+    local themes = self.diaryCardThemes
+    if type(themes) ~= "table" or #themes == 0 then
+        themes = SpreadReadingData.pickKeywords(self.card, self.invert == true, 3)
+    end
+
     DiaryStore.queueCompletedReading("one_card", {
         {
             name = self.card,
             number = self.cardNumber,
             suit = self.cardSuit,
             inverted = self.invert == true,
-            position = 1
+            position = 1,
+            themes = themes
         }
     })
     self.diaryEntrySaved = true
@@ -312,6 +319,7 @@ function PostScene:addCardTextToDinah(cardName)
             end
         end
         table.insert(lines, table.concat(final_keywords_to_display, ", ") .. ".")
+        self.diaryCardThemes = final_keywords_to_display
     end
 
     -- 4. Fortune line

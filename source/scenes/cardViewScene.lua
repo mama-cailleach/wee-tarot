@@ -2,6 +2,7 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 import "data/save/diaryStore"
+import "data/spreadReadingData"
 
 class('CardViewScene').extends(gfx.sprite)
 
@@ -68,7 +69,8 @@ function CardViewScene:buildDiaryCards()
             number = self.cardNumber,
             suit = self.cardSuit,
             inverted = self.invert == true,
-            position = 1
+            position = 1,
+            themes = SpreadReadingData.pickKeywords(self.card, self.invert == true, 3)
         }
     }
 end

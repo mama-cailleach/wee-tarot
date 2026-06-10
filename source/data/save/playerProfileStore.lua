@@ -3,7 +3,7 @@ local pd <const> = playdate
 PlayerProfileStore = {}
 
 local DATASTORE_PATH <const> = "data/save/playerProfile"
-local DEFAULT_NAME <const> = "???"
+local DEFAULT_NAME <const> = "Wee Tarot"
 local MAX_NAME_LENGTH <const> = 16
 local DEFAULT_DATE_DISPLAY_REVERSED <const> = false
 local DEFAULT_ENTRIES_LIST_DESCENDING <const> = false

@@ -178,6 +178,14 @@ end
 
 
 
+function BaseSpreadPostScene:ensureCardThemes()
+    if self.cardThemes then
+        return
+    end
+
+    self.cardThemes = SpreadReadingData.buildThemesForCards(self.cardNames, self.cardInverted)
+end
+
 function BaseSpreadPostScene:ensureReadingTextBuilt()
 
     if self.textSections then
@@ -186,11 +194,11 @@ function BaseSpreadPostScene:ensureReadingTextBuilt()
 
     end
 
+    self:ensureCardThemes()
 
+    self.textSections = SpreadReadingData.buildPlaceholderReadingSections(self.config.spreadKey, self.cardNames, self.cardInverted, self.cardThemes)
 
-    self.textSections = SpreadReadingData.buildPlaceholderReadingSections(self.config.spreadKey, self.cardNames, self.cardInverted)
-
-    self.textLines = SpreadReadingData.buildPlaceholderReadingText(self.config.spreadKey, self.cardNames, self.cardInverted)
+    self.textLines = SpreadReadingData.buildPlaceholderReadingText(self.config.spreadKey, self.cardNames, self.cardInverted, self.cardThemes)
 
     self.textPages = self:buildTextPages()
 
@@ -361,16 +369,25 @@ end
 
 
 function BaseSpreadPostScene:buildDiaryCards()
+    self:ensureCardThemes()
+
     local cards = {}
 
     for index, cardName in ipairs(self.cardNames or {}) do
-        table.insert(cards, {
+        local cardEntry = {
             name = cardName,
             number = self.cardNumbers and self.cardNumbers[index] or nil,
             suit = self.cardSuits and self.cardSuits[index] or nil,
             inverted = self.cardInverted and self.cardInverted[index] == true or false,
             position = index
-        })
+        }
+
+        local themes = self.cardThemes and self.cardThemes[index]
+        if type(themes) == "table" and #themes > 0 then
+            cardEntry.themes = themes
+        end
+
+        table.insert(cards, cardEntry)
     end
 
     return cards

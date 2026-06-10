@@ -36,16 +36,20 @@ end
 function DiaryEntriesListScene:init(restoreState)
     DiaryEntriesListScene.super.init(self)
 
+    self.bgSprite = nil
+    self.bgFrameSprite = nil
 
-    --[[
-
-    self.bgSprite = gfx.sprite.new(GameAssets.getJournal1Image())
+    self.bgSprite = AnimatedSprite.new(GameAssets.getDiaryAnimImagetable())
+    self.bgSprite:addState("anim", 1, 7, {tickStep = 5, yoyo = true})
     self.bgSprite:moveTo(200, 120)
+    self.bgSprite:setZIndex(0)
     self.bgSprite:add()
+    self.bgSprite:playAnimation()
 
-    ]]
-
-
+    self.bgFrameSprite = gfx.sprite.new(GameAssets.getJournal1Image())
+    self.bgFrameSprite:moveTo(200, 120)
+    self.bgFrameSprite:setZIndex(10)
+    --self.bgFrameSprite:add()
 
     self.entries = DiaryStore.getEntries()
     self.entriesListDescending = PlayerProfileStore.getEntriesListDescending()
@@ -90,6 +94,7 @@ function DiaryEntriesListScene:init(restoreState)
     local selectorImage = GameAssets.getIconKnotSmolImage()
     if selectorImage then
         self.selectorSprite = gfx.sprite.new(selectorImage)
+        self.selectorSprite:setZIndex(20)
         self.selectorSprite:add()
     end
 
@@ -156,6 +161,9 @@ function DiaryEntriesListScene:createTextSprite(text, width, height, alignment)
     gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
     local sprite = gfx.sprite.spriteWithText(text, width, height, nil, nil, nil, alignment or kTextAlignment.left)
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    if sprite then
+        sprite:setZIndex(20)
+    end
     return sprite
 end
 
@@ -749,6 +757,7 @@ function DiaryEntriesListScene:renderPreview(resetScroll)
         self.previewSprite = gfx.sprite.new(self.previewImage)
         self.previewSprite:setCenter(0, 0)
         self.previewSprite:moveTo(self.previewLeft, self.previewTop)
+        self.previewSprite:setZIndex(20)
         self.previewSprite:add()
     else
         self.previewSprite:setImage(self.previewImage)
@@ -1127,6 +1136,7 @@ function DiaryEntriesListScene:update()
 end
 
 function DiaryEntriesListScene:deinit()
+    if self.bgFrameSprite then self.bgFrameSprite:remove() self.bgFrameSprite = nil end
     if self.bgSprite then self.bgSprite:remove() self.bgSprite = nil end
     self:clearHeaderSprites()
     if self.selectorSprite then self.selectorSprite:remove() self.selectorSprite = nil end
@@ -1138,7 +1148,5 @@ function DiaryEntriesListScene:deinit()
         Sound.stopCrankLoop()
         self.crankSoundPlaying = false
     end
-    self.imagetable = nil
-    self.bgImage = nil
     self.previewImage = nil
 end

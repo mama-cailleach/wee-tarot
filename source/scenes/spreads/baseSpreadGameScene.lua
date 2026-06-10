@@ -1,5 +1,6 @@
 import "../../scripts/deck"
 import "../../data/save/diaryStore"
+import "../../data/spreadReadingData"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -1020,13 +1021,17 @@ function BaseSpreadGameScene:buildDiaryCards()
     local cards = {}
 
     for index, cardName in ipairs(self.playerCards or {}) do
-        table.insert(cards, {
+        local inverted = self.playerCardsInverted and self.playerCardsInverted[index] == true or false
+        local cardEntry = {
             name = cardName,
             number = self.playerCardNumbers and self.playerCardNumbers[index] or nil,
             suit = self.playerCardSuits and self.playerCardSuits[index] or nil,
-            inverted = self.playerCardsInverted and self.playerCardsInverted[index] == true or false,
-            position = index
-        })
+            inverted = inverted,
+            position = index,
+            themes = SpreadReadingData.pickKeywords(cardName, inverted, 3)
+        }
+
+        table.insert(cards, cardEntry)
     end
 
     return cards

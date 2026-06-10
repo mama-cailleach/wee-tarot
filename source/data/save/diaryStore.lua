@@ -48,13 +48,27 @@ local function sanitizeEntry(raw)
     if type(raw.cards) == "table" then
         for _, card in ipairs(raw.cards) do
             if type(card) == "table" then
-                table.insert(cards, {
+                local sanitizedCard = {
                     name = card.name,
                     number = card.number,
                     suit = card.suit,
                     inverted = card.inverted == true,
                     position = card.position
-                })
+                }
+
+                if type(card.themes) == "table" then
+                    local themes = {}
+                    for _, theme in ipairs(card.themes) do
+                        if type(theme) == "string" and theme ~= "" then
+                            table.insert(themes, theme)
+                        end
+                    end
+                    if #themes > 0 then
+                        sanitizedCard.themes = themes
+                    end
+                end
+
+                table.insert(cards, sanitizedCard)
             end
         end
     end

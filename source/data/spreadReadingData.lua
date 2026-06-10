@@ -464,6 +464,27 @@ function SpreadReadingData.pickKeywords(cardName, inverted, keywordCount)
     return selectedKeywords
 end
 
+function SpreadReadingData.buildThemesForCards(cardNames, cardInverted)
+    local themesByCard = {}
+    local count = math.max(#(cardNames or {}), #(cardInverted or {}))
+
+    for index = 1, count do
+        local cardName = cardNames and cardNames[index] or "Unknown Card"
+        local inverted = cardInverted and cardInverted[index] == true or false
+        themesByCard[index] = SpreadReadingData.pickKeywords(cardName, inverted, 3)
+    end
+
+    return themesByCard
+end
+
+function SpreadReadingData.getSavedCardThemes(card)
+    if type(card) ~= "table" or type(card.themes) ~= "table" or #card.themes == 0 then
+        return nil
+    end
+
+    return card.themes
+end
+
 function SpreadReadingData.getPositionName(spreadKey, index)
     local config = SpreadReadingData.getConfig(spreadKey)
     if not config then
@@ -511,7 +532,7 @@ function SpreadReadingData.buildCardDetails(spreadKey, cardNames, cardInverted)
     return details
 end
 
-function SpreadReadingData.buildPlaceholderReadingSections(spreadKey, cardNames, cardInverted)
+function SpreadReadingData.buildPlaceholderReadingSections(spreadKey, cardNames, cardInverted, themesByCard)
     local config = SPREAD_CONFIGS[spreadKey]
     if not config then
         return { { type = "unknown", lines = { "This spread has no reading data yet." } } }
@@ -552,7 +573,7 @@ function SpreadReadingData.buildPlaceholderReadingSections(spreadKey, cardNames,
             table.insert(sections, { type = "keywordIntro", index = index, lines = { pickKeywordIntroLine() } })
 
             -- 5) Themes section
-            local keywords = SpreadReadingData.pickKeywords(cardName, inverted, 3)
+            local keywords = themesByCard and themesByCard[index] or SpreadReadingData.pickKeywords(cardName, inverted, 3)
             table.insert(sections, { type = "themes", index = index, lines = { table.concat(keywords, ", ") .. "." } })
         end
 
@@ -574,7 +595,8 @@ function SpreadReadingData.buildPlaceholderReadingSections(spreadKey, cardNames,
     for index, positionName in ipairs(config.positionNames or {}) do
         local cardName = cardNames and cardNames[index] or "Unknown Card"
         local inverted = cardInverted and cardInverted[index] and " (Reversed)" or ""
-        local keywords = SpreadReadingData.pickKeywords(cardName, cardInverted and cardInverted[index], 3)
+        local cardInvertedFlag = cardInverted and cardInverted[index] == true or false
+        local keywords = themesByCard and themesByCard[index] or SpreadReadingData.pickKeywords(cardName, cardInvertedFlag, 3)
 
         table.insert(simpleSections, { type = "position", index = index, lines = { positionName .. ": " .. cardName .. inverted } })
         table.insert(simpleSections, { type = "keywordIntro", index = index, lines = { pickKeywordIntroLine() } })
@@ -588,10 +610,10 @@ function SpreadReadingData.buildPlaceholderReadingSections(spreadKey, cardNames,
     return simpleSections
 end
 
-function SpreadReadingData.buildPlaceholderReadingText(spreadKey, cardNames, cardInverted)
+function SpreadReadingData.buildPlaceholderReadingText(spreadKey, cardNames, cardInverted, themesByCard)
     -- Build a flattened list for legacy callers/diary persistence by using the
     -- section-aware builder and then concatenating the sections in order.
-    local sections = SpreadReadingData.buildPlaceholderReadingSections(spreadKey, cardNames, cardInverted)
+    local sections = SpreadReadingData.buildPlaceholderReadingSections(spreadKey, cardNames, cardInverted, themesByCard)
     local lines = {}
     for _, section in ipairs(sections) do
         for _, l in ipairs(section.lines or {}) do

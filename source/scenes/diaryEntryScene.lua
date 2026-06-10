@@ -4,9 +4,7 @@ local gfx <const> = pd.graphics
 import "data/save/playerProfileStore"
 import "data/spreadReadingData"
 import "libraries/utils"
-local ImageCache = import "libraries/imageCache"
 local DebugStats = import "libraries/debugStats"
-ImageCache.setup({ maxEntries = 2, maxBytes = 131072 })
 
 class('DiaryEntryScene').extends(gfx.sprite)
 
@@ -44,12 +42,17 @@ function DiaryEntryScene:init(entry, returnState)
     self.bgSprite = gfx.sprite.new(self.bgImage)
     self.bgSprite:moveTo(200, 120)
     self.bgSprite:add()
+
     ]]
 
-    self.bgImage = gfx.image.new("images/bg/journal1")
-    self.bgSprite = gfx.sprite.new(self.bgImage)
-    self.bgSprite:moveTo(200,120)
+
+
+    self.bgSprite = AnimatedSprite.new(GameAssets.getDiaryAnimImagetable())
+    self.bgSprite:addState("anim", 1, 7, {tickStep = 5, yoyo = true})
+    self.bgSprite:moveTo(200, 120)
+    self.bgSprite:setZIndex(0)
     self.bgSprite:add()
+    self.bgSprite:playAnimation()
 
     self.headerSprite = nil
     self.bodySprite = nil
@@ -74,22 +77,21 @@ function DiaryEntryScene:init(entry, returnState)
     self.currentCardScale = self.selectedScale
     self.suitFolders = { "cups", "wands", "swords", "pentacles", "majorArcana" }
 
-    self.scrollY = 0
-    self.maxScroll = 0
-    self.scrollStep = 14
+    self.bodyPageIndex = 0
+    self.bodyCrankAccumulator = 0
+    self.bodyTicksPerPage = 8
     self.ticksPerRevolution = 30
+    self.bodyVerticalPad = 1
+    self.bodyRenderThrottle = 0.04
 
     self:renderCardPlacement()
 
-        self.crankSoundPlaying = false
-        self.crankInactivityTimer = nil
-        self.lastCrankTime = 0
-        self.bodyImage = nil
-        self.lastBodyRenderTime = 0
-        self.bodyNeedsRender = false
-        self.fullBodyImage = nil
-        self.fullBodySprite = nil
-        self.fullBodyRenderThreshold = 800
+    self.crankSoundPlaying = false
+    self.crankInactivityTimer = nil
+    self.lastCrankTime = 0
+    self.bodyImage = nil
+    self.lastBodyRenderTime = 0
+    self.bodyNeedsRender = false
 
     self:renderHeader()
     self:renderBody()
@@ -216,30 +218,36 @@ function DiaryEntryScene:formatPreviewTime(timeText)
     return "0000"
 end
 
-function DiaryEntryScene:buildSpreadSummaryText()
+function DiaryEntryScene:buildSpreadHeaderPageText()
     local lines = {}
-    local spreadKey = self:getSpreadKey()
-    local config = SpreadReadingData.getConfig(spreadKey)
-
     table.insert(lines, self:formatPreviewDate(self.entry.date))
     table.insert(lines, "at")
     table.insert(lines, self:formatPreviewTime(self.entry.time))
     table.insert(lines, "ºººººººº")
     table.insert(lines, "")
+    return table.concat(lines, "\n")
+end
 
-    if type(self.entry.cards) == "table" then
-        table.insert(lines, "Cards Pulled:")
-        table.insert(lines, "")
-        for _, card in ipairs(self.entry.cards) do
-            local position = card.position or 0
-            local cardName = card.name or "Unknown Card"
-            local orientation = card.inverted and " (reversed)" or ""
-            local positionLabel = config and position > 0 and SpreadReadingData.getPositionName(spreadKey, position) or tostring(position)
-            table.insert(lines, positionLabel .. ". " .. cardName .. orientation .. "\n")
-        end
+function DiaryEntryScene:buildSpreadCardLinePageText(cardIndex)
+    if type(self.entry.cards) ~= "table" then
+        return ""
     end
 
-    return table.concat(lines, "\n")
+    local card = self.entry.cards[cardIndex]
+    if not card then
+        return ""
+    end
+
+    local spreadKey = self:getSpreadKey()
+    local config = SpreadReadingData.getConfig(spreadKey)
+    local position = card.position or 0
+    local cardName = card.name or "Unknown Card"
+    local orientation = card.inverted and " (reversed)" or ""
+    local positionLabel = config and position > 0
+        and SpreadReadingData.getPositionName(spreadKey, position)
+        or tostring(position)
+
+    return positionLabel .. ".\n" .. cardName .. orientation
 end
 
 function DiaryEntryScene:getCardDetails()
@@ -259,12 +267,15 @@ function DiaryEntryScene:getCardDetails()
             and SpreadReadingData.getPositionName(spreadKey, position)
             or ("Card " .. tostring(position))
 
+        local themes = SpreadReadingData.getSavedCardThemes(card)
+            or SpreadReadingData.pickKeywords(cardName, inverted, 3)
+
         table.insert(details, {
             position = position,
             positionLabel = positionLabel,
             cardName = cardName,
             inverted = inverted,
-            themes = SpreadReadingData.pickKeywords(cardName, inverted, 3)
+            themes = themes
         })
     end
 
@@ -280,7 +291,7 @@ function DiaryEntryScene:getSelectedCardDetail()
     return cardDetails[self.selectedCardIndex]
 end
 
-function DiaryEntryScene:buildCardDetailText(detail)
+function DiaryEntryScene:buildCardDetailIdentityPageText(detail)
     if type(detail) ~= "table" then
         return "No card selected."
     end
@@ -294,32 +305,67 @@ function DiaryEntryScene:buildCardDetailText(detail)
     table.insert(lines, positionLabel)
     table.insert(lines, "")
     table.insert(lines, cardName)
-    table.insert(lines, "")
     table.insert(lines, orientation)
 
-    if type(detail.themes) == "table" and #detail.themes > 0 then
-        table.insert(lines, "")
-        table.insert(lines, "The Whispers:")
-        table.insert(lines, table.concat(detail.themes, " × ") .. " × " )
+    return table.concat(lines, "\n")
+end
+
+function DiaryEntryScene:buildCardDetailWhispersPageText(detail)
+    if type(detail) ~= "table" then
+        return "No card selected."
     end
-    table.insert(lines, "")
+
+    local lines = {}
+
+    if type(detail.themes) == "table" and #detail.themes > 0 then
+        table.insert(lines, "The Whispers:")
+        table.insert(lines, table.concat(detail.themes, " × ") .. " × ")
+    end
     table.insert(lines, "ºººººººº")
 
     return table.concat(lines, "\n")
 end
 
-function DiaryEntryScene:buildBodyText()
-    local selectedCard = self:getSelectedCard()
-    local bodyText
-
-    if selectedCard and selectedCard.isSpreadCard then
-        bodyText = self:buildSpreadSummaryText()
-    else
-        bodyText = self:buildCardDetailText(self:getSelectedCardDetail())
+function DiaryEntryScene:getBodyPageCount()
+    if self.selectedCardIndex == 0 then
+        return math.max(1, 1 + self:getCardCount())
     end
 
-    local wrappedLines = utils.wrapTextToLines(bodyText or "", self.viewWidth, gfx.getSystemFont())
-    return table.concat(wrappedLines, "\n")
+    return 2
+end
+
+function DiaryEntryScene:buildBodyPageText()
+    local pageIndex = self.bodyPageIndex or 0
+
+    if self.selectedCardIndex == 0 then
+        if pageIndex == 0 then
+            return self:buildSpreadHeaderPageText()
+        end
+
+        return self:buildSpreadCardLinePageText(pageIndex)
+    end
+
+    local detail = self:getSelectedCardDetail()
+    if pageIndex == 0 then
+        return self:buildCardDetailIdentityPageText(detail)
+    end
+
+    return self:buildCardDetailWhispersPageText(detail)
+end
+
+function DiaryEntryScene:stepBodyPage(direction)
+    local maxPageIndex = self:getBodyPageCount() - 1
+    if maxPageIndex <= 0 then
+        return false
+    end
+
+    local nextIndex = self.bodyPageIndex + direction
+    if nextIndex < 0 or nextIndex > maxPageIndex then
+        return false
+    end
+
+    self.bodyPageIndex = nextIndex
+    return true
 end
 
 function DiaryEntryScene:renderHeader()
@@ -448,104 +494,60 @@ function DiaryEntryScene:renderSelectedCard()
     self:syncArrowVisibility()
 end
 
-function DiaryEntryScene:renderBody()
-    -- Reuse body image and sprite to avoid frequent allocations
-    local bodyText = self:buildBodyText()
+function DiaryEntryScene:renderBody(resetPage)
+    if not self.bodyImage then
+        self.bodyImage = gfx.image.new(self.viewWidth, self.viewHeight)
+    end
+
+    if resetPage then
+        self.bodyPageIndex = 0
+        self.bodyCrankAccumulator = 0
+    end
+
+    local maxPageIndex = self:getBodyPageCount() - 1
+    if self.bodyPageIndex > maxPageIndex then
+        self.bodyPageIndex = maxPageIndex
+    end
+    if self.bodyPageIndex < 0 then
+        self.bodyPageIndex = 0
+    end
+
+    local bodyText = self:buildBodyPageText()
+    local wrappedLines = utils.wrapTextToLines(bodyText or "", self.viewWidth, gfx.getSystemFont())
+    bodyText = table.concat(wrappedLines, "\n")
+
     local _, textHeight = gfx.getTextSizeForMaxWidth(bodyText, self.viewWidth)
-    local fullHeight = math.max(self.viewHeight, textHeight + 12)
-    self.maxScroll = math.max(0, fullHeight - self.viewHeight)
+    local drawY = 0
+    local drawHeight = self.viewHeight
 
-    -- Cache key for this entry + selected card so cached full-body matches current selection
-    local entryIdPart = tostring(self.entry.id or self.entry.date or tostring(self.entry))
-    local cacheKey = "diary_full_" .. entryIdPart .. "_sel_" .. tostring(self.selectedCardIndex or 0)
-
-    -- If the full rendered text fits under threshold, pre-render the whole text (using cache)
-    if fullHeight <= (self.fullBodyRenderThreshold or 800) then
-        local img = ImageCache.getOrCreate(cacheKey, function()
-            local created = gfx.image.new(self.viewWidth, fullHeight)
-            if created then
-                gfx.pushContext(created)
-                    gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-                    gfx.drawTextInRect(bodyText, 0, 0, self.viewWidth, fullHeight, nil, nil, kTextAlignment.center)
-                    gfx.setImageDrawMode(gfx.kDrawModeCopy)
-                gfx.popContext()
-                DebugStats.inc('fullImageCreates')
-            end
-            return created
-        end, { width = self.viewWidth, height = fullHeight })
-
-        self.fullBodyImage = img
-
-        if self.fullBodyImage then
-            if not self.fullBodySprite then
-                if self.bodySprite then self.bodySprite:remove() self.bodySprite = nil end
-                self.fullBodySprite = gfx.sprite.new(self.fullBodyImage)
-                self.fullBodySprite:setCenter(0, 0)
-                self.fullBodySprite:moveTo(self.viewX, self.viewY + 14 - self.scrollY)
-                self.fullBodySprite:setZIndex(100)
-                self.fullBodySprite:add()
-            else
-                -- ensure sprite shows current image (in case cache returned a new image for a different selection)
-                self.fullBodySprite:setImage(self.fullBodyImage)
-                self.fullBodySprite:moveTo(self.viewX, self.viewY + 14 - self.scrollY)
-                self.fullBodySprite:markDirty()
-            end
-        end
+    if self.selectedCardIndex == 0 then
+        local verticalPad = self.bodyVerticalPad or 12
+        local maxDrawHeight = self.viewHeight - (verticalPad * 2)
+        local paddedHeight = math.min(maxDrawHeight, textHeight + (verticalPad * 2))
+        drawY = math.floor((self.viewHeight - paddedHeight) / 2)
+        drawHeight = paddedHeight
     else
-        -- Tiled rendering for long entries: render only visible tiles and compose viewport
-        local tileHeight = self.tileHeight or 256
-        local startTile = math.floor(self.scrollY / tileHeight)
-        local endTile = math.floor((self.scrollY + self.viewHeight - 1) / tileHeight)
+        drawHeight = math.max(textHeight, 1)
+    end
 
-        -- remove any full-body sprite so viewport is visible
-        if self.fullBodySprite then
-            self.fullBodySprite:remove()
-            self.fullBodySprite = nil
-        end
+    gfx.pushContext(self.bodyImage)
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.fillRect(0, 0, self.viewWidth, self.viewHeight)
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+        gfx.drawTextInRect(bodyText, 0, drawY, self.viewWidth, drawHeight, nil, nil, kTextAlignment.center)
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    gfx.popContext()
 
-        if not self.bodyImage then
-            self.bodyImage = gfx.image.new(self.viewWidth, self.viewHeight)
-            if not self.bodyImage then return end
-        end
-
-        gfx.pushContext(self.bodyImage)
-            gfx.setImageDrawMode(gfx.kDrawModeCopy)
-            gfx.setColor(gfx.kColorBlack)
-            gfx.fillRect(0, 0, self.viewWidth, self.viewHeight)
-            -- draw visible tiles
-            for ti = startTile, endTile do
-                local tileKey = cacheKey .. "_tile_" .. tostring(ti)
-                local tileImg = ImageCache.getOrCreate(tileKey, function()
-                    local timg = gfx.image.new(self.viewWidth, tileHeight)
-                    if timg then
-                        gfx.pushContext(timg)
-                            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-                            gfx.drawTextInRect(bodyText, 0, - (ti * tileHeight), self.viewWidth, fullHeight, nil, nil, kTextAlignment.center)
-                            gfx.setImageDrawMode(gfx.kDrawModeCopy)
-                        gfx.popContext()
-                        DebugStats.inc('tileCreates')
-                    end
-                    return timg
-                end, { width = self.viewWidth, height = tileHeight })
-
-                if tileImg then
-                    local drawY = (ti * tileHeight) - self.scrollY
-                    tileImg:draw(0, drawY)
-                end
-            end
-        gfx.popContext()
-
-        if not self.bodySprite then
-            self.bodySprite = gfx.sprite.new(self.bodyImage)
-            self.bodySprite:setCenter(0, 0)
-            self.bodySprite:moveTo(self.viewX, self.viewY + 14)
-            self.bodySprite:setZIndex(100)
-            self.bodySprite:add()
-        else
-            self.bodySprite:setImage(self.bodyImage)
-            self.bodySprite:markDirty()
-        end
-        DebugStats.inc('viewportRenders')
+    if not self.bodySprite then
+        self.bodySprite = gfx.sprite.new(self.bodyImage)
+        self.bodySprite:setCenter(0, 0)
+        self.bodySprite:moveTo(self.viewX, self.viewY + 14)
+        self.bodySprite:setZIndex(100)
+        self.bodySprite:add()
+    else
+        self.bodySprite:setImage(self.bodyImage)
+        self.bodySprite:markDirty()
     end
 
     self.lastBodyRenderTime = pd.getElapsedTime()
@@ -556,13 +558,17 @@ end
 
 function DiaryEntryScene:update()
     local crankTicks = pd.getCrankTicks(self.ticksPerRevolution)
-    if crankTicks ~= 0 and self.maxScroll > 0 then
-        local nextScroll = self.scrollY + (crankTicks * self.scrollStep)
-        local clampedScroll = math.max(0, math.min(nextScroll, self.maxScroll))
-        if clampedScroll ~= self.scrollY then
-            self.scrollY = clampedScroll
-            -- mark for re-render; throttle actual render to reduce churn
+    if crankTicks ~= 0 and self:getBodyPageCount() > 1 then
+        self.bodyCrankAccumulator = self.bodyCrankAccumulator + crankTicks
+
+        while math.abs(self.bodyCrankAccumulator) >= self.bodyTicksPerPage do
+            local direction = self.bodyCrankAccumulator > 0 and 1 or -1
+            if not self:stepBodyPage(direction) then
+                self.bodyCrankAccumulator = 0
+                break
+            end
             self.bodyNeedsRender = true
+            self.bodyCrankAccumulator = self.bodyCrankAccumulator - (direction * self.bodyTicksPerPage)
         end
 
         self.lastCrankTime = pd.getElapsedTime()
@@ -573,9 +579,8 @@ function DiaryEntryScene:update()
         end
     end
 
-    -- Throttle body render: only redraw if enough time passed
-    if self.bodyNeedsRender and (pd.getElapsedTime() - (self.lastBodyRenderTime or 0) > 0.04) then
-        self:renderBody()
+    if self.bodyNeedsRender and (pd.getElapsedTime() - (self.lastBodyRenderTime or 0) > self.bodyRenderThrottle) then
+        self:renderBody(false)
     end
 
     if self.crankSoundPlaying and pd.getElapsedTime() - self.lastCrankTime > 0.1 then
@@ -588,8 +593,7 @@ function DiaryEntryScene:update()
         local navigationCount = self:getNavigationCount()
         if navigationCount > 0 then
             self.selectedCardIndex = (self.selectedCardIndex - 1 + navigationCount) % navigationCount
-            self.scrollY = 0
-            self:renderBody()
+            self:renderBody(true)
             self:renderSelectedCard()
             self:animateArrowLeft()
         end
@@ -600,8 +604,7 @@ function DiaryEntryScene:update()
         local navigationCount = self:getNavigationCount()
         if navigationCount > 0 then
             self.selectedCardIndex = (self.selectedCardIndex + 1) % navigationCount
-            self.scrollY = 0
-            self:renderBody()
+            self:renderBody(true)
             self:renderSelectedCard()
             self:animateArrowRight()
         end
@@ -652,6 +655,4 @@ function DiaryEntryScene:deinit()
     self.imagetable = nil
         self.bgImage = nil
         self.bodyImage = nil
-        if self.fullBodySprite then self.fullBodySprite:remove() self.fullBodySprite = nil end
-        self.fullBodyImage = nil
 end

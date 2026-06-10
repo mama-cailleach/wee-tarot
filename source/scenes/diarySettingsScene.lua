@@ -182,6 +182,7 @@ function DiarySettingsScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonUp) then
+        Sound.playABut()
         if self.selectedMenuIndex > 1 then
             self.selectedMenuIndex = self.selectedMenuIndex - 1
             self:updateSelectorPosition()
@@ -189,6 +190,7 @@ function DiarySettingsScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonDown) then
+        Sound.playABut()
         if self.selectedMenuIndex < #self.menuOptions then
             self.selectedMenuIndex = self.selectedMenuIndex + 1
             self:updateSelectorPosition()
@@ -208,6 +210,7 @@ function DiarySettingsScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
+        Sound.playSFX("b_button")
         self:goBack()
     end
 
