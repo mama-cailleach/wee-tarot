@@ -113,13 +113,13 @@ function pd.update()
     if not bootComplete then
         GameAssets.advancePreload()
         if not GameAssets.isPreloadComplete() then
-            pd.drawFPS(380, 5)
+            --pd.drawFPS(380, 5)
             return
         end
         DiaryStore.warmCache()
         finishBootAndStartTitle()
     end
 
-    pd.drawFPS(380, 5)
+    --pd.drawFPS(380, 5)
 
 end

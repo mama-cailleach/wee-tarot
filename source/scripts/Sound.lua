@@ -423,6 +423,7 @@ function Sound.fadeMusicOut(durationMs)
         musicFadeTimer = nil
         player:setVolume(0)
     end
+    -- sfx.hahahaha:play(1)  -- If want to have the laguh with fade
 
     return true
 end

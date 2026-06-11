@@ -119,13 +119,13 @@ function OneCardPostScene:update()
     end
 
     if self.canButton and pd.buttonJustPressed(pd.kButtonA) then
-        Sound.playABut()
         self.aPress += 1
 
         if self.scrollOffset < self.maxScroll then
             self.scrollOffset += 1
             self:showTextWindow()
         else
+            Sound.playABut()
             self:finishReading()
         end
     end
