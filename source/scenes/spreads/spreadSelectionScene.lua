@@ -15,11 +15,13 @@ function SpreadSelectionScene:init()
 
     local selectorImage = GameAssets.getIconTriSmolImage()
     self.selectorSprite = gfx.sprite.new(selectorImage)
+    self.selectorSprite:setRotation(270)
     self.selectorSprite:moveTo(120, 92)
     self.selectorSprite:add()
 
     self.selectorSpriteRight = gfx.sprite.new(selectorImage)
     self.selectorSpriteRight:setImageFlip(gfx.kImageFlippedX)
+    self.selectorSpriteRight:setRotation(270)
     self.selectorSpriteRight:moveTo(280, 92)
     self.selectorSpriteRight:add()
 
@@ -200,6 +202,16 @@ function SpreadSelectionScene:confirmSelection()
     end
 end
 
+
+function SpreadSelectionScene:blinkButton(image)
+    image:setImageDrawMode(gfx.kDrawModeInverted)
+
+    pd.timer.performAfterDelay(69, function ()
+        image:setImageDrawMode(gfx.kDrawModeCopy)
+    end)
+
+end
+
 function SpreadSelectionScene:update()
     if pd.buttonJustPressed(pd.kButtonDown) then
         Sound.playABut()
@@ -219,6 +231,7 @@ function SpreadSelectionScene:update()
 
     if self.selectedRow == 1 or self.selectedRow == 2 then
         if pd.buttonJustPressed(pd.kButtonRight) then
+            self:blinkButton(self.selectorSpriteRight)
             Sound.playABut()
             if self.selectedRow == 1 then
                 self:cycleSpreadOption(1)
@@ -226,6 +239,7 @@ function SpreadSelectionScene:update()
                 self:cycleDeckOption(1)
             end
         elseif pd.buttonJustPressed(pd.kButtonLeft) then
+            self:blinkButton(self.selectorSprite)
             Sound.playABut()
             if self.selectedRow == 1 then
                 self:cycleSpreadOption(-1)
@@ -236,6 +250,8 @@ function SpreadSelectionScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonA) then
+        self:blinkButton(self.selectorSpriteRight)
+        self:blinkButton(self.selectorSprite)
         Sound.playABut()
         if self.selectedRow == 1 then
             self:cycleSpreadOption(1)

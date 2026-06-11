@@ -79,6 +79,26 @@ function AfterDialogueScene:makeButtonSprite(letter, x, y, radius)
     return sprite
 end
 
+
+function AfterDialogueScene:makeInvertedButtonSprite(letter, x, y, radius)
+    local r = radius or 16
+    local img = gfx.image.new(r * 2, r * 2)
+    gfx.pushContext(img)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.fillCircleAtPoint(r, r, r)
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+        gfx.setLineWidth(2)
+        gfx.drawCircleAtPoint(r, r, r)
+        local font = gfx.getSystemFont()
+        local w, h = gfx.getTextSize(letter, font)
+        gfx.drawTextAligned(letter, r - w / 2, r - h / 2, kTextAlignment.left)
+    gfx.popContext()
+    local sprite = gfx.sprite.new(img)
+    sprite:moveTo(x, y)
+    sprite:add()
+    return sprite
+end
+
 function AfterDialogueScene:optionsText()
     gfx.setImageDrawMode(gfx.kDrawModeInverted)
     if self.settingsText then self.settingsText:remove() end
@@ -119,6 +139,17 @@ function AfterDialogueScene:loadGameAnimation()
     end
 end
 
+
+
+function AfterDialogueScene:blinkButton(button)
+    button:setImageDrawMode(gfx.kDrawModeInverted)
+
+    pd.timer.performAfterDelay(69, function ()
+        button:setImageDrawMode(gfx.kDrawModeCopy)
+    end)
+
+end
+
 function AfterDialogueScene:update()
     if self.awaitingOptionsSetup and not SCENE_MANAGER.transitioning then
         self.awaitingOptionsSetup = false
@@ -128,16 +159,19 @@ function AfterDialogueScene:update()
     -- Hub controls (keep in sync with MenuScene:update when optionsTextOn).
     if self.optionsTextOn then
         if pd.buttonJustPressed(pd.kButtonUp) then
+            self:blinkButton(self.settingsButton)
             Sound.playABut()
             Sound.playSFX("cards_fast2")
             SCENE_MANAGER:switchScene(SettingsScene)
         end
         if pd.buttonJustPressed(pd.kButtonA) then
+            self:blinkButton(self.interactButton)
             self:loadGameAnimation()
             Sound.playSFX("cards_fast2")
             self.dinahSprite:changeState("transition")
         end
         if pd.buttonJustPressed(pd.kButtonB) then
+            self:blinkButton(self.diaryButton)
             Sound.playABut()
             Sound.playSFX("cards_fast2")
             SCENE_MANAGER:switchScene(DiaryScene)

@@ -8,6 +8,7 @@ local MAX_NAME_LENGTH <const> = 16
 local DEFAULT_DATE_DISPLAY_REVERSED <const> = false
 local DEFAULT_ENTRIES_LIST_DESCENDING <const> = false
 local DEFAULT_SOUND_MODE <const> = 1
+local DEFAULT_SFX_ENABLED <const> = true
 
 local function readProfile()
     local stored = pd.datastore.read(DATASTORE_PATH)
@@ -59,6 +60,14 @@ local function sanitizeSoundMode(value)
     end
 
     return numeric
+end
+
+local function sanitizeSfxEnabled(value)
+    if value == nil then
+        return DEFAULT_SFX_ENABLED
+    end
+
+    return value ~= false
 end
 
 function PlayerProfileStore.getName()
@@ -127,6 +136,22 @@ function PlayerProfileStore.setSoundMode(value)
     profile.soundMode = sanitizeSoundMode(value)
     writeProfile(profile)
     return profile.soundMode
+end
+
+function PlayerProfileStore.getSfxEnabled()
+    local profile = readProfile()
+    return sanitizeSfxEnabled(profile.sfxEnabled)
+end
+
+function PlayerProfileStore.setSfxEnabled(value)
+    local profile = readProfile()
+    profile.name = sanitizeName(profile.name)
+    profile.dateDisplayReversed = sanitizeDateDisplayReversed(profile.dateDisplayReversed)
+    profile.entriesListDescending = sanitizeEntriesListDescending(profile.entriesListDescending)
+    profile.soundMode = sanitizeSoundMode(profile.soundMode)
+    profile.sfxEnabled = sanitizeSfxEnabled(value)
+    writeProfile(profile)
+    return profile.sfxEnabled
 end
 
 function PlayerProfileStore.formatDiaryDate(date)

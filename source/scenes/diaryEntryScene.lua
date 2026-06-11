@@ -306,6 +306,7 @@ function DiaryEntryScene:buildCardDetailIdentityPageText(detail)
     table.insert(lines, "")
     table.insert(lines, cardName)
     table.insert(lines, orientation)
+    table.insert(lines, "ºººººººº")
 
     return table.concat(lines, "\n")
 end
@@ -319,7 +320,7 @@ function DiaryEntryScene:buildCardDetailWhispersPageText(detail)
 
     if type(detail.themes) == "table" and #detail.themes > 0 then
         table.insert(lines, "The Whispers:")
-        table.insert(lines, table.concat(detail.themes, " × ") .. " × ")
+        table.insert(lines, table.concat(detail.themes, "\n") .. " ")
     end
     table.insert(lines, "ºººººººº")
 
@@ -539,12 +540,14 @@ function DiaryEntryScene:renderBody(resetPage)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
     gfx.popContext()
 
+    local bodySpriteY = self.viewY + 6
     if not self.bodySprite then
         self.bodySprite = gfx.sprite.new(self.bodyImage)
         self.bodySprite:setCenter(0, 0)
-        self.bodySprite:moveTo(self.viewX, self.viewY + 14)
+        self.bodySprite:moveTo(self.viewX, bodySpriteY)
         self.bodySprite:setZIndex(100)
         self.bodySprite:add()
+        print(self.bodySprite.y)
     else
         self.bodySprite:setImage(self.bodyImage)
         self.bodySprite:markDirty()

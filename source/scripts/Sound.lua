@@ -47,6 +47,19 @@ local music = {}
 local ambience = {}
 local sfx = {}
 local soundMode = DEFAULTS.soundMode
+local sfxEnabled = true
+
+local function getDefaultSfxVolume(name)
+    return DEFAULTS.sfxVolume[name] or 1.0
+end
+
+local function applySfxVolumes()
+    for name, player in pairs(sfx) do
+        if player then
+            player:setVolume(sfxEnabled and getDefaultSfxVolume(name) or 0)
+        end
+    end
+end
 
 local function clampSoundMode(mode)
     local numeric = tonumber(mode)
@@ -171,6 +184,11 @@ function Sound.init(initialSoundMode)
 
 
     Sound.setSoundMode(initialSoundMode)
+
+    if PlayerProfileStore and PlayerProfileStore.getSfxEnabled then
+        sfxEnabled = PlayerProfileStore.getSfxEnabled()
+    end
+    applySfxVolumes()
 end
 
 function Sound.playSFX(name)
@@ -308,6 +326,21 @@ end
 
 function Sound.getSoundMode()
     return soundMode
+end
+
+function Sound.setSfxEnabled(enabled)
+    sfxEnabled = enabled ~= false
+    applySfxVolumes()
+
+    if PlayerProfileStore and PlayerProfileStore.setSfxEnabled then
+        PlayerProfileStore.setSfxEnabled(sfxEnabled)
+    end
+
+    return sfxEnabled
+end
+
+function Sound.getSfxEnabled()
+    return sfxEnabled
 end
 
 function Sound.stopAll()

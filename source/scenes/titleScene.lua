@@ -126,57 +126,20 @@ end
 
 
 
--- Side Menu stuff NOT IN USE ATM
+-- Side Menu stuff NOT IN USE ATM Building from main.lua
 
 function TitleScene:sideMenuCreate()
 -- MENU only 3 allowed
 
 local systemMenu = pd.getSystemMenu()
-    --not really working??? maybe dont do on menu?
-    systemMenu:addOptionsMenuItem("Deck", {"Major", "Full"}, "Full", function(flag)
-    if flag == "Full" then
-        selectedDeck = "full"
-    elseif flag== "Major" then
-        selectedDeck = "major"
-    end
-    end)
 
---[[ Menu????
-    systemMenu:addOptionsMenuItem("spread size", {"1", "2", "3"}, "1", function(spread)
-    if spread == "1" then
-        -- 1 card spread
-    elseif spread == "2" then
-        -- 2 card spread
-    elseif spread == "3" then
-        -- 3 card spread
-    end
-    end)
-    systemMenu:addOptionsMenuItem("reader", {"EN", "PTBR", "SCOT", "GAID"}, "EN", function(lang)
-    if lang == "EN" then
-            -- English
-    elseif lang == "PTBR" then
-            -- ptbr
-    elseif lang == "SCOT" then
-            -- scots
-    elseif lang == "GAID" then
-        -- gàidhligh
-    end
-    end)
-    systemMenu:addCheckmarkMenuItem("SFX", true, function(flag)
-    if flag then
-        --[[ 
-        SFX ON & OFF LOGIC || TO DO!!!
+systemMenu:removeAllMenuItems()
 
-        if not SFX:getVolume() == 0 then
-            SFX:setVolume(1)
-        end
-    else
-        SFX:setVolume(0)
 
-    
-    end
-    end)
-    ]]
+systemMenu:addMenuItem("Reset to Title", function()
+    SCENE_MANAGER:switchScene(TitleScene)
+end)
+
 end
 
 
@@ -185,7 +148,7 @@ end
 
 -- EXAMPLE FOR SWITCH SCENE / ADD MENU ITEM
 --[[
-
+local menu = pd.getSystemMenu()
 systemMenu:addMenuItem("Switch", function()
     SCENE_MANAGER:switchScene(NewScene)
 end)

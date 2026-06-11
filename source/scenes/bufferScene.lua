@@ -6,9 +6,9 @@ import "data/save/diaryStore"
 -- Diary flush + browser prewarm happen here (spread across frames), not on the hub.
 class('BufferScene').extends(gfx.sprite)
 
-local MIN_HOLD_MS <const> = 4000
+local MIN_HOLD_MS <const> = 3500
 
-local WORK_DELAYS_MS <const> = { 500, 1000, 1500, 2000, 3000 }
+local WORK_DELAYS_MS <const> = { 500, 1000, 1500, 2000, 2500 }
 
 function BufferScene:init()
     BufferScene.super.init(self)
@@ -32,15 +32,27 @@ function BufferScene:init()
 
     self.exitTimer = pd.timer.performAfterDelay(MIN_HOLD_MS, function()
         self.exitTimer = nil
+        Sound.playMusic(0)
+        Sound.playAmbience()
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end)
 
     self:add()
 end
 
+function BufferScene:soundOff()
+
+    Sound.stopAll()
+    Sound.playSFX("hahahaha")
+    
+end
+
+
+
 function BufferScene:scheduleDiaryWork()
     self:clearWorkTimers()
-    Sound.playSFX("hahahaha")
+    
+    self:soundOff()
 
     table.insert(self.workTimers, pd.timer.performAfterDelay(WORK_DELAYS_MS[1], function()
         DiaryStore.getBrowserData(false)

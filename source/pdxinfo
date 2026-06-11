@@ -1,7 +1,7 @@
-name=Wee Tarot
+name=Wee Tarot GIGF 26
 author=mama
 description=A wee tarot pull for curious souls, skeptical minds, and the mildly cursed.
-bundleID=com.mama.weetarot
+bundleID=com.mama.weetarotgigf26
 version=1.0.0
 buildNumber=1
 imagePath=SystemAssets/

@@ -209,6 +209,7 @@ function GameScene:startDeckLayingIntro()
     self.deckLayingSprite:moveTo(205, 120)
     self.deckLayingSprite:add()
     self.deckLayingSprite:playAnimation()
+    Sound.playSFX("cards2_slow")
 end
 
 function GameScene:setupCardExplodeIntro()
@@ -234,6 +235,7 @@ function GameScene:setupCardExplodeIntro()
     self.explodeDeckAnimSprite:moveTo(207, 132)
     self.explodeDeckAnimSprite:add()
     self.explodeDeckAnimSprite:playAnimation()
+    Sound.playSFX("cards2_fast2")
 end
 
 

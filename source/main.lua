@@ -58,12 +58,19 @@ gfx.setFont(myFont)
 local bootComplete = false
 local loadingSprite = nil
 
+
+local function setupExpoSystemMenu()
+    local systemMenu = pd.getSystemMenu()
+    --systemMenu:removeAllMenuItems()
+    systemMenu:addMenuItem("Reset to Title", function()
+        SCENE_MANAGER:switchScene(TitleScene)
+    end)
+end
+
 local function finishBootAndStartTitle()
-    if loadingSprite then
-        loadingSprite:remove()
-        loadingSprite = nil
-    end
     bootComplete = true
+    setupExpoSystemMenu()
+    -- Keep launch image visible under the fade-in; SceneManager:cleanupScene() removes it at full black.
     SCENE_MANAGER:switchScene(TitleScene)
 end
 
@@ -72,6 +79,7 @@ local function beginBoot()
     loadingSprite = gfx.sprite.new(loading)
     loadingSprite:moveTo(200, 120)
     loadingSprite:add()
+    
     GameAssets.beginPreload()
 end
 

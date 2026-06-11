@@ -332,6 +332,7 @@ function BaseSpreadGameScene:startDeckLayingIntro()
     self.deckLayingSprite:moveTo(205, 120)
     self.deckLayingSprite:add()
     self.deckLayingSprite:playAnimation()
+    Sound.playSFX("cards2_slow")
 end
 
 function BaseSpreadGameScene:setupCardExplodeIntro()
@@ -357,6 +358,7 @@ function BaseSpreadGameScene:setupCardExplodeIntro()
     self.explodeAnimSprite:moveTo(207, 132)
     self.explodeAnimSprite:add()
     self.explodeAnimSprite:playAnimation()
+    Sound.playSFX("cards2_fast2")
 end
 
 function BaseSpreadGameScene:clearShufflePrompts()
