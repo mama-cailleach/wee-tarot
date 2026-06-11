@@ -1075,7 +1075,6 @@ function DiaryEntriesListScene:update()
         if pd.buttonJustPressed(pd.kButtonA) then
             if self.selectedYearIndex == #self.browserData.years + 1 then
                 Sound.playSFX("page")
-                Sound.playSFX("cards_slow2")
                 SCENE_MANAGER:switchScene(DiarySettingsScene, "diary", self:buildReturnState())
             elseif self:isLockAndLeaveSelected() then
                 self:leaveDiary()
@@ -1122,7 +1121,7 @@ function DiaryEntriesListScene:update()
         if pd.buttonJustPressed(pd.kButtonA) then
             if #monthRows > 0 then
                 Sound.playSFX("page")
-                Sound.playSFX("cards_slow2")
+                --Sound.playSFX("cards_slow2")
                 self:openCurrentEntry()
             end
         end

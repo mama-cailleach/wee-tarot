@@ -29,18 +29,17 @@ local DEFAULTS = {
         a_but8 = 0.5,
         a_but9 = 0.5,
         a_but10 = 0.5,
-        b_button = 0.8,
+        b_button = 0.6,
         pad_a = 1.0,
         pad_b = 1.0,
         witchpad = 1.0,
         docking = 1.0,
         locking = 0.7,
-        unlocking = 0.6,
+        unlocking = 0.65,
         undocking = 0.9,
-        hahahaha = 1.0,
-        page = 1.0,
-        page2 = 1.0,
-        page3 = 1.0
+        hahahaha = 0.9,
+        page = 0.75,
+        page2 = 1.0
     }
 }
 
@@ -178,13 +177,11 @@ function Sound.init(initialSoundMode)
 
     sfx.undocking = pd.sound.sampleplayer.new("sound/undocking4")
 
-    sfx.hahahaha = pd.sound.sampleplayer.new("sound/hahahaha1")
+    sfx.hahahaha = pd.sound.sampleplayer.new("sound/hahahaha2")
 
-    sfx.page = pd.sound.sampleplayer.new("sound/page1-2")
+    sfx.page = pd.sound.sampleplayer.new("sound/page3-3")
 
-    sfx.page2 = pd.sound.sampleplayer.new("sound/page2-2")
-
-    sfx.page3 = pd.sound.sampleplayer.new("sound/page3-2")
+    sfx.page2 = pd.sound.sampleplayer.new("sound/page2-3")
 
 
     Sound.setSoundMode(initialSoundMode)
