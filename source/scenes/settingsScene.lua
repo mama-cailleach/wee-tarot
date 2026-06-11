@@ -30,41 +30,89 @@ function SettingsScene:init()
     self.topY = 70
     self.step = 35
     self.bottomY = self.topY + 3 * self.step
+    self.backY = 212
 
     self:addButton("How To", self.buttonX, self.topY)
-    self:addButton("Sound", self.buttonX, self.topY + self.step)
+    self:addButton("Sounds", self.buttonX, self.topY + self.step)
     self:addButton("Credits", self.buttonX, self.bottomY - self.step)
-    self:addButton("Back", self.buttonX, self.bottomY)
+    self:addButton("haha", self.buttonX, self.bottomY)
+    self:addButton("Back", self.buttonX, self.backY)
 
     self.options = {
-        {text = "How To", y = self.topY},
-        {text = "Sound", y = self.topY + self.step},
-        {text = "Credits", y = self.bottomY - self.step},
-        {text = "Back", y = self.bottomY}
+        {text = "How To", y = self.topY, key = "how_to"},
+        {text = "Sounds", y = self.topY + self.step, key = "sound"},
+        {text = "Credits", y = self.bottomY - self.step, key = "credits"},
+        {text = "haha", y = self.bottomY, key = "hahahaha"},
+        {text = "Back", y = self.backY, key = "back"}
     }
     self.selectedIndex = 1
+
+    self:updateSelectorPosition()
 
     self:add()
 end
 
+function SettingsScene:updateSelectorPosition()
+    local currentOption = self.options[self.selectedIndex]
+    local textWidth = gfx.getTextSize(currentOption.text)
+    local offset = 18
+    self.selectorSprite:moveTo(self.selectorX - textWidth / 2 - offset, currentOption.y)
+end
 
-function SettingsScene:update()
-    if pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.bottomY then
-        Sound.playABut()
-        Sound.playSFX("cards_slow2")
-        SCENE_MANAGER:switchScene(AfterDialogueScene)
-    elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY then
-        Sound.playABut()
+function SettingsScene:confirmSelection()
+    local option = self.options[self.selectedIndex]
+
+    if option.key == "how_to" then
         Sound.playSFX("cards_slow2")
         SCENE_MANAGER:switchScene(HowToMenuScene)
-    elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.bottomY - self.step then
-        Sound.playABut()
-        Sound.playSFX("cards_slow2")
-        SCENE_MANAGER:switchScene(CreditsScene)
-    elseif pd.buttonJustPressed(pd.kButtonA) and self.selectorSprite.y == self.topY + self.step then
-        Sound.playABut()
+        return
+    end
+
+    if option.key == "sound" then
         Sound.playSFX("cards_slow2")
         SCENE_MANAGER:switchScene(SoundSettingsScene)
+        return
+    end
+
+    if option.key == "credits" then
+        Sound.playSFX("cards_slow2")
+        SCENE_MANAGER:switchScene(CreditsScene)
+        return
+    end
+
+    if option.key == "hahahaha" then
+        Sound.playSFX("hahahaha")
+        return
+    end
+
+    if option.key == "back" then
+        Sound.playSFX("cards_slow2")
+        SCENE_MANAGER:switchScene(AfterDialogueScene)
+    end
+end
+
+function SettingsScene:update()
+    if pd.buttonJustPressed(pd.kButtonDown) then
+        Sound.playABut()
+        self.selectedIndex = self.selectedIndex + 1
+        if self.selectedIndex > #self.options then
+            self.selectedIndex = 1
+        end
+        self:updateSelectorPosition()
+    elseif pd.buttonJustPressed(pd.kButtonUp) then
+        Sound.playABut()
+        self.selectedIndex = self.selectedIndex - 1
+        if self.selectedIndex < 1 then
+            self.selectedIndex = #self.options
+        end
+        self:updateSelectorPosition()
+    end
+
+    if pd.buttonJustPressed(pd.kButtonA) then
+        if self.options[self.selectedIndex].key ~= "hahahaha" then
+            Sound.playABut()
+        end
+        self:confirmSelection()
     end
 
     if pd.buttonJustPressed(pd.kButtonB) then
@@ -72,32 +120,6 @@ function SettingsScene:update()
         Sound.playSFX("cards_slow")
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end
-
-
-    if pd.buttonJustPressed(pd.kButtonDown) then
-        Sound.playABut()
-        self.selectorSprite:moveBy(0, self.step)
-    elseif pd.buttonJustPressed(pd.kButtonUp) then  
-        Sound.playABut()
-        self.selectorSprite:moveBy(0, -self.step)
-        if self.selectorSprite.y < self.topY then
-            self.selectorSprite:moveTo(self.selectorX, self.bottomY)
-        end
-
-    end
-
-    local yToIndex = {
-        [self.topY] = 1,
-        [self.topY + self.step] = 2,
-        [self.bottomY - self.step] = 3,
-        [self.bottomY] = 4
-    }
-    self.selectedIndex = yToIndex[self.selectorSprite.y] or 1
-    local font = gfx.getSystemFont()
-    local currentOption = self.options[self.selectedIndex]
-    local textWidth = gfx.getTextSize(currentOption.text, font)
-    local offset = 18
-    self.selectorSprite:moveTo(self.selectorX - textWidth/2 - offset, currentOption.y)
 end
 
 function SettingsScene:textOut()

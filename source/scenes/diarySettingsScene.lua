@@ -167,7 +167,6 @@ function DiarySettingsScene:updateSelectorPosition()
 end
 
 function DiarySettingsScene:goBack()
-    Sound.playSFX("page")
     Sound.playSFX("cards_slow2")
 
     if self.source == "diary" then

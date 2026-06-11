@@ -193,11 +193,12 @@ function SoundSettingsScene:update()
     end
 
     if pd.buttonJustPressed(pd.kButtonA) then
-        self:blinkButton(self.selectorSprite)
         Sound.playABut()
         if self.selectedRow == 1 then
+            self:blinkButton(self.selectorSprite)
             self:cycleBgOption(1)
         elseif self.selectedRow == 2 then
+            self:blinkButton(self.selectorSprite)
             self:cycleSfxOption(1)
         else
             self:goBack()

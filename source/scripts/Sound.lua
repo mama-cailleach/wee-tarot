@@ -29,13 +29,14 @@ local DEFAULTS = {
         a_but8 = 0.5,
         a_but9 = 0.5,
         a_but10 = 0.5,
+        b_button = 0.8,
         pad_a = 1.0,
         pad_b = 1.0,
         witchpad = 1.0,
         docking = 1.0,
-        locking = 1.0,
-        unlocking = 1.0,
-        undocking = 1.0,
+        locking = 0.7,
+        unlocking = 0.6,
+        undocking = 0.9,
         hahahaha = 1.0,
         page = 1.0,
         page2 = 1.0,
@@ -48,6 +49,9 @@ local ambience = {}
 local sfx = {}
 local soundMode = DEFAULTS.soundMode
 local sfxEnabled = true
+local musicFadeTimer = nil
+
+local MUSIC_FADE_MS <const> = 500
 
 local function getDefaultSfxVolume(name)
     return DEFAULTS.sfxVolume[name] or 1.0
@@ -343,7 +347,30 @@ function Sound.getSfxEnabled()
     return sfxEnabled
 end
 
+local function cancelMusicFade()
+    if musicFadeTimer then
+        musicFadeTimer:remove()
+        musicFadeTimer = nil
+    end
+end
+
+local function getMusicTargetVolume()
+    if soundMode == 1 or soundMode == 2 then
+        return DEFAULTS.musicVolume
+    end
+
+    return 0
+end
+
+
+function Sound.isSFXPlaying(name)
+    local player = sfx[name]
+    return player ~= nil and player:isPlaying()
+end
+
 function Sound.stopAll()
+    cancelMusicFade()
+
     for _, player in pairs(music) do
         if player and player:isPlaying() then
             player:stop()
@@ -361,6 +388,79 @@ function Sound.stopAll()
             player:stop()
         end
     end
+end
+
+function Sound.stopAllExceptMusic()
+    for _, player in pairs(ambience) do
+        if player and player:isPlaying() then
+            player:stop()
+        end
+    end
+
+    for _, player in pairs(sfx) do
+        if player then
+            player:stop()
+        end
+    end
+end
+
+function Sound.fadeMusicOut(durationMs)
+    local player = music.bgMusic
+    if not player then
+        return false
+    end
+
+    local startVolume = player:getVolume() or 0
+    if startVolume <= 0 then
+        return false
+    end
+
+    cancelMusicFade()
+
+    durationMs = durationMs or MUSIC_FADE_MS
+    musicFadeTimer = pd.timer.new(durationMs, startVolume, 0, pd.easingFunctions.linear)
+    musicFadeTimer.updateCallback = function(timer)
+        player:setVolume(timer.value)
+    end
+    musicFadeTimer.timerEndedCallback = function()
+        musicFadeTimer = nil
+        player:setVolume(0)
+    end
+
+    return true
+end
+
+function Sound.restoreMusicVolume(durationMs)
+    cancelMusicFade()
+
+    local player = music.bgMusic
+    if not player then
+        return false
+    end
+
+    durationMs = durationMs or MUSIC_FADE_MS
+    local targetVolume = getMusicTargetVolume() or 0
+    local startVolume = player:getVolume() or 0
+    if startVolume >= targetVolume then
+        return true
+    end
+    musicFadeTimer = pd.timer.new(durationMs, startVolume, targetVolume, pd.easingFunctions.linear)
+    musicFadeTimer.updateCallback = function(timer)
+        player:setVolume(timer.value)
+    end
+    musicFadeTimer.timerEndedCallback = function()
+        musicFadeTimer = nil
+        player:setVolume(targetVolume)
+    end
+
+
+    return true
+end
+
+function Sound.prepareForBufferScene()
+    Sound.stopAllExceptMusic()
+    Sound.fadeMusicOut(MUSIC_FADE_MS)
+    print(MUSIC_FADE_MS)
 end
 
 return Sound

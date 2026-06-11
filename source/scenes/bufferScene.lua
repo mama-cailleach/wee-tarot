@@ -32,7 +32,7 @@ function BufferScene:init()
 
     self.exitTimer = pd.timer.performAfterDelay(MIN_HOLD_MS, function()
         self.exitTimer = nil
-        Sound.playMusic(0)
+        Sound.restoreMusicVolume()
         Sound.playAmbience()
         SCENE_MANAGER:switchScene(AfterDialogueScene)
     end)
@@ -41,10 +41,7 @@ function BufferScene:init()
 end
 
 function BufferScene:soundOff()
-
-    Sound.stopAll()
     Sound.playSFX("hahahaha")
-    
 end
 
 

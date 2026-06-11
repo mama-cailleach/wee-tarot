@@ -1096,32 +1096,31 @@ function DiaryEntriesListScene:update()
         local monthRows = self:buildMonthDayRows()
 
         if pd.buttonJustPressed(pd.kButtonLeft) and yearBucket and #yearBucket.months > 0 then
-            Sound.playSFX("page")
+            Sound.playSFX("page2")
             self:cycleMonth(-1)
         end
 
         if pd.buttonJustPressed(pd.kButtonRight) and yearBucket and #yearBucket.months > 0 then
-            Sound.playSFX("page")
+            Sound.playSFX("page2")
             self:cycleMonth(1)
         end
 
         if pd.buttonJustPressed(pd.kButtonDown) and #monthRows > 1 then
             if self:moveMonthDaySelection(1) then
-                Sound.playSFX("page2")
+                Sound.playABut()
                 self:renderCurrentMode(true)
             end
         end
 
         if pd.buttonJustPressed(pd.kButtonUp) and #monthRows > 1 then
             if self:moveMonthDaySelection(-1) then
-                Sound.playSFX("page2")
+                Sound.playABut()
                 self:renderCurrentMode(true)
             end
         end
 
         if pd.buttonJustPressed(pd.kButtonA) then
             if #monthRows > 0 then
-                Sound.playABut()
                 Sound.playSFX("page")
                 Sound.playSFX("cards_slow2")
                 self:openCurrentEntry()

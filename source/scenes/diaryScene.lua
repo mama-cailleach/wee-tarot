@@ -7,7 +7,9 @@ class('DiaryScene').extends(gfx.sprite)
 
 function DiaryScene:init()
     DiaryScene.super.init(self)
-    Sound.playSFX("pad_a")
+    if not Sound.isSFXPlaying("pad_a") then
+        Sound.playSFX("pad_a")
+    end
 
     self.buttonUppress = false
     self.lockStartTimer = nil

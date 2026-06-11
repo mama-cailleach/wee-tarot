@@ -1050,6 +1050,7 @@ end
 
 function BaseSpreadGameScene:finishReading()
     self:queueReadingToDiary()
+    Sound.prepareForBufferScene()
     SCENE_MANAGER:switchScene(BufferScene)
 end
 

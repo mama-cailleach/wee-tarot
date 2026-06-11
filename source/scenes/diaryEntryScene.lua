@@ -27,6 +27,10 @@ end
 function DiaryEntryScene:init(entry, returnState)
     DiaryEntryScene.super.init(self)
 
+    if not Sound.isSFXPlaying("pad_a") then
+        Sound.playSFX("pad_a")
+    end
+
     self.entry = entry or {}
     if type(returnState) == "table" then
         self.returnState = returnState

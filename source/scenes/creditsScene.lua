@@ -27,9 +27,10 @@ function CreditsScene:init()
     
     self.creditsText = "\n\nWEE TAROT \n\n\n" ..
                        "Game by\nmama \n\n" ..
-                       "Cards by\nSarah Seekins \n\n" ..
-                       "Sound by\nFilipe Miu \n\n" ..
-                       "Thanks!\nCler McCallum\nFilipe Miu\nVitor Fiacadori\nRaphaël Calabro\nPD Community\nMãe Dináh\n\n\n\n" ..
+                       "Pixel Tarot by\nSarah Seekins \n\n" ..
+                       "Sounds by\nFilipe Miu \n\n" ..
+                       "Font by\ngschaftlhuber \n\n" ..
+                       "Thanks!\nCler McCallum\nFilipe Miu\nVitor Fiacadori\nRaphaël Calabro\nGIGF\nPD Community\nMãe Dináh\nHighland Coos\n\n\n\n" ..
                        "xxx" ..
                         "\n\n"
 

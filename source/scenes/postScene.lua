@@ -206,6 +206,7 @@ function PostScene:update()
                 self.scrollBoxSprite:remove()
             end
             Sound.playABut()
+            Sound.prepareForBufferScene()
             SCENE_MANAGER:switchScene(BufferScene)
         end
     end

@@ -362,6 +362,7 @@ function BaseSpreadPostScene:finishReading()
 
     self:removeAButton()
 
+    Sound.prepareForBufferScene()
     SCENE_MANAGER:switchScene(BufferScene)
 
 end
