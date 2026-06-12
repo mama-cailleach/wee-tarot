@@ -222,8 +222,21 @@ function PostScene:update()
         if self.scrollBoxSprite then 
             self.scrollBoxSprite:remove() 
         end
-        -- Go back to the card view scene
-        SCENE_MANAGER:switchScene(CardViewScene, self.card, self.cardNumber, self.cardSuit, self.invert)
+        local themes = self.diaryCardThemes
+        if type(themes) ~= "table" or #themes == 0 then
+            themes = SpreadReadingData.pickKeywords(self.card, self.invert == true, 3)
+        end
+
+        SCENE_MANAGER:switchScene(CardViewScene, self.card, self.cardNumber, self.cardSuit, self.invert, "one_card", {
+            {
+                name = self.card,
+                number = self.cardNumber,
+                suit = self.cardSuit,
+                inverted = self.invert == true,
+                position = 1,
+                themes = themes
+            }
+        })
     end
 end
 

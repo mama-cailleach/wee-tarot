@@ -1,24 +1,9 @@
 import "data/cardDescriptions"
+import "data/spreadReadingData"
 
 OneCardReadingText = {}
 
 local ALL_CARD_DATA = CARD_DATA
-
-local function shuffleTable(tbl)
-    local n = #tbl
-    local shuffledCopy = {}
-    for i = 1, n do
-        table.insert(shuffledCopy, tbl[i])
-    end
-
-    while n > 1 do
-        local k = math.random(n)
-        shuffledCopy[n], shuffledCopy[k] = shuffledCopy[k], shuffledCopy[n]
-        n -= 1
-    end
-
-    return shuffledCopy
-end
 
 function OneCardReadingText.buildLines(cardName, isInverted)
     local cardInfo = ALL_CARD_DATA[cardName]
@@ -51,12 +36,7 @@ function OneCardReadingText.buildLines(cardName, isInverted)
         end
     end
 
-    local sourceKeywordsList
-    if isInverted and cardInfo.reversed_keywords then
-        sourceKeywordsList = cardInfo.reversed_keywords
-    elseif cardInfo.upright_keywords then
-        sourceKeywordsList = cardInfo.upright_keywords
-    end
+    local themes = SpreadReadingData.pickKeywords(cardName, isInverted == true, 3)
 
     local keywordIntroOptions = {
         "The spirits whisper... ",
@@ -70,18 +50,8 @@ function OneCardReadingText.buildLines(cardName, isInverted)
     }
     table.insert(lines, keywordIntroOptions[math.random(1, #keywordIntroOptions)])
 
-    local finalKeywordsToDisplay = {}
-    local numKeywordsToSelect = 3
-    if sourceKeywordsList and #sourceKeywordsList > 0 then
-        if #sourceKeywordsList <= numKeywordsToSelect then
-            finalKeywordsToDisplay = sourceKeywordsList
-        else
-            local shuffledList = shuffleTable(sourceKeywordsList)
-            for i = 1, numKeywordsToSelect do
-                table.insert(finalKeywordsToDisplay, shuffledList[i])
-            end
-        end
-        table.insert(lines, table.concat(finalKeywordsToDisplay, ", ") .. ".")
+    if type(themes) == "table" and #themes > 0 then
+        table.insert(lines, table.concat(themes, ", ") .. ".")
     end
 
     local fortuneLines
@@ -104,7 +74,7 @@ function OneCardReadingText.buildLines(cardName, isInverted)
     }
     table.insert(lines, lastLine[math.random(1, #lastLine)])
 
-    return lines
+    return lines, themes
 end
 
 return OneCardReadingText

@@ -33,8 +33,24 @@ function OneCardPostScene:ensureReadingTextBuilt()
 
     local cardName = self.cardNames[1]
     local isInverted = self.cardInverted[1] == true
-    self.dinahTextLines = OneCardReadingText.buildLines(cardName, isInverted)
+    local themes
+    self.dinahTextLines, themes = OneCardReadingText.buildLines(cardName, isInverted)
+    if type(themes) == "table" and #themes > 0 then
+        self.cardThemes = { themes }
+    end
     self.maxScroll = math.max(0, #self.dinahTextLines - 1)
+end
+
+function OneCardPostScene:ensureCardThemes()
+    if self.cardThemes then
+        return
+    end
+
+    self:ensureReadingTextBuilt()
+
+    if not self.cardThemes then
+        OneCardPostScene.super.ensureCardThemes(self)
+    end
 end
 
 function OneCardPostScene:onScrollBoxAnimationFinished()

@@ -105,6 +105,7 @@ function BaseSpreadGameScene:init(config, restoreState)
     self.confirmToMenu = restoreState and restoreState.confirmToMenu or false
     self.diaryEntrySaved = false
     self.diarySpreadKey = (restoreState and restoreState.spreadKey) or config.spreadKey or "unknown"
+    self.cardThemes = restoreState and restoreState.cardThemes or nil
 
     if restoreState then
         self.state = "fortune"
@@ -1024,13 +1025,18 @@ function BaseSpreadGameScene:buildDiaryCards()
 
     for index, cardName in ipairs(self.playerCards or {}) do
         local inverted = self.playerCardsInverted and self.playerCardsInverted[index] == true or false
+        local themes = self.cardThemes and self.cardThemes[index]
+        if type(themes) ~= "table" or #themes == 0 then
+            themes = SpreadReadingData.pickKeywords(cardName, inverted, 3)
+        end
+
         local cardEntry = {
             name = cardName,
             number = self.playerCardNumbers and self.playerCardNumbers[index] or nil,
             suit = self.playerCardSuits and self.playerCardSuits[index] or nil,
             inverted = inverted,
             position = index,
-            themes = SpreadReadingData.pickKeywords(cardName, inverted, 3)
+            themes = themes
         }
 
         table.insert(cards, cardEntry)

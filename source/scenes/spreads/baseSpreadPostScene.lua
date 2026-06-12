@@ -455,9 +455,11 @@ function BaseSpreadPostScene:goBackToSpreadView()
 
     self:removeAButton()
 
-
+    self:ensureReadingTextBuilt()
+    self:ensureCardThemes()
 
     local spreadKey = self.config.spreadKey or "unknown"
+    local diaryCards = self:buildDiaryCards()
 
     if spreadKey == "one_card" then
 
@@ -471,7 +473,9 @@ function BaseSpreadPostScene:goBackToSpreadView()
 
             self.cardInverted[1] == true,
 
-            spreadKey)
+            spreadKey,
+
+            diaryCards)
 
         return
 
@@ -492,6 +496,8 @@ function BaseSpreadPostScene:goBackToSpreadView()
         selectedCardIndex = self.selectedCardIndex,
 
         spreadKey = spreadKey,
+
+        cardThemes = self.cardThemes,
 
         confirmToMenu = true
 
